@@ -1,7 +1,4 @@
 import com.guardian.sheets.{Circle, Rectangle, Shape, Square, Triangle}
-import com.sun.javafx.fxml.builder.TriangleMeshBuilder
-
-import scala.util.Random
 
 val s: Option[String] = Some("Sunshine")
 val none: Option[String] = None
