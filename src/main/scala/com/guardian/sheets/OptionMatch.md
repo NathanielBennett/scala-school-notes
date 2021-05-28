@@ -48,7 +48,7 @@ There's a couple of things to note here:
 
 * `maybeString` can only ever be an object of type `Some[String]` or of `None` so the match is exhaustive. This is why the `sealed` keyword in the cod `Option` implementation matters
 * when we match an object of type `Some[String]` we know it will contain a value of type `String` and so we can use a placeholder `val` to reference the actual value: `stringValue`. This value remains in scope until the next `case` statement
-* The `=>` symbol is scala's waty of denoting an anonymous function. This is a very specialised instance of this. For each possible value that can be matched, we define an anonymous function that takes a value of that type as a parameter. There's no explicit return value here. Although we'll come to that later
+* The `=>` symbol is scala's way of denoting an anonymous function. This is a very specialised instance of this. For each possible type that can be matched, what we essentially do here is define an anonymous function that takes a value of that type as a parameter. There's no explicit return value here. Although we'll come to that later
 * Notice that the `match` block as a whole is a single statement so there's no need for additional braces around the method body. The last statement is always returned so the following is equivalent and you'll see this a lot in our codebfases
 
 
