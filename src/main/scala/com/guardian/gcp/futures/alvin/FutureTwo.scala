@@ -28,6 +28,7 @@ object FutureTwo extends App {
     case Failure(exception) => println(s"Error => ${exception.getStackTrace}")
   }
 
+  //Take away to watch it bail on jvmm compolete
   val res = Await.result(f, 1.second)
   println(s"Res $res")
 

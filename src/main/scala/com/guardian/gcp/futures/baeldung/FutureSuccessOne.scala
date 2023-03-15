@@ -6,7 +6,8 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-object FutureSuccessOne extends App {
+object
+FutureSuccessOne extends App {
 
   def magicNumber(sleep: Int = 300): Int = {
      println(s"Sleeping $sleep")
