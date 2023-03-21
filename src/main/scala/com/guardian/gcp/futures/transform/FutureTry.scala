@@ -21,7 +21,6 @@ object FutureTry extends App {
       case Failure(e) => println(s"Error ${e.getMessage}")
     }
 */
-/*
   val tfFMap = getAFutureInt(100).flatMap{ i => Future.successful(s"Future: $i")}
 
 
@@ -32,13 +31,11 @@ object FutureTry extends App {
     case Failure(exception)  => Try("exception")
   }
 
+
   val tfw  = getAFutureInt(1500).transformWith{
     case Success(s) => Future{s"Future : $s"}
     case Failure(exception) => Future{exception.getMessage}
   }
-*/
-
-
 
   Thread.sleep(2000)
 
