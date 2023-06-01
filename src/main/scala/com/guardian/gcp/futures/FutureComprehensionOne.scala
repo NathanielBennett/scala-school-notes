@@ -24,15 +24,21 @@ object FutureComprehensionOne extends App {
   val rateQuote = Future {
     connection.getCurrentValue("USD")
   }
+  println("Hello")
 
   for (quote <- rateQuote) {
     val purchase = Future {
       if (isProfitable(quote)) connection.buy(amount, quote)
       else throw new Exception("Not profitable")
     }
+    println("Hello 2")
 
-    for (amount <- purchase)
+    for (amount <- purchase) {
       println(s"Purchased: $amount  USD for $purchase  ")
+    }
+
+    Thread.sleep(2000)
+    println("Done")
   }
 
 
@@ -41,6 +47,3 @@ object FutureComprehensionOne extends App {
 
 
 
-
-
-}

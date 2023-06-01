@@ -14,6 +14,7 @@ object FutureTry extends App {
   }
 
   val tfMap = getAFutureInt(-100)
+
     .map{ i => s"Future: $i" }
 /*
     .onComplete{
