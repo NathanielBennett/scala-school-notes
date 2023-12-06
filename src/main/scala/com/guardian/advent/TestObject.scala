@@ -7,68 +7,48 @@ import scala.util.Try
 
 object TestObject extends App {
 
-  import scala.io.Source
-  import scala.util.Try
+  val input = Source.fromFile(s"${System.getProperty("user.home")}/advent2023/day3test.txt").getLines().toList
+  case class EnginePart(char: Char, yPos: Int, xPos: Int) {
 
-  case class Bag(redCubeCount: Int, greenCubeCount: Int, blueCubeCount: Int)
-  case class Round(redCubeCount: Int, greenCubeCount: Int, blueCubeCount: Int) {
-    def playable(bag: Bag): Boolean
-    = bag.redCubeCount <= this.redCubeCount && bag.greenCubeCount <= this.greenCubeCount && bag.blueCubeCount <= this.blueCubeCount
-
-    override def toString: String = s"Reds ${redCubeCount} Blue: $blueCubeCount Green: $greenCubeCount"
   }
 
 
-  object Round{
-
-    def apply(cubes: Map[String, Int]) : Round = {
-      Round(
-        redCubeCount = cubes.getOrElse("red", 0),
-        greenCubeCount = cubes.getOrElse("green", 0),
-        blueCubeCount = cubes.getOrElse("blue", 0),
-      )
-    }
+  val allEngineParts = input.zipWithIndex.flatMap {
+    case (line, yPos) => line.zipWithIndex.map { case (char, xPos) => EnginePart(char, yPos, xPos) }
   }
 
-  case class Game(rounds: List[Round]) {
-    def possible(bag: Bag): Boolean = rounds.forall{
-      r => r.playable(bag
-    }
-  }
-
-  def parseGame(gamesString: String): Game = {
-
-    val cubeR = """^(\d+)\s(\w+)""".r
-
-    val gameString = gamesString.split(":").toList
-    val rounds = (for {
-      round <- gameString.reverse.head.split(";").toList.zipWithIndex.toList
-      cube <- round._1.split(",").toList.map(c => (round._2 + 1, c))
-    } yield cube)
-      .groupBy { case (round, _) => round }
-      .map { case (_, cubes) => cubes.map(_._2.trim) }.toList
-      .flatMap { cubes =>
-        val cubeMap = Try {
-          cubes.map { cube =>
-            val cubeR(number, colour) = cube
-            (colour, number.toInt)
-          }
-        }
-        cubeMap.toOption
+  def getAllNumbers(engineParts: List[EnginePart],
+                    currentNumber: List[EnginePart] = List.empty,
+                    acc: List[List[EnginePart]] = List.empty): List[List[EnginePart]] = engineParts match {
+    case Nil => acc
+    case head :: tail => head.char.isDigit match {
+      case true => getAllNumbers(tail, currentNumber ::: List(head), acc)
+      case false => currentNumber match {
+        case List() => getAllNumbers(tail, currentNumber, acc)
+        case _ => getAllNumbers(tail, List.empty, acc ::: List(currentNumber) )
       }
-      .map { case l => Round(l.toMap) }
-    Game(rounds)
+    }
   }
 
-  val bag = Bag(redCubeCount = 12, greenCubeCount = 13, blueCubeCount = 14)
-  val g = parseGame("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red")
-  val g23 = parseGame("1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue")
-  g.possible(bag)
-  g23.possible(bag)
-  /*
-  Source.fromFile(s"${System.getProperty("user.home")}/advent2023/day2test.txt").getLines().toList
-   .zipWithIndex
-   .toList
-   .map { case(line, index) => (index + 1, parseGame(line))}
-  //  .filter{ case(_, game) =>game.possible(bag) }*/
+  def getNeighbours(enginePartNumber: List[EnginePart] ): List[EnginePart] = {
+    val minX = enginePartNumber.minBy(_.xPos).xPos - 1
+    val maxX = enginePartNumber.maxBy(_.xPos).xPos + 1
+    val yPos = enginePartNumber.head.yPos
+    def isXneighbour(enginePart: EnginePart): Boolean =
+      enginePart.yPos == yPos && (enginePart.xPos == minX || enginePart.xPos == maxX)
+    def isYNeighbour(enginePart: EnginePart, yPosToCheck: Int): Boolean =
+      enginePart.yPos == yPosToCheck && (enginePart.xPos >= minX && enginePart.xPos <= maxX)
+
+    //allEngineParts.filter{ part => part.yPos == yPos || part.yPos == yPos -1 || part.yPos == yPos + 1}
+    allEngineParts.filter{ part =>
+
+      isXneighbour(part) ||
+        isYNeighbour(part, yPos - 1) || isYNeighbour(part, yPos + 1)  }
+
+  }
+
+  val allNumbers = getAllNumbers(allEngineParts)
+  val testa = getNeighbours(allNumbers(0))
+
+
 }
