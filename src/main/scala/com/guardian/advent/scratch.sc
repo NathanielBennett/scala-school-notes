@@ -1,4 +1,6 @@
-val s = new StringBuilder
+import scala.util.Try
 
-val d = "abcde".toList.foldLeft(new StringBuilder){ case(sb, c) => sb.append(c)}
-d.toString
+val l = List(1,2, 3)
+Try{ l match {
+  case List(x, y) => (x,y)
+}}.toOption

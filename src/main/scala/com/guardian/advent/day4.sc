@@ -5,7 +5,7 @@ implicit class RichBoolean(val b: Boolean) extends AnyVal {
   final def option[A](a: => A): Option[A] = if (b) Some(a) else None
 }
 
-val input = Source.fromFile(s"${System.getProperty("user.home")}/advent2023/day3test.txt").getLines().toList
+val input = Source.fromFile(s"${System.getProperty("user.home")}/advent2023/day3.txt").getLines().toList
 case class EnginePart(char: Char, yPos: Int, xPos: Int) {
 
 }
@@ -47,38 +47,34 @@ def isValidNumber(enginePartNumber: List[EnginePart] ): Boolean = {
   neighbours(enginePartNumber).find(part => part.char != '.').isDefined
 }
 
-/*
-def isNeighbouring(asterist: EnginePart, engineParts: List[List[EnginePart]]): List[(EnginePart, List[EnginePart])] = {
-  engineParts.flatMap { parts =>
-    neighbours(parts).contains(asterist).option(_ => Some(asterist, engineParts))
-  }
-}
-*/
-//val hasNumberAdjacent(asterisk: EnginePart)
+
+def enginePartsToMayBeInt(engineParts: List[EnginePart]): Option[Int] = Try {
+  engineParts.foldLeft(new StringBuilder()){ case (sb, part) => sb.append(part.char) }.toString().toInt
+}.toOption
 
 val allNumbers = getAllNumbers(allEngineParts)
 val totalParts = allNumbers
 
   .filter(isValidNumber(_))
-  .flatMap{
-     enginePart => Try {
-         enginePart.foldLeft(new StringBuilder()){ case (sb, part) => sb.append(part.char) }.toString.toInt
-       }.toOption
-     }
+  .flatMap{ enginePart => enginePartsToMayBeInt(enginePart) }
   .foldLeft(0){ case(total, part) => total + part }
 
 def neighborForRatio(gearRatio: EnginePart, parts: List[EnginePart]): Option[(EnginePart, List[EnginePart])] =
   neighbours(parts).contains(gearRatio).option((gearRatio, parts))
 
-
-val gearRatios:  List[List[(EnginePart, List[EnginePart])]] = allEngineParts.filter{part => part.char == '*'}
- .flatMap { gearRatio =>
+val gearRatios2 = allEngineParts.filter{part => part.char == '*'}
+ .map { gearRatio =>
    allNumbers.flatMap { parts => neighborForRatio(gearRatio, parts) }
  }
-
-
-
-
+  .filter( partList => partList.length == 2)
+  .map { gearRatio => gearRatio.map{ case(_, parts) => parts } }
+  .map {  gearRatios => (gearRatios.head, gearRatios.reverse.head) }
+  .flatMap{ case(gearOne, gearTwo) => for {
+      totalOne <- enginePartsToMayBeInt(gearOne)
+      totalTwo <- enginePartsToMayBeInt(gearTwo)
+    } yield totalOne * totalTwo
+  }
+  .foldLeft(0){case(total, gear) => total + gear}
 
 
 

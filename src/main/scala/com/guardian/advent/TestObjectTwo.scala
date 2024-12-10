@@ -1,13 +1,10 @@
 package com.guardian.advent
 
-import scala.collection.immutable.NumericRange
 import scala.io.Source
 import scala.util.Try
-import scala.util.matching.Regex
 
 
-
-object TestObject extends App {
+object TestObjectTwo extends App {
   sealed trait Direction
 
   case object North extends Direction
@@ -241,5 +238,6 @@ object TestObject extends App {
     print(s"[${tile.pipe}]|($intersections)")
 
   }
+
 
 }

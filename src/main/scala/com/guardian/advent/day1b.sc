@@ -2,7 +2,7 @@ import scala.io.Source
 import scala.util.Try
 
 implicit class RichBoolean(val b: Boolean) {def option[A](a: => A): Option[A] = if(b) Some(a) else None
-}
+
 
 val stringNumbers = Map(
 	("one" , '1'),

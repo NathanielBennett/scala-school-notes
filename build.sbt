@@ -6,9 +6,11 @@ scalaVersion := "2.13.6"
 
 
 libraryDependencies ++= Seq(
-  "com.google.cloud" % "google-cloud-storage" % "2.10.0",
+  "com.google.cloud" % "google-cloud-storage" % "2.43.2",
   "com.google.cloud" % "google-cloud-bigquery" % "2.6.0",
   "org.typelevel" %% "cats-core" % "2.8.0",
+  "com.lihaoyi" %% "requests" % "0.8.0",
+
   "org.apache.httpcomponents" % "httpclient" % "4.5.9"
 )
 
