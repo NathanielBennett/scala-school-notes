@@ -11,21 +11,21 @@ trait DecemberTwo extends AdventOfCode with App {
       Some(report)
   }
 
-  
-  def checkReport(report: String): Boolean = {
-    def check(ints: List[Int], last: Option[Int], ascending: Option[Int] ): Boolean =
-      ints match {
-        case Nil => true
-        case head :: tail =>
-          (ascending, last) match {
-            case (None, None) => check(tail, Some(head), ascending)
-            case (Some(l), None) =>
-              if (Math.abs(head - l) > 3) false
-              else check(tail, Some(head), Some(l.compareTo(head)))
-            case(Some(l), Some(asc) ) =>
-
-          }
-
+  def recordToDiffs(record: List[Int]) : List[(Int, Int)] = {
+      def diffs(ints: List[Int], prevHead: Int, acc: List[(Int, Int)] = Nil) : List[(Int, Int)]= {
+        ints match {
+          case Nil => acc
+          case head :: tail =>
+            diffs(tail, head, (head.compareTo(prevHead), Math.abs(head - prevHead)) :: acc)
+        }
       }
+    diffs(record.tail, record.head)
   }
+
+  reports.d
+
+
+
+
+
 }
