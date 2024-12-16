@@ -3,9 +3,30 @@ val dont = "don't()"
 val doo = "do()"
 def nextDelim(delim: String): String = if (delim == dont) doo else dont
 
-def finndInstructioba(rawInstructiona: String, nextDelim: String = dont, List[String] = List.empty, doIt: Boolean = true) = {
-   if (ind {ruew
-     val startDont = rawInstructiona.indexOf(dont) + dont.length
-     finndInstructioba(1)
-   }
+def end(rawInstructions: String, delim: String) = rawInstructions.indexOf(delim) > -1
+def startStop(rawInstructions: String): String =
+  rawInstructions.indexOf(dont) < rawInstructions.indexOf(doo) match {
+    case true => dont
+    case false => doo
+
+  }
+
+def findInstructions
+   (rawInstructiona: String, delim: String, cleanInstructions: List[(String, String)] = List.empty): List[(String, String)] = {
+
+  val nextRawInstructions = rawInstructiona.substring(rawInstructiona.indexOf(delim) + delim.length)
+  if (rawInstructiona.isEmpty) cleanInstructions.reverse
+  if (end(rawInstructiona, delim)) findInstructions(rawInstructiona)
+  else {
+      findInstructions(
+          nextRawInstructions,
+          nextDelim(delim),
+          (rawInstructiona.substring(0, rawInstructiona.indexOf(delim)), delim) :: cleanInstructions
+        )
+    }
 }
+
+findInstructions(s, startStop(s))
+
+
+
