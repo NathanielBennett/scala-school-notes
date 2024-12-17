@@ -1,5 +1,7 @@
 package com.guardian.advent.twentyfour
 
+import com.guardian.advent.AdventOfCode
+
 trait DecemberThree extends AdventOfCode with App {
   override def day: Int = 3
   val m = """mul\((\d+),(\d+)\)""".r

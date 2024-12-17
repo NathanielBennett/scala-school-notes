@@ -1,1 +1,1 @@
-val l = List("Ont", "There").foldLeft(new StringBuilder()) { case(sb, s) => sb.append(s) }.toString()
+val l = (-1 to 1).toList

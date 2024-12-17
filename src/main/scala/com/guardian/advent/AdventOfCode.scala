@@ -1,4 +1,4 @@
-package com.guardian.advent.twentyfour
+package com.guardian.advent
 
 import scala.io.Source
 
@@ -17,5 +17,10 @@ trait AdventOfCode {
         .flatMap{line => parser(line)}
     }
 
+    def gridParser[S, T <: GridEntry[S]](test = false)(parseRow: String => List[T], makeGrid: List[T] => Grid[S, T]): Grid[S, T] = {
+      val entries = lineParser[String](test){ s => Some(s) }
+        .flatMap{ s => parseRow(s) }
 
+      makeGrid(entries)
+    }
 }

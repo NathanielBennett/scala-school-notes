@@ -1,5 +1,7 @@
 package com.guardian.advent.twentyfour
 
+import com.guardian.advent.AdventOfCode
+
 trait DecemberTwo extends AdventOfCode with App {
 
   def getSafe: List[List[Int]]

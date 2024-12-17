@@ -1,5 +1,7 @@
 package com.guardian.advent.twentyfour
 
+import com.guardian.advent.AdventOfCode
+
 import scala.util.Try
 
 trait DecemberOne extends AdventOfCode with App {
