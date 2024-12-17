@@ -41,6 +41,7 @@ object DecTwoPartTwo extends DecemberTwo {
         if (index == indexToFilter) None
         else Some(level)
     }
+
     def checkPemutations(record: List[Int], currentToCheck: Int = 0): Boolean = {
 
        if (currentToCheck == record.size + 1) false

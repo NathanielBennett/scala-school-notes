@@ -16,4 +16,6 @@ trait AdventOfCode {
       Source.fromFile(s"$rootPath/$fileName").getLines().toList
         .flatMap{line => parser(line)}
     }
+
+
 }
