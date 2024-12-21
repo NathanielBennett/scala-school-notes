@@ -32,10 +32,9 @@ object PartTwo extends DecemberOne {
   val totalsMap = right.groupBy{ k => k }
     .map{ case(k, v) => (k, v.length) }
 
-  val total = left.flatMap{
+  val total = left.flatMap {
       k => totalsMap.get(k).map{ v => k * v }
-  }
-    .foldLeft(0) {case(total, sum) => total + sum}
+  }.foldLeft(0) { case(total, sum) => total + sum }
 
   println(total)
 }

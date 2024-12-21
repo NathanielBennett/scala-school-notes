@@ -8,9 +8,11 @@ trait AdventOfCode {
 
   def day: Int
 
-  private def parseLines[T](fileName: String)(parser: String => Option[T]) : List[T] =
-    Source.fromFile(fileName).getLines().toList
+  private def parseLinesFromReaouexw[T](test: Boolean = true)(parser: String => Option[T] ): List[T] = {
+    val fileName = makeFilename(test)
+    Source.fromResource(s"2024/$fileName").getLines().toList
       .flatMap { line => parser(line)}
+  }
 
   private def makeFilename(test: Boolean): String = test match {
     case true => s"day_${day}_test.txt"
@@ -27,10 +29,15 @@ trait AdventOfCode {
       .flatMap { line => parser(line) }
   }
 
-  def gridParser[R, S, T <: GridEntry[S]](test: Boolean = false)(
-    lineParser: String => Option[R], makeGrid: Set[S] => Grid[T]): Grid[T] = {
-       val fileName = makeFilename(test)
-       val gridEntries = parseLines[S](fileName)(lineParser).toSet
-       makeGrid(gridEntries)
+  def gridParser[T](test: Boolean = false)(entryParser: (Char, Int, Int)  => Option[T], gridMaker: Set[T] => Grid[T] ) : Grid[T] = {
+   val s = parseLinesFromReaouexw[String](test)(s => Some(s))
+     .zipWithIndex
+     .flatMap{
+        case(rawEntries, yIndex) =>
+          rawEntries.toCharArray.toList.zipWithIndex.flatMap {
+            case (char, xIndex) => entryParser(char, xIndex, yIndex)
+          }
+     }
+     gridMaker(s.toSet)
   }
 }
