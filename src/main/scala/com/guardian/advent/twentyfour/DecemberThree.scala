@@ -61,7 +61,7 @@ object DecemberThreeTwo extends DecemberThree {
       findInstructions(
         nextRawInstructions,
         nextDelim,
-        (makeListedInstructions(rawInstructions, delim), process(delim)) :: cleanInstructions
+        (makeListedInstructions, process(delim)) :: cleanInstructions
       )
     }
   }

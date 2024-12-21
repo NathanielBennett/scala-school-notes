@@ -10,7 +10,7 @@ case object West extends Direction
 sealed trait Tile {
 
   def xPos: Int
-7
+
   def yPos: Int
 
   def pipe: Char

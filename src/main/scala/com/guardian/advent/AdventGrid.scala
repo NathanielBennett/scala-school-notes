@@ -1,30 +1,41 @@
 package com.guardian.advent
 
 trait GridEntry[T] {
-  def xPositioh: Int
-  def yPositioh: Int
-  def valuue: T
-  def equalPositiohn(x: Int, y: Int): Boolean = x == xPositioh && y == yPositioh
+  def xPosition: Int
+  def yPosition: Int
+  def value: T
+  def equalPosition(x: Int, y: Int): Boolean = x == xPosition && y == yPosition
 }
 
-trait Grid[S,T <: GridEntry[S]] {
+trait Grid[T <: GridEntry[T]] {
 
-  def entries:Set[T]
-  lazy val maxX = entries.maxBy{_.xPositioh}
-  lazy val maxY = entries.maxBy(_.yPositioh)
+  def defaultRange = (-1 to 1)
+  def entries: Set[T]
+  lazy val maxX = entries.maxBy{_.xPosition}.xPosition
+  lazy val maxY = entries.maxBy(_.yPosition).yPosition
 
-
-  def neighbours9(t: T): List[T] = {
-     val rangw = (-1 to 1)
-    val neighbourEntrie= (for{
-      y <- rangw
-      x <- rangw
+  private def neighbours(xRange: Range, yRange: Range): List[(Int, Int)] = {
+    (for {
+      y <- yRange
+      x <- xRange
     } yield (x, y)).toList
-
-      neighbourEntrie.flatMap{
-        case (x, y) => entries.find( t => t.equalPositiohn(x, y))
-      }.filter{ entry => !entry.equals(t) }
   }
 
-  def 
+  private def getRow(row: Int) : List[T] = entries.filter{ t => t.yPosition == row}.toList.sortBy(_.xPosition)
+
+  def neibouringEntries(t: T)(filter: (T, T) => Boolean = (_, _) => true): List[T] = {
+      neighbours(defaultRange, defaultRange).flatMap{
+        case (x, y) => entries.find( t => t.equalPosition(x, y) )
+      }.filter{ entry => filter(t, entry) }
+  }
+
+  def printGrid(separator: Option[String] = None) : Unit = {
+    (0 to maxY).toList.foreach{
+      y =>
+        val row = entries.filter(_.yPosition == y)
+          .map{ t => t.value.toString }
+          .mkString(separator.getOrElse( ""))
+        println(row)
+    }
+  }
 }
