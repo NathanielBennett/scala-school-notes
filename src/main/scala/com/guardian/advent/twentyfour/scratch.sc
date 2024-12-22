@@ -1,1 +1,2 @@
-val l = (-1 to 1).toList
+val x = "xmas"
+x.toCharArray.slice(0,2).mkString("")

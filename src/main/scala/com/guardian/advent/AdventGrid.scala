@@ -72,7 +72,7 @@ trait Grid[T] extends Directions {
 
   private def getRow(row: Int) : List[GridEntry[T]] = entries.filter{ t => t.yPosition == row}.toList.sortBy(_.xPosition)
 
-  def gridEntryVertice(start: GridEntry[T], direction: Direction,  isLast: List[GridEntry[T]] => Boolean ): List[GridEntry[T]] = {
+  def vertice(start: GridEntry[T], direction: Direction,  isLast: List[GridEntry[T]] => Boolean ): List[GridEntry[T]] = {
      def nextEntry(entry: GridEntry[T], acc: List[GridEntry[T]]): List[GridEntry[T]] = {
        val tail = entry :: acc
        if (isLast(tail)) tail.reverse
