@@ -6,12 +6,11 @@ import com.sun.xml.internal.messaging.saaj.util.CharWriter
 case class CharEntry(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends GridEntry[Char]
 case class CharGrid(override val entries: Set[GridEntry[Char]]) extends Grid[Char]
 
-trait DecemberFour extends AdventOfCode with App with Directions {
+trait DecemberFour extends AdventOfCode[Int] with App with Directions {
 
   final val xmas: String = "XMAS"
   override def day = 4
- override def test: Boolean = false
-  
+
   private def entryParser(xPos: Int, yPos: Int, char: Char):  Option[GridEntry[Char]] = Some(CharEntry(xPos, yPos, char))
 
   private def gridMaker(entries: Set[GridEntry[Char]]): Grid[Char] = CharGrid(entries)
@@ -51,11 +50,10 @@ object DecemberFourPartOneProd extends DecemberFourPartOne //2434
      }
    }
 
-   val crosses = grid.filterEntries{ gridEntry => gridEntry.value == 'A' }
+   def solve() : Int = { grid.filterEntries{ gridEntry => gridEntry.value == 'A' }
     .map { startPosition => grid.getNeigboursAndDirections( startPosition, allDirections.filterNot(_.isCardinal) ).toSet }
     .filter { maybeCross => isCross(maybeCross) }
-
-   println(crosses.length )
+     .size
 }
 
 object DecemberFourPartTwoTest extends DecemberFourPartTwo {

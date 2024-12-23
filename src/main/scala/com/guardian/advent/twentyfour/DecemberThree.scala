@@ -2,13 +2,13 @@ package com.guardian.advent.twentyfour
 
 import com.guardian.advent.AdventOfCode
 
-trait DecemberThree extends AdventOfCode with App {
+trait DecemberThree extends AdventOfCode[Int] with App {
   override def day: Int = 3
   val m = """mul\((\d+),(\d+)\)""".r
 
   val dont = "don't()"
   val doo = "do()"
-  val input = lineParser[String]() { s => Some(s)}
+  val input = lineParser[String]() { s => Some(s) }
     println(input.size)
 
   def multsForString(s: String): List[Int] = {
@@ -20,16 +20,19 @@ trait DecemberThree extends AdventOfCode with App {
   }
 }
 
-object DecemberThreeOne extends DecemberThree {
+object DecemberThreeOneTest extends DecemberThree {
 
-  val total = input
-    .flatMap { s => multsForString(s) }
-    .foldLeft(0){ case(a, b) => a + b }
+  override def test: Boolean = true
 
-  println(total)
+  def solve(): Int = {
+    input
+      .flatMap { s => multsForString(s) }
+      .foldLeft(0){ case(a, b) => a + b }
+  }
 }
 
-object DecemberThreeTwo extends DecemberThree {
+object DecemberThreeTwoTest extends DecemberThree {
+
   def makeNextDelim(delim: String): String = if (delim == dont) doo else dont
 
   def end(rawInstructions: String) = rawInstructions.indexOf(doo) < 0 && rawInstructions.indexOf(dont) < 0
@@ -38,7 +41,6 @@ object DecemberThreeTwo extends DecemberThree {
     rawInstructions.indexOf(dont) < rawInstructions.indexOf(doo) match {
       case true => dont
       case false => doo
-
     }
 
   def process(delim: String) = delim == dont
@@ -46,7 +48,6 @@ object DecemberThreeTwo extends DecemberThree {
   def makeNextInstructions(rawInstructions: String, delim: String): String = {
     if (end(rawInstructions)) "" else rawInstructions.substring(rawInstructions.indexOf(delim) + delim.length)
   }
-
 
   def findInstructions
   (rawInstructions: String, delim: String, cleanInstructions: List[(String, Boolean)] = List.empty): List[(String, Boolean)] = {
@@ -66,16 +67,16 @@ object DecemberThreeTwo extends DecemberThree {
     }
   }
 
-  val delim = startStop(rawInstructions)
-  val rawInstructions = input.foldLeft(new StringBuilder()) { case(stringBuilder, string) => stringBuilder.append(string)}.toString()
-  val cleanInstructions = findInstructions(rawInstructions, delim)
-    .flatMap { case(instructions, shouldProcess) => if(shouldProcess) Some(instructions) else None }
-    .foldLeft(new StringBuilder()) { case(stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
-    .toString
+  override def solve(): Int = {
+    val rawInstructions = input.foldLeft(new StringBuilder()) { case (stringBuilder, string) => stringBuilder.append(string) }.toString()
+    val delim = startStop(rawInstructions)
+    val cleanInstructions = findInstructions(rawInstructions, delim)
+      .flatMap { case (instructions, shouldProcess) => if (shouldProcess) Some(instructions) else None }
+      .foldLeft(new StringBuilder()) { case (stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
+      .toString
 
-  val total = multsForString(cleanInstructions)
-    .foldLeft(0L){ case(total, i) => total + i }
-
-  println(total)
+    multsForString(cleanInstructions)
+      .foldLeft(0L) { case (total, i) => total + i }
+  }
 
 }
