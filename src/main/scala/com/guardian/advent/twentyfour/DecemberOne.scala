@@ -4,7 +4,7 @@ import com.guardian.advent.AdventOfCode
 
 import scala.util.Try
 
-trait DecemberOne extends AdventOfCode with App {
+trait DecemberOne extends AdventOfCode[Int] with App {
 
   override val day = 1
   val figureMatcher = """^(\d+)\s+(\d+)$""".r
@@ -20,24 +20,34 @@ trait DecemberOne extends AdventOfCode with App {
   }
 }
 
-object PartOne extends DecemberOne {
-  val total = left.sorted.zip(right.sorted)
-    .foldLeft(0) {
-      case (total, (left, right)) => total + Math.abs(left - right)
-    }
-  println(total)
+object PartOneTest extends DecemberOne {
+  override def test = true
+
+  override def solve() : Int = {
+    left.sorted.zip(right.sorted)
+    .foldLeft(0) { case (total, (left, right)) => total + Math.abs(left - right) }
+  }
 }
 
-object PartTwo extends DecemberOne {
-  val totalsMap = right.groupBy{ k => k }
-    .map{ case(k, v) => (k, v.length) }
+object PartTwoTest extends DecemberOne {
+  override def test = true
 
-  val total = left.flatMap {
-      k => totalsMap.get(k).map{ v => k * v }
-  }.foldLeft(0) { case(total, sum) => total + sum }
+  def solve(): Int = {
+    val totalsMap = right.groupBy { k => k }
+      .map { case (k, v) => (k, v.length) }
 
-  println(total)
+    val t = left.flatMap {
+      k => totalsMap.get(k).map { v => k * v }
+    }.foldLeft(0) { case (total, sum) => total + sum }
+    println(s"**$t")
+    t
+  }
 }
+
+object Tester extends App {
+  println(PartTwoTest.solve())
+}
+
 
 
 

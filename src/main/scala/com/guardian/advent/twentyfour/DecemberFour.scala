@@ -10,7 +10,7 @@ trait DecemberFour extends AdventOfCode with App with Directions {
 
   final val xmas: String = "XMAS"
   override def day = 4
-  def test: Boolean = false
+ override def test: Boolean = false
   
   private def entryParser(xPos: Int, yPos: Int, char: Char):  Option[GridEntry[Char]] = Some(CharEntry(xPos, yPos, char))
 

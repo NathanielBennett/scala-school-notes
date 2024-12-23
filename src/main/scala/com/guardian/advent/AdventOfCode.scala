@@ -2,10 +2,12 @@ package com.guardian.advent
 
 import scala.io.Source
 
-trait AdventOfCode {
+trait AdventOfCode[ANSWER] {
+
+  def solve(): ANSWER
 
   val rootPath = s"${System.getProperty("user.home")}/advent2023/2024"
-
+  def test: Boolean = false
   def day: Int
 
   private def parseLinesFromResource[T](test: Boolean = false)(parser: String => Option[T] ): List[T] = {

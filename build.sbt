@@ -13,7 +13,9 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.8.0",
   "com.lihaoyi" %% "requests" % "0.8.0",
   "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion212,
-  "org.apache.httpcomponents" % "httpclient" % "4.5.9"
+  "org.apache.httpcomponents" % "httpclient" % "4.5.9",
+  "org.scalactic" %% "scalactic" % "3.2.19",
+  "org.scalatest" %% "scalatest" % "3.2.19" % "test"
 )
 
 
