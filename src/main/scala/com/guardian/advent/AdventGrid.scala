@@ -8,6 +8,7 @@ sealed trait Direction {
 trait Directions {
   def allDirections = List(North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest)
   def cardinalDirections = allDirections.filter{ d => d.isCardinal }
+  def oneDiagonal: Set[Direction] = Set(NorthWest, SouthEast)
 }
 
 case object North extends Direction {
@@ -72,9 +73,9 @@ trait Grid[T] extends Directions {
 
   private def getRow(row: Int) : List[GridEntry[T]] = entries.filter{ t => t.yPosition == row}.toList.sortBy(_.xPosition)
 
-  def vertice(start: GridEntry[T], direction: Direction,  isLast: List[GridEntry[T]] => Boolean ): List[GridEntry[T]] = {
+  def vertice(start: GridEntry[T], direction: Direction)( isLast: List[GridEntry[T]] => Boolean ): List[GridEntry[T]] = {
      def nextEntry(entry: GridEntry[T], acc: List[GridEntry[T]]): List[GridEntry[T]] = {
-       val tail = entry :: acc
+       val tail = (entry :: acc)
        if (isLast(tail)) tail.reverse
        else {
          val (nextX, nextY) = direction.nextGridCoords(entry.xPosition, entry.yPosition)
@@ -93,6 +94,18 @@ trait Grid[T] extends Directions {
         case (x, y) => entries.find( t => t.equalPosition(x, y) )
       }.filter{ entry => filter(  gridEntry, entry )  }
   }
+
+  def getMeighbours(gridEntry: GridEntry[T], directions: List[Direction]): List[(GridEntry[T], Direction)] =
+    getNeigboursAndDirections(gridEntry, directions).map {case (entry) => entry}
+
+  def getNeigboursAndDirections(gridEntry: GridEntry[T], directions: List[Direction]): List[(GridEntry[T], Direction)] =
+    directions.flatMap {
+      direction =>
+        val (xPosition, yPosition) = direction.nextGridCoords(gridEntry.xPosition, gridEntry.yPosition)
+        entries.find { ge => ge.xPosition == xPosition && ge.yPosition == yPosition }.map { entry =>
+          (entry, direction)
+        }
+    }
 
   def printGrid(separator: Option[String] = None) : Unit = {
     (0 to maxY).toList.foreach{

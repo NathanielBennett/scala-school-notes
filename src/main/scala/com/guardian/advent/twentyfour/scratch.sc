@@ -1,2 +1,1 @@
-val x = "xmas"
-x.toCharArray.slice(0,2).mkString("")
+val l = List((-1, -1), (-1, 1), (1, -1), (1, 1)).partition{ case(x, y) => x == y }

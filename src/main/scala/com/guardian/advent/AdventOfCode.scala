@@ -42,3 +42,4 @@ trait AdventOfCode {
      gridMaker(s.toSet)
   }
 }
+
