@@ -2,7 +2,7 @@ package com.guardian.advent.twentyfour
 
 import com.guardian.advent.AdventOfCode
 
-trait DecemberThree extends AdventOfCode[Int] with App {
+trait DecemberThree[T] extends AdventOfCode[T] with App {
   override def day: Int = 3
   val m = """mul\((\d+),(\d+)\)""".r
 
@@ -20,7 +20,7 @@ trait DecemberThree extends AdventOfCode[Int] with App {
   }
 }
 
-object DecemberThreeOneTest extends DecemberThree {
+object DecemberThreeOneTest extends DecemberThree[Int] {
 
   override def test: Boolean = true
 
@@ -31,7 +31,7 @@ object DecemberThreeOneTest extends DecemberThree {
   }
 }
 
-object DecemberThreeTwoTest extends DecemberThree {
+object DecemberThreeTwoTest extends DecemberThree[Long] {
 
   def makeNextDelim(delim: String): String = if (delim == dont) doo else dont
 
@@ -67,16 +67,15 @@ object DecemberThreeTwoTest extends DecemberThree {
     }
   }
 
-  override def solve(): Int = {
+  override def solve(): Long = {
     val rawInstructions = input.foldLeft(new StringBuilder()) { case (stringBuilder, string) => stringBuilder.append(string) }.toString()
     val delim = startStop(rawInstructions)
     val cleanInstructions = findInstructions(rawInstructions, delim)
       .flatMap { case (instructions, shouldProcess) => if (shouldProcess) Some(instructions) else None }
-      .foldLeft(new StringBuilder()) { case (stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
+      .foldLeft ( new StringBuilder() ) { case (stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
       .toString
 
     multsForString(cleanInstructions)
       .foldLeft(0L) { case (total, i) => total + i }
   }
-
 }

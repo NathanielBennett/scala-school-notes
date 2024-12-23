@@ -2,9 +2,8 @@ package com.guardian.advent.twentyfour
 
 import com.guardian.advent.AdventOfCode
 
-trait DecemberTwo extends AdventOfCode with App {
+trait DecemberTwo extends AdventOfCode[Int] with App {
 
-  def getSafe: List[List[Int]]
   override def day: Int = 2
 
   val reports = lineParser[List[Int]](){
@@ -25,18 +24,18 @@ trait DecemberTwo extends AdventOfCode with App {
     val diffs = rowToDiffs(record.tail, record.head)
     diffs.map(_._1).toSet.size == 1 && !diffs.exists{ d => d._2 > 3 }
   }
-
-  val safe = getSafe
-  println(safe.size)
 }
-object DecTwoPartOne extends DecemberTwo {
+object DecTwoPartOneTest extends DecemberTwo {
 
-  def getSafe: List[List[Int]] =
-    reports.filter { record => checkRecord(record) }
+  override def test: Boolean = true
+
+  override def solve(): Int =
+    reports.filter { record => checkRecord(record) }.length
 }
 
-object DecTwoPartTwo extends DecemberTwo {
+object DecTwoPartTwoTest extends DecemberTwo {
 
+  override def test: Boolean = true
   def permute(ints: List[Int], indexToFilter: Int = 0) : List[Int] =
     ints.zipWithIndex.flatMap {
       case (level, index) =>
@@ -52,7 +51,8 @@ object DecTwoPartTwo extends DecemberTwo {
          checkRecord(pernutation) || checkPemutations(record, currentToCheck + 1)
        }
     }
-  def getSafe: List[List[Int]] = reports.filter{
+
+  override def solve(): Int = reports.filter{
       report => checkRecord(report) || checkPemutations(report)
-  }
+  }.size
 }
