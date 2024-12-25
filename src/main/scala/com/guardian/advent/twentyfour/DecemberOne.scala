@@ -9,7 +9,7 @@ trait DecemberOne extends AdventOfCode[Int] with App {
   override val day = 1
   val figureMatcher = """^(\d+)\s+(\d+)$""".r
 
-  val (left, right) = lineParser[(Int, Int)]() {
+  val (left, right) = parseLinesFromResource[(Int, Int)](test) {
     line =>
       Try {
         val figureMatcher(left, right) = line
@@ -20,32 +20,39 @@ trait DecemberOne extends AdventOfCode[Int] with App {
   }
 }
 
-object PartOneTest extends DecemberOne {
-  override def test = true
-
+trait DecemberOnePartOne extends DecemberOne {
   override def solve() : Int = {
     left.sorted.zip(right.sorted)
-    .foldLeft(0) { case (total, (left, right)) => total + Math.abs(left - right) }
+      .foldLeft(0) { case (total, (left, right)) => total + Math.abs(left - right) }
   }
 }
 
-object PartTwoTest extends DecemberOne {
+object DecemberOnePartOneTest extends DecemberOnePartOne {
   override def test = true
+}
+
+object DecemberOnePartOneSolution extends DecemberOnePartOne {
+  override def test = false
+}
+
+trait DecemberOnePartTwo extends DecemberOne {
 
   def solve(): Int = {
     val totalsMap = right.groupBy { k => k }
       .map { case (k, v) => (k, v.length) }
 
-    val t = left.flatMap {
+    left.flatMap {
       k => totalsMap.get(k).map { v => k * v }
     }.foldLeft(0) { case (total, sum) => total + sum }
-    println(s"**$t")
-    t
   }
 }
 
-object Tester extends App {
-  println(PartTwoTest.solve())
+object DecemberOnePartTwoTest extends DecemberOnePartTwo {
+  override def test = true
+}
+
+object DecemberOnePartTwoSolution extends DecemberOnePartTwo {
+  override def test = false
 }
 
 

@@ -8,8 +8,7 @@ trait DecemberThree[T] extends AdventOfCode[T] with App {
 
   val dont = "don't()"
   val doo = "do()"
-  val input = lineParser[String]() { s => Some(s) }
-    println(input.size)
+  val input = parseLinesFromResource[String](test) { s => Some(s) }
 
   def multsForString(s: String): List[Int] = {
     m.findAllIn(s).toList
@@ -20,10 +19,7 @@ trait DecemberThree[T] extends AdventOfCode[T] with App {
   }
 }
 
-object DecemberThreeOneTest extends DecemberThree[Int] {
-
-  override def test: Boolean = true
-
+trait DecemberThreePartOne extends DecemberThree[Int] {
   def solve(): Int = {
     input
       .flatMap { s => multsForString(s) }
@@ -31,51 +27,67 @@ object DecemberThreeOneTest extends DecemberThree[Int] {
   }
 }
 
-object DecemberThreeTwoTest extends DecemberThree[Long] {
+object DecemberThreePartOneTest extends DecemberThreePartOne {
+  override def test: Boolean = true
+}
 
-  def makeNextDelim(delim: String): String = if (delim == dont) doo else dont
+object DecemberThreePartOneSolution extends DecemberThreePartOne {
+  override def test: Boolean = false
+}
 
-  def end(rawInstructions: String) = rawInstructions.indexOf(doo) < 0 && rawInstructions.indexOf(dont) < 0
+trait DecemberThreePartTwo extends DecemberThree[Long] {
 
-  def startStop(rawInstructions: String): String =
-    rawInstructions.indexOf(dont) < rawInstructions.indexOf(doo) match {
-      case true => dont
-      case false => doo
+    def makeNextDelim(delim: String): String = if (delim == dont) doo else dont
+
+    def end(rawInstructions: String) = rawInstructions.indexOf(doo) < 0 && rawInstructions.indexOf(dont) < 0
+
+    def startStop(rawInstructions: String): String =
+      rawInstructions.indexOf(dont) < rawInstructions.indexOf(doo) match {
+        case true => dont
+        case false => doo
+      }
+
+    def process(delim: String) = delim == dont
+
+    def makeNextInstructions(rawInstructions: String, delim: String): String = {
+      if (end(rawInstructions)) "" else rawInstructions.substring(rawInstructions.indexOf(delim) + delim.length)
     }
 
-  def process(delim: String) = delim == dont
+    def findInstructions
+    (rawInstructions: String, delim: String, cleanInstructions: List[(String, Boolean)] = List.empty): List[(String, Boolean)] = {
 
-  def makeNextInstructions(rawInstructions: String, delim: String): String = {
-    if (end(rawInstructions)) "" else rawInstructions.substring(rawInstructions.indexOf(delim) + delim.length)
-  }
+      def makeListedInstructions: String =
+        if (end(rawInstructions)) rawInstructions else rawInstructions.substring(0, rawInstructions.indexOf(delim))
 
-  def findInstructions
-  (rawInstructions: String, delim: String, cleanInstructions: List[(String, Boolean)] = List.empty): List[(String, Boolean)] = {
-
-    def makeListedInstructions: String =
-      if (end(rawInstructions)) rawInstructions else rawInstructions.substring(0, rawInstructions.indexOf(delim))
-
-    if (rawInstructions.isEmpty) cleanInstructions.reverse
-    else {
-      val nextDelim = makeNextDelim(delim)
-      val nextRawInstructions = makeNextInstructions(rawInstructions, delim)
-      findInstructions(
-        nextRawInstructions,
-        nextDelim,
-        (makeListedInstructions, process(delim)) :: cleanInstructions
-      )
+      if (rawInstructions.isEmpty) cleanInstructions.reverse
+      else {
+        val nextDelim = makeNextDelim(delim)
+        val nextRawInstructions = makeNextInstructions(rawInstructions, delim)
+        findInstructions(
+          nextRawInstructions,
+          nextDelim,
+          (makeListedInstructions, process(delim)) :: cleanInstructions
+        )
+      }
     }
-  }
 
-  override def solve(): Long = {
-    val rawInstructions = input.foldLeft(new StringBuilder()) { case (stringBuilder, string) => stringBuilder.append(string) }.toString()
-    val delim = startStop(rawInstructions)
-    val cleanInstructions = findInstructions(rawInstructions, delim)
-      .flatMap { case (instructions, shouldProcess) => if (shouldProcess) Some(instructions) else None }
-      .foldLeft ( new StringBuilder() ) { case (stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
-      .toString
+   override def solve(): Long = {
+      val rawInstructions = input.foldLeft(new StringBuilder()) { case (stringBuilder, string) => stringBuilder.append(string) }.toString()
+      val delim = startStop(rawInstructions)
+      val cleanInstructions = findInstructions(rawInstructions, delim)
+        .flatMap { case (instructions, shouldProcess) => if (shouldProcess) Some(instructions) else None }
+        .foldLeft(new StringBuilder()) { case (stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
+        .toString
 
-    multsForString(cleanInstructions)
-      .foldLeft(0L) { case (total, i) => total + i }
-  }
+      multsForString(cleanInstructions)
+        .foldLeft(0L) { case (total, i) => total + i }
+    }
+}
+
+object DecemberThreePartTwoTest extends DecemberThreePartTwo {
+  override def test: Boolean = true
+}
+
+object DecemberThreePartTwoSolution extends DecemberThreePartTwo {
+  override def test: Boolean = false
 }

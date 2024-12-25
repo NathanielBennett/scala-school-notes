@@ -6,7 +6,7 @@ import com.guardian.advent.{AdventOfCode, Direction, Directions, Grid, GridEntry
 case class CharEntry(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends GridEntry[Char]
 case class CharGrid(override val entries: Set[GridEntry[Char]]) extends Grid[Char]
 
-trait DecemberFour[T] extends AdventOfCode[T] with App with Directions {
+trait DecemberFour extends AdventOfCode[Int] with App with Directions {
 
   final val xmas: String = "XMAS"
   override def day = 4
@@ -20,7 +20,7 @@ trait DecemberFour[T] extends AdventOfCode[T] with App with Directions {
   val grid: CharGrid = gridParser[Char](test) (entryParser, gridMaker).asInstanceOf[CharGrid]
 }
 
-trait DecemberFourPartOne extends DecemberFour[Int] {
+trait DecemberFourPartOne extends DecemberFour {
   override def solve(): Int =  grid.filterEntries{ ge => ge.value == 'X'}
     .flatMap { startPosition =>
       allDirections.map { direction => grid.vertice(startPosition, direction){ vertice => vertice.length == xmas.length } }
@@ -32,12 +32,13 @@ trait DecemberFourPartOne extends DecemberFour[Int] {
 
 object DecemberFourPartOneTest extends DecemberFourPartOne {
   override def test = true
-  //18
 }
 
-object DecemberFourPartOneProd extends DecemberFourPartOne //2434
+object DecemberFourPartOneSolution extends DecemberFourPartOne {
+  override def test = false
+}
 
- trait DecemberFourPartTwo extends DecemberFour[Long] {
+trait DecemberFourPartTwo extends DecemberFour {
 
   val crossBar = Set('M', 'S')
 
@@ -48,7 +49,7 @@ object DecemberFourPartOneProd extends DecemberFourPartOne //2434
      }
    }
 
-   def solve() : Long = {
+   def solve() : Int = {
      grid.filterEntries { gridEntry => gridEntry.value == 'A' }
        .map { startPosition => grid.getNeigboursAndDirections(startPosition, allDirections.filterNot(_.isCardinal)).toSet }
        .filter { maybeCross => isCross(maybeCross) }
@@ -60,7 +61,7 @@ object DecemberFourPartTwoTest extends DecemberFourPartTwo {
   override def test = true
 }
 
-object DecemberFourPartTwoProd extends DecemberFourPartTwo {
+object DecemberFourPartTwoSolution extends DecemberFourPartTwo {
   override def test: Boolean = false //1835
 }
 
