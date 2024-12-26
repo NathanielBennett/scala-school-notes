@@ -1,48 +1,64 @@
 package com.guardian.advent
 
+import scala.collection.AbstractSeq
 import scala.io.Source
 
+trait InputFileReader {
 
-
-trait AdventOfCode[ANSWER] extends SolutionHelpers {
-
-  def solve(): ANSWER
-
-  val rootPath = s"${System.getProperty("user.home")}/advent2023/2024"
   def test: Boolean
   def day: Int
 
-  protected def parseLinesFromResource[T](test: Boolean = false)(parser: String => Option[T] ): List[T] = {
-    val fileName = makeFilename(test)
-    Source.fromResource(s"advent/2024/$fileName").getLines().toList
-      .flatMap { line => parser(line)}
-  }
-
-  private def makeFilename(test: Boolean): String = test match {
+  lazy val resourceName = test match {
     case true => s"day_${day}_test.txt"
     case false => s"day_$day.txt"
   }
 
-  def gridParser[T](test: Boolean)(entryParser: (Int, Int, Char)  => Option[GridEntry[T]], gridMaker: Set[GridEntry[T]] => Grid[T] ) : Grid[T] = {
-   val s = parseLinesFromResource[String](test)(s => Some(s))
-     .zipWithIndex
-     .flatMap{
-        case(rawEntries, yIndex) =>
-          rawEntries.toCharArray.toList.zipWithIndex.flatMap {
-            case (char, xIndex) => entryParser(xIndex, yIndex, char)
-          }
-     }
-     gridMaker(s.toSet)
-  }
+  lazy val fileName = s"advent/2024/$resourceName"
 
-  def instructionParser[S,T](test: Boolean)(inputParser: String => Option[S], instructionParser: String => Option[T] ): (List[S], List[T]) = {
-    val allLines = parseLinesFromResource(test) { s => Some(s) }
-    val rawInput = allLines.takeWhile { s => !s.isEmpty }
-    val rawInstructions = allLines.reverse.takeWhile { s => !s.isEmpty }.reverse
-    ( rawInput.flatMap{ s => inputParser(s) }, rawInstructions.flatMap{ s => instructionParser(s) } )
+  lazy val iterator = Source.fromResource(fileName).getLines()
+
+  protected def getLines(filter: List[String] => List[String] = s => s) = filter(iterator.toList)
+}
+
+trait AdventOfCodeParser[T, U <: AbstractSeq[T]] extends InputFileReader with SolutionHelpers {
+
+  def inputParser: String => Option[T]
+  def sequenceToCollection(seq: Seq[T]) : U
+
+  protected def parseLinesFromResource(toSeq: Iterator[String] => AbstractSeq[String]): U = {
+    val sequence = toSeq(iterator).flatMap(line => inputParser(line)).toSeq
+    sequenceToCollection(sequence)
   }
 }
 
-trait AdventOfCodeRunner[T] extends AdventOfCode[T]
+trait AdventOfCodeInput[T, U <: AbstractSeq[T], V, W <: AbstractSeq[W]] extends InputFileReader {
+
+  def inputParser: AdventOfCodeParser[T,U]
+  def instructionPatser: AdventOfCodeParser[V,W]
+
+  def parser()(inputParser: String => Option[T], instructionParser: String => Option[U] ): (V, W) = {
+    val rawInput = getLines( list => list.takeWhile { s => !s.isEmpty } )
+    val rawInstruction = getLines( list => list.reverse.takeWhile { s => !s.isEmpty } )
+    val input = in
+
+    ( rawInput.flatMap(inputParser),  rawIn flatMap{ s => instructionParser(s) } )
+  }
+}
+
+trait AdventOfCdeGrid[T, U <: AbstractSeq[T], U <: AbstractSeq[T], ANSWER] extends AdventOfCodeParser[T, List[T], ANSWER] {
+  def gridParser(test: Boolean)(entryParser: (Int, Int, Char)  => Option[GridEntry[T]], gridMaker: Set[GridEntry[T]] => Grid[T] ) : Grid[T] = {
+    val s = parseLinesFromResource(test)(s =>  s Some(s))
+      .zipWithIndex
+      .flatMap{
+        case(rawEntries, yIndex) => ra
+          rawEntries.toCharArray.toList.zipWithIndex.flatMap {
+            case (char, xIndex) => entryParser(xIndex, yIndex, char)
+          }
+      }
+    gridMaker(s.toSet)
+  }
+
+}
+
 
 
