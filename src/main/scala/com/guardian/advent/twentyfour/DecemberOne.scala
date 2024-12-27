@@ -1,23 +1,36 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCode
+import com.guardian.advent.{AdventOfCodeParser, InputFileReader}
 
+import scala.::
+import scala.collection.AbstractSeq
 import scala.util.Try
 
-trait DecemberOne extends AdventOfCode[Int] with App {
+trait AdventDat
 
-  override val day = 1
+trait DecemberOneParser extends AdventOfCodeParser[(Int, Int), List[(Int, Int)]] {
+
   val figureMatcher = """^(\d+)\s+(\d+)$""".r
 
-  val (left, right) = parseLinesFromResource[(Int, Int)](test) {
-    line =>
-      Try {
-        val figureMatcher(left, right) = line
-        (left.toInt, right.toInt)
-      }.toOption
-  }.foldLeft((List[Int](), List[Int]())) {
-    case ((leftList, rightList), (left, right)) => (left :: leftList, right :: rightList)
-  }
+  override def lineParser(line: String): Option[(Int, Int)] =   Try {
+    val figureMatcher(left, right) = line
+    (left.toInt, right.toInt)
+  }.toOption
+
+  override def sequenceToCollection(seq: Seq[(Int, Int)]): List[(Int, Int)] = seq.toList
+
+  override def toSeq(list: List[String]): AbstractSeq[String] = list
+}
+
+trait DecemberOne extends DecemberOneParser with InputFileReader {
+
+  override val day = 1
+
+   val lines = getLines()
+   val (left, right) = parseLinesFromResource(lines)
+    .foldLeft((List[Int](), List[Int]())) {
+      case ((leftList, rightList), (left, right)) => (left :: leftList, right :: rightList)
+    }
 }
 
 trait DecemberOnePartOne extends DecemberOne {

@@ -1,12 +1,14 @@
-val l = List(52, 77, 83)
-val idle = l.to(LazyList)
+trait Test {
+  def day: Int
+}
 
-val p =  idle.permutations
-val ls = p.toList
+trait Solution {
+  def day: Int
+}
 
-val t = ls.headOption.foreach( s => println(s.head) )
+class Diamond extends Test with Solution {
+  override def day = 10
+}
 
-val ll = LazyList()
-val s = LazyList.empty
-
-
+val d = new Diamond()
+println(s"${d.day}")

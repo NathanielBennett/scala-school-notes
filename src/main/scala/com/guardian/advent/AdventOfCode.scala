@@ -15,18 +15,23 @@ trait InputFileReader {
 
   lazy val fileName = s"advent/2024/$resourceName"
 
-  lazy val iterator = Source.fromResource(fileName).getLines()
-
-  protected def getLines(filter: List[String] => List[String] = s => s) = filter(iterator.toList)
+  protected def getLines(filter: Option[List[String] => List[String]] = None): List[String] = {
+    val lines = Source.fromResource(fileName).getLines().toList
+    filter.map { f => f(lines) }.getOrElse(lines)
+  }
 }
 
-trait AdventOfCodeParser[T, U <: AbstractSeq[T]] extends InputFileReader with SolutionHelpers {
+trait SequenceConverter[T, U <: AbstractSeq[T]] {
+  def toSeq(list: List[String] ): AbstractSeq[String]
+}
 
-  def inputParser: String => Option[T]
+trait AdventOfCodeParser[T, U <: AbstractSeq[T]] extends SequenceConverter[T,U]  with SolutionHelpers {
+
+  def lineParser(line: String): Option[T]
   def sequenceToCollection(seq: Seq[T]) : U
 
-  protected def parseLinesFromResource(toSeq: Iterator[String] => AbstractSeq[String]): U = {
-    val sequence = toSeq(iterator).flatMap(line => inputParser(line)).toSeq
+  def parseLinesFromResource(lines: List[String]): U = {
+    val sequence = toSeq(lines).flatMap(line => lineParser(line)).toSeq
     sequenceToCollection(sequence)
   }
 }
@@ -35,29 +40,32 @@ trait AdventOfCodeInput[T, U <: AbstractSeq[T], V, W <: AbstractSeq[W]] extends 
 
   def inputParser: AdventOfCodeParser[T,U]
   def instructionPatser: AdventOfCodeParser[V,W]
+  private def lineFilter(list: List[String]): List[String] = list.takeWhile{ s => !s.isEmpty}
 
-  def parser()(inputParser: String => Option[T], instructionParser: String => Option[U] ): (V, W) = {
-    val rawInput = getLines( list => list.takeWhile { s => !s.isEmpty } )
-    val rawInstruction = getLines( list => list.reverse.takeWhile { s => !s.isEmpty } )
-    val input = in
+  def parser(): (U, W) = {
+    val rawInput = getLines{ Some( list  => lineFilter(list) ) }
+    val rawInstruction  = getLines{ Some( list  => lineFilter(list.reverse) ) }
 
-    ( rawInput.flatMap(inputParser),  rawIn flatMap{ s => instructionParser(s) } )
+    ( inputParser.parseLinesFromResource(rawInput), instructionPatser.parseLinesFromResource(rawInstruction) )
   }
 }
 
-trait AdventOfCdeGrid[T, U <: AbstractSeq[T], U <: AbstractSeq[T], ANSWER] extends AdventOfCodeParser[T, List[T], ANSWER] {
-  def gridParser(test: Boolean)(entryParser: (Int, Int, Char)  => Option[GridEntry[T]], gridMaker: Set[GridEntry[T]] => Grid[T] ) : Grid[T] = {
-    val s = parseLinesFromResource(test)(s =>  s Some(s))
+trait AdventOfCdeGrid[T] extends AdventOfCodeParser[String, List[String]] {
+
+  def entryParser(x: Int, y: Int, value: Char): Option[GridEntry[T]]
+  def gridMaker(entries: Set[GridEntry[T]]): Grid[T]
+
+  def gridParser(lines: List[String]) : Grid[T] = {
+    val s = parseLinesFromResource(lines)
       .zipWithIndex
       .flatMap{
-        case(rawEntries, yIndex) => ra
+        case(rawEntries, yIndex) =>
           rawEntries.toCharArray.toList.zipWithIndex.flatMap {
             case (char, xIndex) => entryParser(xIndex, yIndex, char)
           }
       }
     gridMaker(s.toSet)
   }
-
 }
 
 
