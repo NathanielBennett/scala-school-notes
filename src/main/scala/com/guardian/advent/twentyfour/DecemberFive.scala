@@ -1,15 +1,40 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCode
+import com.guardian.advent.parsers.{IntegerListParser, IntegerTupleParser}
+import com.guardian.advent.{AdventOfCodeGridParser, AdventOfCodeInstructionsParser, AdventOfCodeParser}
 
 import scala.util.Try
 
-trait DecemberFive extends AdventOfCode[Int] {
+trait DecemberFiveParser extends AdventOfCodeInstructionsParser[ (Int, Int), List[(Int, Int)], List[Int], List[List[Int]] ] {
+
+  override def inputParser = new IntegerTupleParser {
+    override def lineParser(line: String): Option[(Int, Int)] = {
+      val l = line.toStringList('/')
+      listToTuple(l)
+    }
+  }
+
+  override def instructionParser = new IntegerListParser {
+    override def lineParser(line: String): Option[List[Int]] = {
+      val l = line.toStringList(',')
+      listToIntList(l)
+    }
+  }
+}
+
+
+trait DecemberFive extends DecemberFiveParser {
 
   override def day: Int = 5
 
   type Rule = (Int, Int)
   type RuleMatcher = (Rule, Rule) => Boolean
+
+  val (input, instructions) = parser()
+  val instuctionsTuples = instructions.map { instruction =>
+    val tuples = toTuples(instruction)
+    (instruction, tuples)
+  }
 
   protected def toTuples(others: List[Int], lastHead: Option[Int] = None, acc: List[(Int, Int)] = List.empty) : List[Rule] = {
     others match {
@@ -25,34 +50,6 @@ trait DecemberFive extends AdventOfCode[Int] {
         if (acc.size > list.size) acc.headOption
         else middle(list.tail, head :: acc)
     }
-  }
-
-
-  private def listToTuple(list: List[String]): Option[Rule] = {
-    list.map(_.trim) match {
-      case head :: next :: _ => Try { (head.toInt, next.toInt ) }.toOption
-      case _ => None
-    }
-  }
-
-  private def listToIntList(list: List[String]): Option[List[Int]] = Try {
-      list.map(_.trim).map{ s => s.toInt }
-  }.toOption
-
-  val (input, instructions) = instructionParser[Rule, List[Int]](test)(
-     line => {
-       val l = line.split('|').toList
-       listToTuple(l)
-     } ,
-     line => {
-       val l = line.split(",").toList
-       listToIntList(l)
-     }
-  )
-
-  val instuctionsTuples = instructions.map { instruction =>
-     val tuples = toTuples(instruction)
-    (instruction, tuples)
   }
 
   private def ruleEqualsLeft(rule: Rule, otherRule: Rule): Boolean = otherRule._1 == rule._1

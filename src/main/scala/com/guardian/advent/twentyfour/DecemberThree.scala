@@ -1,14 +1,19 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCode
+import com.guardian.advent.InputFileReader
+import com.guardian.advent.parsers.StringParser
 
-trait DecemberThree[T] extends AdventOfCode[T] with App {
+trait DecemberThree[T] extends StringParser with InputFileReader {
+
   override def day: Int = 3
-  val m = """mul\((\d+),(\d+)\)""".r
 
-  val dont = "don't()"
-  val doo = "do()"
-  val input = parseLinesFromResource[String](test) { s => Some(s) }
+  val lines = getLines()
+  val input = parseLinesFromResource(lines)
+
+  protected val dont = "don't()"
+  protected val doo = "do()"
+
+  private val m = """mul\((\d+),(\d+)\)""".r
 
   def multsForString(s: String): List[Int] = {
     m.findAllIn(s).toList

@@ -1,23 +1,27 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{AdventOfCode, Direction, Directions, Grid, GridEntry}
+import com.guardian.advent.{AdventOfCdeGridParser, Direction, Directions, Grid, GridEntry, InputFileReader}
 
 
 case class CharEntry(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends GridEntry[Char]
 case class CharGrid(override val entries: Set[GridEntry[Char]]) extends Grid[Char]
 
-trait DecemberFour extends AdventOfCode[Int] with App with Directions {
+trait DecemberFourParser extends AdventOfCdeGridParser[Char, CharGrid] {
+
+  override def entryParser(xPos: Int, yPos: Int, char: Char):  Option[GridEntry[Char]] = Some(CharEntry(xPos, yPos, char))
+
+  override def gridMaker(entries: Set[GridEntry[Char]]): CharGrid = CharGrid(entries)
+}
+
+trait DecemberFour extends DecemberFourParser with InputFileReader {
 
   final val xmas: String = "XMAS"
   override def day = 4
 
-  private def entryParser(xPos: Int, yPos: Int, char: Char):  Option[GridEntry[Char]] = Some(CharEntry(xPos, yPos, char))
-
-  private def gridMaker(entries: Set[GridEntry[Char]]): Grid[Char] = CharGrid(entries)
-
   def isXmas(entryList: List[GridEntry[Char]]): Boolean = entryList.map(_.value).mkString("") == xmas
 
-  val grid: CharGrid = gridParser[Char](test) (entryParser, gridMaker).asInstanceOf[CharGrid]
+  val lines = getLines()
+  val grid = parseGrid(lines)
 }
 
 trait DecemberFourPartOne extends DecemberFour {

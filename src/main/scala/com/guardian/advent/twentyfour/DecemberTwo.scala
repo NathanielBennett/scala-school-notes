@@ -1,18 +1,24 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCode
-import com.guardian.advent.twentyfour.DecemberTwoPartOneTest.{checkRecord, reports}
+import com.guardian.advent.parsers.IntegerListParser
+import com.guardian.advent.{AdventOfCodeParser, InputFileReader}
 
-trait DecemberTwo extends AdventOfCode[Int] with App {
+import scala.util.Try
+
+trait DecemberTwoParser extends IntegerListParser  {
+
+  override def lineParser(line: String): Option[List[Int]] = Try {
+    line.split(" ").map(_.toInt).toList
+  }.toOption
+
+}
+
+trait DecemberTwo extends DecemberTwoParser with InputFileReader {
 
   override def day: Int = 2
 
-  val reports = parseLinesFromResource[List[Int]](test) {
-    case line =>
-      val report = line.split(" ")
-        .map(_.toInt).toList
-      Some(report)
-  }
+  val lines = getLines()
+  val reports = parseLinesFromResource(lines)
 
   def rowToDiffs(record: List[Int], lastHead: Int, acc: List[(Int, Int)] = Nil): List[(Int, Int)] = {
     record match {

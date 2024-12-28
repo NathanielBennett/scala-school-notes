@@ -1,14 +1,15 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{AdventOfCodeParser, InputFileReader}
+import com.guardian.advent.parsers.IntegerTupleParser
+import com.guardian.advent.{AdventOfCodeParser, AdventOfCodePuzzle, InputFileReader}
 
 import scala.::
 import scala.collection.AbstractSeq
 import scala.util.Try
 
-trait AdventDat
 
-trait DecemberOneParser extends AdventOfCodeParser[(Int, Int), List[(Int, Int)]] {
+
+trait DecemberOneParser extends IntegerTupleParser {
 
   val figureMatcher = """^(\d+)\s+(\d+)$""".r
 
@@ -16,33 +17,33 @@ trait DecemberOneParser extends AdventOfCodeParser[(Int, Int), List[(Int, Int)]]
     val figureMatcher(left, right) = line
     (left.toInt, right.toInt)
   }.toOption
-
-  override def sequenceToCollection(seq: Seq[(Int, Int)]): List[(Int, Int)] = seq.toList
-
-  override def toSeq(list: List[String]): AbstractSeq[String] = list
 }
 
-trait DecemberOne extends DecemberOneParser with InputFileReader {
+trait DecemberOne extends December[(Int, Int)] with DecemberOneParser {
 
-  override val day = 1
+   override val day = 1
 
-   val lines = getLines()
-   val (left, right) = parseLinesFromResource(lines)
+   val (left, right) = rawInput()
     .foldLeft((List[Int](), List[Int]())) {
       case ((leftList, rightList), (left, right)) => (left :: leftList, right :: rightList)
     }
 }
 
-trait DecemberOnePartOne extends DecemberOne {
-  override def solve() : Int = {
-    left.sorted.zip(right.sorted)
+trait DecemberOnePartOne extends DecemberOne with Solver[Int, (Int, Int)]   {
+
+  override def rawSolution: List[(Int, Int)]  = left.sorted.zip(right.sorted)
+
+  override def makeS  = 0
+
+
+
+
+
       .foldLeft(0) { case (total, (left, right)) => total + Math.abs(left - right) }
   }
 }
 
-object DecemberOnePartOneTest extends DecemberOnePartOne {
-  override def test = true
-}
+object DecemberOnePartOneTest extends DecemberOnePartOne with IntSolver with TestSolver[Int]
 
 object DecemberOnePartOneSolution extends DecemberOnePartOne {
   override def test = false

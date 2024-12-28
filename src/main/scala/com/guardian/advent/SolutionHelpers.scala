@@ -6,4 +6,7 @@ trait SolutionHelpers {
       final def toOption[A](a: => A): Option[A] = if(boolean) Some(a) else None
   }
 
+  implicit class RichString(string: String) {
+     final def toStringList(separator: Char) = string.split(separator).toList
+  }
 }
