@@ -7,6 +7,10 @@ trait SolutionHelpers {
   }
 
   implicit class RichString(string: String) {
-     final def toStringList(separator: Char) = string.split(separator).toList
+     final def toStringList(separator: Char): List[String] = string.split(separator).toList
+  }
+
+  implicit def gridEntryListToString[A](gridEntries: Seq[GridEntry[A]]): String = {
+     gridEntries.foldLeft(new StringBuilder()) { case (strinBuilder,a) => strinBuilder.append(a.value)  }.toString
   }
 }

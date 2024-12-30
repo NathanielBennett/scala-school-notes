@@ -12,24 +12,25 @@ trait DecemberFourParser extends AdventOfCodeGridParser[Char, CharGrid] {
   override def gridMaker(entries: Set[GridEntry[Char]]): CharGrid = CharGrid(entries)
 }
 
-trait DecemberFour extends December[Int, GridEntry[Char]] with DecemberFourParser with InputFileReader with ListSizeSolver[GridEntry[Char]] {
+trait DecemberFour extends December[Int, String] with DecemberFourParser with InputFileReader with ListSizeSolver[String] {
 
-  final val xmas: String = "XMAS"
-  final lazy val xMasLength = xmas.length
   val grid = rawInput
 
   override def day = 4
-
-  def isXmas(entryList: List[GridEntry[Char]]): Boolean = entryList.map(_.value).mkString("") == xmas
 }
 
-trait DecemberFourPartOne extends DecemberFour {
+trait DecemberFourPartOne extends DecemberFour[String] {
 
-  override def rawSolution: List[GridEntry[Char]] =
+  final val xmas: String = "XMAS"
+  final lazy val xMasLength = xmas.length
+
+  override def rawSolution: List[String] =
     grid.filterEntries( ge => ge.value == 'X')
-      .flatMap{ startPosition =>
-        allDirections.map { direction => grid.vertice(startPosition, direction) {vertice => vertice.length == xMasLength } }
-      }
+    .flatMap{ startPosition =>
+      val entries = allDirections.map { direction => grid.vertice(startPosition, direction) { vertice => vertice.length == xMasLength } }
+      entries.map{ ens => gridEntryListToString(ens)}
+    }
+    .filter( w  => w == xmas )
 }
 
 object DecemberFourPartOneTest extends DecemberFourPartOne with PuzzleTest
@@ -46,13 +47,15 @@ trait DecemberFourPartTwo extends DecemberFour {
      }
    }
 
-  override def rawSolution: List[GridEntry[Char]] =
-    grid.filterEntries { gridEntry => gridEntry.value == 'A'}
-      .map{ startEntry => grid.getNeigboursAndDirections( startEntry, nonCardinals).toSet }
-      .filter{ maybeCross  =>  isCross(maybeCross) }.toList
+  override def rawSolution: List[String] = {
+    val t = grid.filterEntries { gridEntry => gridEntry.value == 'A' }
+      .map { startEntry => grid.getNeigboursAndDirections(startEntry, nonCardinals).toSet }
+      .filter { maybeCross => isCross(maybeCross) }
+      .
 
 
-   def solve() : Int = {
+  }
+  def solve() : Int = {
      grid.filterEntries { gridEntry => gridEntry.value == 'A' }
        .map { startPosition => grid.getNeigboursAndDirections(startPosition, allDirections.filterNot(_.isCardinal)).toSet }
        .filter { maybeCross => isCross(maybeCross) }
