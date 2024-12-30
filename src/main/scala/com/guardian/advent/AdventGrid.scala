@@ -8,6 +8,7 @@ sealed trait Direction {
 trait Directions {
   def allDirections = List(North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest)
   def cardinalDirections = allDirections.filter{ d => d.isCardinal }
+  def nonCardinals = allDirections.filter{ d => !d.isCardinal }
   def oneDiagonal: Set[Direction] = Set(NorthWest, SouthEast)
 }
 
@@ -95,8 +96,8 @@ trait Grid[T] extends Directions {
       }.filter{ entry => filter(  gridEntry, entry )  }
   }
 
-  def getMeighbours(gridEntry: GridEntry[T], directions: List[Direction]): List[(GridEntry[T], Direction)] =
-    getNeigboursAndDirections(gridEntry, directions).map {case (entry) => entry}
+  def getNeighbours(gridEntry: GridEntry[T], directions: List[Direction]): List[GridEntry[T]] =
+    getNeigboursAndDirections(gridEntry, directions).map {case (entry, _) => entry}
 
   def getNeigboursAndDirections(gridEntry: GridEntry[T], directions: List[Direction]): List[(GridEntry[T], Direction)] =
     directions.flatMap {

@@ -5,15 +5,6 @@ import com.guardian.advent.parsers.StringParser
 import scala.collection.AbstractSeq
 import scala.io.Source
 
-
-trait RawInputProvider[T] extends InputFileReader with SolutionHelpers {
-  def rawInput: T
-}
-
-trait AdventOfCodePuzzle[T] {
-  def rawSolution: List[T]
-}
-
 trait InputFileReader {
 
   def test: Boolean
@@ -41,7 +32,7 @@ trait AdventOfCodeParser[T, U <: AbstractSeq[T]] extends SequenceConverter[T,U] 
   def lineParser(line: String): Option[T]
   def sequenceToCollection(seq: Seq[T]) : U
 
-  override def rawInput(): U = {
+  override def rawInput: U = {
     val lines = getLines()
     parseLinesFromResource(lines)
   }
