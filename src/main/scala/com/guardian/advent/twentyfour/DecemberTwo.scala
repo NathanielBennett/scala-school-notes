@@ -11,13 +11,11 @@ trait DecemberTwoParser extends IntegerListParser  {
   }.toOption
 }
 
-trait DecemberTwo extends December[List[Int], List[Int]] with DecemberTwoParser with Solver[Int, List[Int]] {
+trait DecemberTwo extends December[Int, List[List[Int]], List[Int]] with DecemberTwoParser {
 
   override def day: Int = 2
 
-  override def makeS = 0
-
-  override def toFold(s: Int, t: List[Int]): Int = t.length
+  override def solver: Solver[List[Int], Int] = listSizeSolver(test)
 
   val reports = rawInput
 
@@ -38,11 +36,7 @@ trait DecemberTwoPartOne extends DecemberTwo  {
   override def rawSolution: List[List[Int]] = reports.filter { record => checkRecord(record) }
 }
 
-object DecemberTwoPartOneTest extends DecemberTwoPartOne with PuzzleTest
-
-object DecemberTwoPartOneSolution extends DecemberTwoPartOne with PuzzleSolution
-
-trait DecemberTwoPartTwo extends DecemberTwo with Solver[Int, List[Int]] {
+trait DecemberTwoPartTwo extends DecemberTwo {
 
   def permute(ints: List[Int], indexToFilter: Int = 0) : List[Int] =
     ints.zipWithIndex.flatMap {
@@ -63,6 +57,7 @@ trait DecemberTwoPartTwo extends DecemberTwo with Solver[Int, List[Int]] {
   override def rawSolution: List[List[Int]] = reports.filter { report => checkRecord(report) || checkRecord(report) }
 }
 
+object DecemberTwoPartOneTest extends DecemberTwoPartOne with PuzzleTest
+object DecemberTwoPartOneSolution extends DecemberTwoPartOne with PuzzleSolution
 object DecemberTwoPartTwoTest extends DecemberTwoPartTwo with PuzzleSolution
-
 object DecemberTwoPartTwoSolution extends DecemberTwoPartTwo with PuzzleSolution

@@ -1,6 +1,7 @@
 package com.guardian.advent
 
 import com.guardian.advent.parsers.StringParser
+import com.guardian.advent.twentyfour.RawInputProvider
 
 import scala.collection.AbstractSeq
 import scala.io.Source
@@ -43,10 +44,11 @@ trait AdventOfCodeParser[T, U <: AbstractSeq[T]] extends SequenceConverter[T,U] 
   }
 }
 
-trait AdventOfCodeInstructionsParser[T, U <: AbstractSeq[T], V, W <: AbstractSeq[W]] extends RawInputProvider[(U, W)] {
+trait AdventOfCodeInstructionsParser[T, U <: AbstractSeq[T], V, W <: AbstractSeq[V]] extends RawInputProvider[(U, W)] {
 
   def inputParser: AdventOfCodeParser[T,U]
   def instructionParser: AdventOfCodeParser[V,W]
+
   private def lineFilter(list: List[String]): List[String] = list.takeWhile{ s => !s.isEmpty }
 
   override def rawInput: (U, W) =  {
@@ -57,7 +59,7 @@ trait AdventOfCodeInstructionsParser[T, U <: AbstractSeq[T], V, W <: AbstractSeq
   }
 }
 
-trait AdventOfCodeGridParser[T, GRID <: Grid[GridEntry[T]]] extends RawInputProvider[GRID]  with Directions {
+trait AdventOfCodeGridParser[T, GRID <: Grid[T]] extends RawInputProvider[GRID]  with Directions {
 
   val stringParser = new StringParser {
     override def test: Boolean = this.test

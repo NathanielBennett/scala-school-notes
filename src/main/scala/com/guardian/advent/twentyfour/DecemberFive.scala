@@ -1,42 +1,45 @@
-package com.guardian.advent.twentyfour
+ package com.guardian.advent.twentyfour
 
+import com.guardian.advent.AdventOfCodeInstructionsParser
 import com.guardian.advent.parsers.{IntegerListParser, IntegerTupleParser}
-import com.guardian.advent.{AdventOfCodeGridParser, AdventOfCodeInstructionsParser, AdventOfCodeParser}
-
-import scala.util.Try
 
 trait DecemberFiveParser extends AdventOfCodeInstructionsParser[ (Int, Int), List[(Int, Int)], List[Int], List[List[Int]] ] {
 
-  override def inputParser = new IntegerTupleParser {
-    override def lineParser(line: String): Option[(Int, Int)] = {
+  type Rule = (Int, Int)
+
+  class IntegerTupleParserImp(override val day: Int, override val test: Boolean) extends IntegerTupleParser {
+    override def lineParser(line: String): Option[Rule] = {
       val l = line.toStringList('/')
       listToTuple(l)
     }
   }
 
-  override def instructionParser = new IntegerListParser {
+  class IntegerListParserImp(override val day: Int, override val test: Boolean) extends IntegerListParser {
     override def lineParser(line: String): Option[List[Int]] = {
       val l = line.toStringList(',')
       listToIntList(l)
     }
   }
+
+  override def inputParser = new IntegerTupleParserImp(day, test)
+  override def instructionParser = new IntegerListParserImp(day, test)
 }
 
 
-trait DecemberFive extends DecemberFiveParser {
+trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), Int] with DecemberFiveParser {
 
-  override def day: Int = 5
-
-  type Rule = (Int, Int)
   type RuleMatcher = (Rule, Rule) => Boolean
 
-  val (input, instructions) = parser()
+  override def day = 1
+  override def solver: Solver[Int, Int] = listTotalSolver(0, test)
+
+  val (input, instructions) = rawInput
   val instuctionsTuples = instructions.map { instruction =>
     val tuples = toTuples(instruction)
     (instruction, tuples)
   }
 
-  protected def toTuples(others: List[Int], lastHead: Option[Int] = None, acc: List[(Int, Int)] = List.empty) : List[Rule] = {
+  protected def toTuples(others: List[Int], lastHead: Option[Int] = None, acc: List[Rule] = List.empty) : List[Rule] = {
     others match {
       case Nil => acc.reverse
       case head :: Nil => toTuples(Nil, Some(head), lastHead.map{ lh => (lh, head) :: acc}.getOrElse(acc))
@@ -73,56 +76,45 @@ trait DecemberFive extends DecemberFiveParser {
   }
 }
 
-trait DecemberFivePartOne extends DecemberFive with App{
+trait DecemberFivePartOne extends DecemberFive  {
 
-  override def solve(): Int = {
-    instuctionsTuples.filter{ case (i, tuples) => checkRow(tuples) }
-     .flatMap{ case (instruction, _) => middle(instruction) }
-     .foldLeft(0) { case(total, middle) => total + middle }
-  }
+  override def rawSolution: List[Int] =
+    instuctionsTuples
+      .filter { case(_, rule) => checkRow(rule) }
+      .flatMap{ case(instructions, _) => middle(instructions)}
 }
 
-object DecemberFivePartOneTest extends DecemberFivePartOne {
-  override def test = true
-}
+object DecemberFivePartOneTest extends DecemberFivePartOne with PuzzleTest
+object DecemberFivePartOneSolution extends DecemberFivePartOne with PuzzleSolution
 
-object DecemberFivePartOneSolution extends DecemberFivePartOne {
-  override def test = false
-}
-trait DecemberFivePartTwo extends DecemberFive with App {
+trait DecemberFivePartTwo extends DecemberFive {
 
-  private def findCorrectPermutation(instructions:  List[Int]): Option[List[Int]] = {
-    def permute(permutations: List[List[Int]]): Option[List[Int]] = {
-      permutations match {
+  private def findCorrectPermutation(instructions: List[Int]): Option[List[Int]] = {
+    def permute(iterator: Iterator[List[Int]]): Option[List[Int]] = {
+
+      iterator.next match {
         case Nil => None
-        case head :: tail =>
-          val tuples = toTuples(head)
-          if (checkRow(tuples)) Some(head)
-          else permute(tail)
+        case permutation =>
+          val tuples = toTuples(permutation)
+          if (checkRow(tuples)) Some(permutation)
+          else permute(iterator)
       }
     }
-    permute(instructions.permutations.toList)
+
+    permute(instructions.permutations)
   }
 
-  override def solve(): Int = {
-    instuctionsTuples.filter{ case(_, tuples) => !checkRow(tuples) }
-      .flatMap { case (instruction, _) =>
-        findCorrectPermutation(instruction)
-      }
-      .flatMap{ permutation => middle(permutation) }
-      .foldLeft(0) { case (a, b) => a + b }
+  override def rawSolution: List[Int] = {
+    instuctionsTuples.filter{ case(_, rule) => !checkRow(rule)}
+      .flatMap { case (instructions, _) =>  findCorrectPermutation(instructions) }
+      .flatMap { permutation => middle(permutation)}
   }
 }
 
+object DecemberFivePartTwoTest extends DecemberFivePartTwo with PuzzleTest
 
-object DecemberFivePartTwoTest extends DecemberFivePartTwo {
-  override def test = true
-  println(solve())
-}
-
-object DecemberFivePartTwoSolution extends DecemberFivePartTwo {
-  override def test = false
-  println(solve())
+object DecemberFivePartTwoSolution extends DecemberFivePartTwo with PuzzleTest with App {
+  println(solve)
 }
 
 

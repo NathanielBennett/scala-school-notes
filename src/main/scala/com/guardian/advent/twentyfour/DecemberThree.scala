@@ -3,14 +3,9 @@ package com.guardian.advent.twentyfour
 import com.guardian.advent.parsers.StringParser
 
 
-trait DecemberThree[S : Numeric] extends December[String, S] with StringParser with Solver[S, S] {
+trait DecemberThree[S] extends December[S, List[String], S] with StringParser  {
 
-  val num = implicitly[Numeric[S]]
-
-  def makeVal(a: S, b: S): S = num.plus(a, b)
   override def day: Int = 3
-
-  override def toFold(tAcc: S, s: S) : S = num.plus(tAcc, s)
 
   val input: List[String] = rawInput
 
@@ -20,7 +15,6 @@ trait DecemberThree[S : Numeric] extends December[String, S] with StringParser w
   private val m = """mul\((\d+),(\d+)\)""".r
 
   protected def multiply(list: List[String]): List[Int] = list.flatMap{ s => multsForString(s) }
-
   protected def multsForString(s: String): List[Int] = {
     m.findAllIn(s).toList
       .map { l =>
@@ -32,16 +26,23 @@ trait DecemberThree[S : Numeric] extends December[String, S] with StringParser w
 
 trait DecemberThreePartOne extends DecemberThree[Int] {
 
-  override def makeS: Int = 0
+  override def solver: Solver[Int, Int] = listTotalSolver(0, test)
   override def rawSolution: List[Int] = input.flatMap{ s => multsForString(s) }
 }
 
-object DecemberThreePartOneTest extends DecemberThreePartOne with PuzzleTest
-object DecemberThreePartOneSolution extends DecemberThreePartOne with PuzzleSolution
-
 trait DecemberThreePartTwo extends DecemberThree[Long] {
 
-    override def makeS: Long = 0L
+  override def solver: Solver[Long, Long] = listTotalSolver(0L, test)
+
+    override def rawSolution: List[Long] = {
+      val rawInstructions = input.foldLeft(new StringBuilder()) { case (stringBuilder, string) => stringBuilder.append(string) }.toString()
+      val delim = startStop(rawInstructions)
+      val cleanInstructions = findInstructions(rawInstructions, delim)
+        .flatMap { case (instructions, shouldProcess) => if (shouldProcess) Some(instructions) else None }
+        .foldLeft(new StringBuilder()) { case (stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
+        .toString
+      multsForString(cleanInstructions).map(_.toLong)
+    }
 
     def makeNextDelim(delim: String): String = if (delim == dont) doo else dont
 
@@ -76,17 +77,9 @@ trait DecemberThreePartTwo extends DecemberThree[Long] {
         )
       }
     }
-
-   override def rawSolution: List[Long] = {
-      val rawInstructions = input.foldLeft(new StringBuilder()) { case (stringBuilder, string) => stringBuilder.append(string) }.toString()
-      val delim = startStop(rawInstructions)
-      val cleanInstructions = findInstructions(rawInstructions, delim)
-        .flatMap { case (instructions, shouldProcess) => if (shouldProcess) Some(instructions) else None }
-        .foldLeft(new StringBuilder()) { case (stringBuilder: StringBuilder, string: String) => stringBuilder.append(string) }
-        .toString
-     multsForString(cleanInstructions).map(_.toLong)
-  }
 }
 
+object DecemberThreePartOneTest extends DecemberThreePartOne with PuzzleTest
+object DecemberThreePartOneSolution extends DecemberThreePartOne with PuzzleSolution
 object DecemberThreePartTwoTest extends DecemberThreePartTwo with PuzzleTest
 object DecemberThreePartTwoSolution extends DecemberThreePartTwo with PuzzleSolution
