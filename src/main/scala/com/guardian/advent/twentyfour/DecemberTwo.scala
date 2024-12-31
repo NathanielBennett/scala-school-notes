@@ -15,7 +15,7 @@ trait DecemberTwo extends December[Int, List[List[Int]], List[Int]] with Decembe
 
   override def day: Int = 2
 
-  override def solver: Solver[List[Int], Int] = listSizeSolver(test)
+  override def solver: Solver[List[Int], Int] = listSizeSolver
 
   val reports = rawInput
 
@@ -54,10 +54,10 @@ trait DecemberTwoPartTwo extends DecemberTwo {
      }
   }
 
-  override def rawSolution: List[List[Int]] = reports.filter { report => checkRecord(report) || checkRecord(report) }
+  override def rawSolution: List[List[Int]] = reports.filter { record => checkRecord(record) || checkPemutations(record) }
 }
 
 object DecemberTwoPartOneTest extends DecemberTwoPartOne with PuzzleTest
 object DecemberTwoPartOneSolution extends DecemberTwoPartOne with PuzzleSolution
-object DecemberTwoPartTwoTest extends DecemberTwoPartTwo with PuzzleSolution
+object DecemberTwoPartTwoTest extends DecemberTwoPartTwo with PuzzleTest
 object DecemberTwoPartTwoSolution extends DecemberTwoPartTwo with PuzzleSolution

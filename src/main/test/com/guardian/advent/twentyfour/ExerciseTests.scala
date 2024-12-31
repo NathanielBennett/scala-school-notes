@@ -1,21 +1,33 @@
 package com.guardian.advent.twentyfour
 
+import com.guardian.advent.{Direction, GridEntry}
 import org.scalatest._
 import flatspec._
 import matchers._
 
 class ExerciseTests extends AnyFlatSpec with should.Matchers {
 
-  "Day one" should "return the correct values" in {
-       val testsAndExpected: List[(DecemberOne, Int)] = List(
+  "Day one part one" should "return the correct values" in {
+       val testsAndExpected: List[(DecemberOne[(Int, Int)], Int)] = List(
          (DecemberOnePartOneTest, 11),
-         (DecemberOnePartOneSolution, 1830467),
+         (DecemberOnePartOneSolution, 1830467)/*,
+         (DecemberOnePartTwoTest, 31),
+         (DecemberOnePartTwoSolution, 26674158)*/
+       )
+
+       testsAndExpected.foreach {
+         case (adventPuzzle, expectedResult) => adventPuzzle.solve should be(expectedResult)
+       }
+    }
+
+  "Day one part two" should "return the correct values" in {
+       val testsAndExpected: List[(DecemberOne[Int], Int)] = List(
          (DecemberOnePartTwoTest, 31),
          (DecemberOnePartTwoSolution, 26674158)
        )
 
        testsAndExpected.foreach {
-         case (adventPuzzle, expectedResult) => adventPuzzle.solve() should be(expectedResult)
+         case (adventPuzzle, expectedResult) => adventPuzzle.solve should be(expectedResult)
        }
     }
 
@@ -30,34 +42,43 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
        testsAndExpected.foreach {
          case (adventPuzzle, expectedResult) =>
            println(adventPuzzle.getClass)
-           adventPuzzle.solve() should be(expectedResult)
+           adventPuzzle.solve should be(expectedResult)
        }
     }
 
   "Day three" should "return the correct values" in {
-      DecemberThreePartOneTest.solve() should be (161)
-      DecemberThreePartOneSolution.solve() should be (155955228L)
-      DecemberThreePartTwoTest.solve() should be (48L)
-      DecemberThreePartTwoSolution.solve() should be (100189366)
+      DecemberThreePartOneTest.solve should be (161)
+      DecemberThreePartOneSolution.solve should be (155955228L)
+      DecemberThreePartTwoTest.solve should be (48L)
+      DecemberThreePartTwoSolution.solve should be (100189366)
   }
 
-  "Day four" should "return the correct values" in {
-     val testsAndExpected: List[(DecemberFour, Int)] = List(
+  "Day four part 1" should "return the correct values" in {
+     val testsAndExpected: List[(DecemberFourPartOne, Int)] = List(
        (DecemberFourPartOneTest, 18),
-       (DecemberFourPartOneSolution, 2434),
-       (DecemberFourPartTwoTest, 9),
-       (DecemberFourPartTwoSolution, 1835)
+       (DecemberFourPartOneSolution, 2434)
      )
+     testsAndExpected.foreach {
+       case (adventPuzzle, expectedResult) =>
+         adventPuzzle.solve should be (expectedResult)
+     }
+  }
+
+  "Day 4 Part 2" should "return the correct values" in {
+    val testsAndExpected: List[(DecemberFourPartTwo, Int)] = List(
+         (DecemberFourPartTwoTest, 9),
+         (DecemberFourPartTwoSolution, 1835)
+     )
+
     testsAndExpected.foreach {
       case (adventPuzzle, expectedResult) =>
         println(adventPuzzle.getClass)
-        adventPuzzle.solve() should be(expectedResult)
+        adventPuzzle.solve should be(expectedResult)
     }
-
   }
 
   "Day five" should "return the correct valuws" in {
-      DecemberFivePartOneTest.solve() should be(143)
-      DecemberFivePartOneSolution.solve() should be(5091)
+      DecemberFivePartOneTest.solve should be(143)
+      DecemberFivePartOneSolution.solve should be(5091)
   }
 }

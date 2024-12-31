@@ -13,9 +13,17 @@ trait DecemberOneParser extends IntegerTupleParser {
   }.toOption
 }
 
-trait DecemberOne extends December[Int, List[(Int, Int)], (Int, Int)] with DecemberOneParser {
+trait DecemberOne[L] extends December[Int, List[(Int, Int)], L] with DecemberOneParser {
 
   override val day = 1
+
+  val (left, right) = rawInput
+    .foldLeft((List[Int](), List[Int]())) {
+      case ((leftList, rightList), (left, right)) => (left :: leftList, right :: rightList)
+    }
+}
+
+trait DecemberOnePartOne extends DecemberOne[(Int, Int)]    {
 
   override def solver: Solver[(Int, Int), Int] = new ListTotalSolution[(Int, Int), Int] {
     override implicit val addable: Addable[(Int, Int), Int] = new Addable[(Int, Int), Int] {
@@ -26,21 +34,20 @@ trait DecemberOne extends December[Int, List[(Int, Int)], (Int, Int)] with Decem
     }
 
     override def foldSeed: Int = 0
-    override def test: Boolean = this.test
   }
 
-  val (left, right) = rawInput
-    .foldLeft((List[Int](), List[Int]())) {
-      case ((leftList, rightList), (left, right)) => (left :: leftList, right :: rightList)
-    }
-}
-
-trait DecemberOnePartOne extends DecemberOne    {
   override def rawSolution: List[(Int, Int)] = left.sorted.zip(right.sorted)
 }
 
-trait DecemberOnePartTwo extends DecemberOne {
-  override def rawSolution: List[(Int, Int)] = right.groupBy { k => k }.map { case (k, v) => (k, v.length) }.toList
+trait DecemberOnePartTwo extends DecemberOne[Int] {
+
+  override def solver: Solver[Int, Int] = listTotalSolver(0, test)
+
+  override def rawSolution: List[Int] = {
+    val totals = right.groupBy { k => k }.map { case (k, v) => (k, v.length) }
+    val l = left.flatMap { k =>totals.get(k).map { v => k * v} }
+    l
+  }
 }
 
 object DecemberOnePartOneTest extends DecemberOnePartOne with PuzzleTest

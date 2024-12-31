@@ -1,8 +1,8 @@
 package com.guardian.advent.twentyfour
+
 trait Addable[A, B] {
   def  add(a: A, b: B): B
 }
-
 
 trait Addables {
 
@@ -16,13 +16,10 @@ trait Addables {
 }
 
 trait Solver[S, T] extends Addables {
-
-  def test: Boolean
   def solution(list: List[S]): T
 }
 
 trait ListSizeSolver[S] extends Solver[S,Int] {
-
   override def solution(list: List[S]): Int = list.length
 }
 

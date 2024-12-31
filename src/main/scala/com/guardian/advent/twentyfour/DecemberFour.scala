@@ -11,12 +11,12 @@ trait DecemberFourParser extends AdventOfCodeGridParser[Char, CharGrid] {
   override def gridMaker(entries: Set[GridEntry[Char]]): CharGrid = CharGrid(entries)
 }
 
-//OK
 trait DecemberFour[T] extends December[Int, CharGrid, T] with DecemberFourParser {
   type Cross = Set[(GridEntry[Char], Direction)]
-  override def day = 4
 
-  override def solver: Solver[T, Int] = listSizeSolver(test)
+  override def day = 4
+  override def solver: Solver[T, Int] = listSizeSolver
+
   val grid = rawInput
 }
 
@@ -25,13 +25,14 @@ trait DecemberFourPartOne extends DecemberFour[String] {
   final val xmas: String = "XMAS"
   final lazy val xMasLength = xmas.length
 
-  override def rawSolution: List[String] =
-    grid.filterEntries( ge => ge.value == 'X')
+  override def rawSolution: List[String] = {
+    val t = grid.filterEntries( ge => ge.value == 'X')
     .flatMap{ startPosition =>
       val entries = allDirections.map { direction => grid.vertice(startPosition, direction) { vertice => vertice.length == xMasLength } }
       entries.map{ ens => gridEntryListToString(ens) }
     }
-    .filter( w  => w == xmas )
+    t.filter( w  => w == xmas )
+  }
 }
 
 object DecemberFourPartOneTest extends DecemberFourPartOne with PuzzleTest

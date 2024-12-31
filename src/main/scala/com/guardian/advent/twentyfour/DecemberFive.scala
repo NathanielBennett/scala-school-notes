@@ -4,12 +4,12 @@ import com.guardian.advent.AdventOfCodeInstructionsParser
 import com.guardian.advent.parsers.{IntegerListParser, IntegerTupleParser}
 
 trait DecemberFiveParser extends AdventOfCodeInstructionsParser[ (Int, Int), List[(Int, Int)], List[Int], List[List[Int]] ] {
-
+1
   type Rule = (Int, Int)
 
   class IntegerTupleParserImp(override val day: Int, override val test: Boolean) extends IntegerTupleParser {
     override def lineParser(line: String): Option[Rule] = {
-      val l = line.toStringList('/')
+      val l = line.toStringList('|')
       listToTuple(l)
     }
   }
@@ -30,7 +30,7 @@ trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), In
 
   type RuleMatcher = (Rule, Rule) => Boolean
 
-  override def day = 1
+  override def day = 5
   override def solver: Solver[Int, Int] = listTotalSolver(0, test)
 
   val (input, instructions) = rawInput
