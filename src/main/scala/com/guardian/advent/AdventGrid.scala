@@ -55,6 +55,7 @@ trait GridEntry[T] {
   def xPosition: Int
   def yPosition: Int
   def value: T
+  def nextCoords(direction: Direction): (Int,Int) = direction.nextGridCoords(xPosition, yPosition)
   def equalPosition(x: Int, y: Int): Boolean = x == xPosition && y == yPosition
 }
 
@@ -102,7 +103,7 @@ trait Grid[T] extends Directions {
   def getNeigboursAndDirections(gridEntry: GridEntry[T], directions: List[Direction]): List[(GridEntry[T], Direction)] =
     directions.flatMap {
       direction =>
-        val (xPosition, yPosition) = direction.nextGridCoords(gridEntry.xPosition, gridEntry.yPosition)
+        val (xPosition, yPosition) = gridEntry.nextCoords(direction)
         entries.find { ge => ge.xPosition == xPosition && ge.yPosition == yPosition }.map { entry =>
           (entry, direction)
         }
