@@ -3,6 +3,8 @@
 import com.guardian.advent.AdventOfCodeInstructionsParser
 import com.guardian.advent.parsers.{IntegerListParser, IntegerTupleParser}
 
+import scala.collection.View.Filter
+
 trait DecemberFiveParser extends AdventOfCodeInstructionsParser[ (Int, Int), List[(Int, Int)], List[Int], List[List[Int]] ] {
 1
   type Rule = (Int, Int)
@@ -39,6 +41,7 @@ trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), In
     (instruction, tuples)
   }
 
+  val inpurMap =
   protected def toTuples(others: List[Int], lastHead: Option[Int] = None, acc: List[Rule] = List.empty) : List[Rule] = {
     others match {
       case Nil => acc.reverse
@@ -64,6 +67,16 @@ trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), In
       tuples.find { case t => !rules.exists { rule => ruleMatcher(t, rule) } }.map(_ => false).getOrElse(true)
     }
   }
+
+  private def checkRulesX(tuples: List[Rule], allRules: Map[Int, Rule], toCheck: Map[Int, Rule]): Boolean = {
+    tuples.isEmpty || {
+      val rules =
+
+      }
+
+    }
+  }
+
 
   protected def checkRow(tuples: List[Rule], seenTuples: List[Rule] = List.empty): Boolean = {
     tuples match {

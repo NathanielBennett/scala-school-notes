@@ -45,8 +45,7 @@ trait DecemberOnePartTwo extends DecemberOne[Int] {
 
   override def rawSolution: List[Int] = {
     val totals = right.groupBy { k => k }.map { case (k, v) => (k, v.length) }
-    val l = left.flatMap { k =>totals.get(k).map { v => k * v} }
-    l
+    left.flatMap { k =>totals.get(k).map { v => k * v} }
   }
 }
 

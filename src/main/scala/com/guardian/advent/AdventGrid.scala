@@ -65,7 +65,6 @@ trait Grid[T] extends Directions {
   def entries: Set[GridEntry[T]]
   lazy val maxX = entries.maxBy{_.xPosition}.xPosition
   lazy val maxY = entries.maxBy(_.yPosition).yPosition
-
   private def neighbours(xRange: Range, yRange: Range): List[(Int, Int)] = {
     (for {
       y <- yRange

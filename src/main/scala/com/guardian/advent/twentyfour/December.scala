@@ -25,6 +25,5 @@ trait December[A, S, T] extends RawInputProvider[S] with AdventOfCodePuzzle[T]  
       override implicit val addable: Addable[A, A] = addableImp
       override def foldSeed: A = seed
     }
-
 }
 
