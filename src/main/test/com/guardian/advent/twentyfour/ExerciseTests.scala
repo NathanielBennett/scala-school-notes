@@ -8,17 +8,30 @@ import matchers._
 class ExerciseTests extends AnyFlatSpec with should.Matchers {
 
   "Day one part one" should "return the correct values" in {
-       val testsAndExpected: List[(DecemberOne[(Int, Int)], Int)] = List(
-         (DecemberOnePartOneTest, 11),
-         (DecemberOnePartOneSolution, 1830467)/*,
-         (DecemberOnePartTwoTest, 31),
-         (DecemberOnePartTwoSolution, 26674158)*/
-       )
+     val testsAndExpectedPartOne: List[(DecemberOne[(Int, Int)], Int)] = List(
+        (DecemberOnePartOneTest, 11),
+        (DecemberOnePartOneSolution, 1830467)
+     )
 
-       testsAndExpected.foreach {
-         case (adventPuzzle, expectedResult) => adventPuzzle.solve should be(expectedResult)
-       }
+    testsAndExpectedPartOne.foreach {
+      case (adventPuzzle, expectedResult) => adventPuzzle.solve should be(expectedResult)
     }
+
+    val testsAndExpectedPartTwo: List[(DecemberOne[Int], Int)] = List(
+        (DecemberOnePartTwoTest, 31),
+        (DecemberOnePartTwoSolution, 26674158)
+    )
+
+    testsAndExpectedPartTwo.foreach {
+      case (adventPuzzle, expectedResult) => adventPuzzle.solve should be(expectedResult)
+    }
+
+    /*
+  val testsAndExpectedPartOne: List[(DecemberOne[(Int, Int)], Int)] = List(
+*/
+
+}
+
 
   "Day one part two" should "return the correct values" in {
        val testsAndExpected: List[(DecemberOne[Int], Int)] = List(
