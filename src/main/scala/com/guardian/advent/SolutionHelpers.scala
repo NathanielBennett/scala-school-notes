@@ -1,6 +1,7 @@
 package com.guardian.advent
 
 import scala.collection.AbstractSeq
+import scala.collection.immutable.LinearSeq
 
 trait SolutionHelpers {
 
@@ -12,6 +13,11 @@ trait SolutionHelpers {
      final def toStringList(separator: Char): List[String] = string.split(separator).toList
   }
 
+  implicit class RichLinearSeq[A, B <: LinearSeq[A]](abstractSeq: LinearSeq[A]) {
+    def tailHead: A = abstractSeq.tail.head
+
+    def tailEmpty: Boolean = abstractSeq.size == 1
+  }
   implicit class RichList[A](list: List[A]) {
     def doesNotContain(a: A): Boolean = !list.contains(a)
   }
@@ -43,22 +49,27 @@ trait SolutionHelpers {
     def equalsRight(other: (A, B)): Boolean = other.right == right
   }
 
-  implicit class RichTupleList[A,B](tuples: List[(A, B)]) {
+  implicit class RichTupleList[A,B, L <: LinearSeq[(A, B)], M <: LinearSeq[(B, A)]](tuples: L) {
 
     type T = (A, B)
+    type U = (B, A)
+    implicit def toL(linearSeq: LinearSeq[T]: L = linearSeq.asInstanceOf[L]
+    implicit def toM(linearSeq: LinearSeq[B]: M = linearSeq.asInstanceOf[M]
+
+    
 
     def tupleListToMap : Map[String, T] = tupleMap[String](t => t.key)
     def tupleMapLeft: Map[A, T] = tupleMap{ t => t.left }
     def tupleListRight: Map[B, T] = tupleMap{ t => t.right }
 
-    def invert: List[(B,A)] = tuples.map{ t => t.reverse }
-    def leftMap: Map[A, List[(A,B)]] = listMap[A]{ case t => t.left }
-    def rightMap: Map[B, List[(A,B)]] = listMap[B] {case t => t.right}
-    def leftList: List[A] = tuples.map { case t => t.left }
-    def rightList: List[B] = tuples.map { case t => t.right}
+    def invert: M = tuples.map{ t => t.reverse }.asInstanceOf[M]
+    def leftMap: Map[A,L] = listMap[A]{ case t => t.left}
+    def rightMap: Map[B,L] = listMap[B] {case t => t.right}
+    def leftList: LinearSeq[A] = tuples.map { case t => t.left }
+    def rightList: LinearSeq[B] = tuples.map { case t => t.right }
 
 
-    def listMap[K](makeKey: T => K) = tuples.groupMap { t => makeKey(t)}{ case(a, b) =>( a, b) }
+    def listMap[K](makeKey: T => K): Map[K, LinearSeq[T]] = tuples.groupMap { t => makeKey(t)}{ case(a, b) => (  a, b ) }
 
     def listMapLeft: Map[A, List[B]] = mapToTupleValue( t => t.left, t => t.right )
     def listMapRight: Map[B, List[A]] = mapToTupleValue( t => t.right, t => t.left )

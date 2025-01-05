@@ -4,7 +4,10 @@ import com.guardian.advent.AdventOfCodeInstructionsParser
 import com.guardian.advent.parsers.{IntegerListParser, IntegerTupleParser}
 
 import java.util.Locale.{LanguageRange, setDefault}
-import scala.collection.View.Filter
+import javax.print.attribute.standard.MediaSize.Other
+import scala.collection.AbstractSeq
+import scala.collection.View.{Filter, empty}
+import scala.collection.immutable.LinearSeq
 
 trait DecemberFiveParser extends AdventOfCodeInstructionsParser[ (Int, Int), List[(Int, Int)], List[Int], List[List[Int]] ] {
 1
@@ -29,12 +32,15 @@ trait DecemberFiveParser extends AdventOfCodeInstructionsParser[ (Int, Int), Lis
 }
 
 
+
 trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), Int] with DecemberFiveParser {
 
   type RuleMatcher = (Rule, Rule) => Boolean
 
   override def day = 5
-  override def solver: Solver[Int, Int] = listTotalSolver(0, test)
+  override def solver: Solver[Int, Int] = listTotalSolver(0, test):
+
+  def defaultList: LinearSeq[Rule] = List.empty
 
   val (input, instructions) = rawInput
   val instuctionsTuples = instructions.map { instruction =>
@@ -45,66 +51,35 @@ trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), In
   val leftInput = input.listMapLeft
   val rightInput = input.listMapRight
 
-  protected def toTuples(others: List[Int], lastHead: Option[Int] = None, acc: List[Rule] = List.empty) : List[Rule] = {
-    others match {
-      case Nil => acc.reverse
-      case head :: Nil => toTuples(Nil, Some(head), lastHead.map{ lh => (lh, head) :: acc}.getOrElse(acc))
-      case head :: tail => toTuples(tail, Some(head), (head, tail.head) :: acc )
+  protected def toTuples[A <: LinearSeq[Int], B <: LinearSeq[Rule] ](others: A, acc: B = defaultList : B = {
+    if (others.isEmpty) acc
+    else others.tailEmpty match {
+      case true => toTuples(List.empty, acc)
+      case false =>
+        toTuples(others.tail, acc.appended(others.head, others.tailHead).asInstanceOf[B])
     }
   }
-
-  protected def middle(list: List[Int], acc: List[Int] = List.empty ): Option[Int] = {
+  protected def middle[A <: LinearSeq[Int]](list: A, last: Option[Int] = None, cnt: Int = 0 ): Option[Int] = {
     list.headOption.flatMap {
       head =>
-        if (acc.size > list.size) acc.headOption
-        else middle(list.tail, head :: acc)
+        if (cnt > list.size) last
+        else middle(list.tail, Some(head), cnt + 1)
     }
   }
 
-  private def ruleEqualsLeft(rule: Rule, otherRule: Rule): Boolean = otherRule._1 == rule._1
-  private def ruleEqualsRight(rule: Rule, otherRule: Rule): Boolean = otherRule._2 == rule._2
-
-  private def checkRules(tuples: List[Rule], filter: RuleMatcher, ruleMatcher: RuleMatcher): Boolean = {
-    tuples.isEmpty || {
-      val rules = input.filter { case t => filter(tuples.head, t) }
-      tuples.find { case t => !rules.exists { rule => ruleMatcher(t, rule) } }.map(_ => false).getOrElse(true)
-    }
-  }
-
-  private def checkRulesMap(head: Int, lefts: List[Int], ruleMap: Map[Int, List[Int]]) : Boolean = {
-    ruleMap.foreach {
-      case(key, v) => println(s"$key -> ${v} ")
-    }
+  private def checkRulesMap(lefts: List[Int], head: Int,  ruleMap: Map[Int, List[Int]]) : Boolean = {
 
     lefts.isEmpty | ruleMap.get(head).map { case ls =>
-      println(s"ls: ( ${head} -> ${ls.sorted}")
-      println(s"lefts: ${lefts.sorted}")
-      println(s"L : ${lefts.intersect(ls).sorted}")
-      println(s"R : ${ls.intersect(lefts).sorted}")
-      println(s"R : ${ls.intersect(lefts).sorted}")
-      false
-    }.get
-/*
-      ruleMap.get(lefts.head).forall {
-        l =>
-          lefts.forall( left => l.contains(left) ) }
-*/
+       lefts.forall{ left => (head :: ls).contains(left) }
+    }.getOrElse(true)
   }
 
-  protected def checkRow(tuples: List[Rule], seenTuples: List[Rule] = List.empty): Boolean = {
-    tuples match {
-      case Nil => true
-      case  head :: tail =>
-        println("+++")
-        //checkRules(head :: seenTuples, ruleEqualsRight, ruleEqualsLeft) &&
-          //checkRulesMap((head :: seenTuples).leftList, leftInput) &&
-          println(s"tuples: $tuples")
-          println(s"tail: $tail")
-          println(s"tailL: ${tail.leftList}")
-          println(s"****")
-          checkRulesMap(head.left, tail.leftList, leftInput) &&
-          checkRules(head :: tail, ruleEqualsLeft, ruleEqualsRight) &&
-          checkRow(tail, head :: seenTuples )
+  protected def checkRow[A <: LinearSeq[Rule](tuples: A): Boolean = {
+    if (tuples.isEmpty) true
+    else {
+        checkRulesMap(tuples.rightList, tuples.head.left, leftInput) &&
+          checkRulesMap(tuples.leftList, tuples.last.right, rightInput) &&
+          checkRow(tuples.tail)
     }
   }
 }
@@ -128,7 +103,7 @@ trait DecemberFivePartTwo extends DecemberFive {
       iterator.next match {
         case Nil => None
         case permutation =>
-          val tuples = toTuples(permutation)
+          val tuples = toTuples(permutation, List.empty)
           if (checkRow(tuples)) Some(permutation)
           else permute(iterator)
       }
