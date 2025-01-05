@@ -53,7 +53,9 @@ trait AdventOfCodeInstructionsParser[T, U <: AbstractSeq[T], V, W <: AbstractSeq
 
   override def rawInput: (U, W) =  {
     val rawInput = getLines{ Some( list  => lineFilter(list) ) }
-    val rawInstruction  = getLines{ Some( list  => lineFilter(list.reverse) ) }
+
+    //TODO sort
+    val rawInstruction  = getLines{ Some( list  => lineFilter(list.reverse) ) }.reverse
 
     ( inputParser.parseLinesFromResource(rawInput), instructionParser.parseLinesFromResource(rawInstruction) )
   }

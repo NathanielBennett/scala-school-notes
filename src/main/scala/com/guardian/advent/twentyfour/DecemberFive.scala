@@ -3,6 +3,7 @@
 import com.guardian.advent.AdventOfCodeInstructionsParser
 import com.guardian.advent.parsers.{IntegerListParser, IntegerTupleParser}
 
+import java.util.Locale.{LanguageRange, setDefault}
 import scala.collection.View.Filter
 
 trait DecemberFiveParser extends AdventOfCodeInstructionsParser[ (Int, Int), List[(Int, Int)], List[Int], List[List[Int]] ] {
@@ -41,7 +42,9 @@ trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), In
     (instruction, tuples)
   }
 
-  val inpurMap =
+  val leftInput = input.listMapLeft
+  val rightInput = input.listMapRight
+
   protected def toTuples(others: List[Int], lastHead: Option[Int] = None, acc: List[Rule] = List.empty) : List[Rule] = {
     others match {
       case Nil => acc.reverse
@@ -68,21 +71,38 @@ trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), In
     }
   }
 
-  private def checkRulesX(tuples: List[Rule], allRules: Map[Int, Rule], toCheck: Map[Int, Rule]): Boolean = {
-    tuples.isEmpty || {
-      val rules =
-
-      }
-
+  private def checkRulesMap(head: Int, lefts: List[Int], ruleMap: Map[Int, List[Int]]) : Boolean = {
+    ruleMap.foreach {
+      case(key, v) => println(s"$key -> ${v} ")
     }
-  }
 
+    lefts.isEmpty | ruleMap.get(head).map { case ls =>
+      println(s"ls: ( ${head} -> ${ls.sorted}")
+      println(s"lefts: ${lefts.sorted}")
+      println(s"L : ${lefts.intersect(ls).sorted}")
+      println(s"R : ${ls.intersect(lefts).sorted}")
+      println(s"R : ${ls.intersect(lefts).sorted}")
+      false
+    }.get
+/*
+      ruleMap.get(lefts.head).forall {
+        l =>
+          lefts.forall( left => l.contains(left) ) }
+*/
+  }
 
   protected def checkRow(tuples: List[Rule], seenTuples: List[Rule] = List.empty): Boolean = {
     tuples match {
       case Nil => true
       case  head :: tail =>
-        checkRules(head :: seenTuples, ruleEqualsRight, ruleEqualsLeft) &&
+        println("+++")
+        //checkRules(head :: seenTuples, ruleEqualsRight, ruleEqualsLeft) &&
+          //checkRulesMap((head :: seenTuples).leftList, leftInput) &&
+          println(s"tuples: $tuples")
+          println(s"tail: $tail")
+          println(s"tailL: ${tail.leftList}")
+          println(s"****")
+          checkRulesMap(head.left, tail.leftList, leftInput) &&
           checkRules(head :: tail, ruleEqualsLeft, ruleEqualsRight) &&
           checkRow(tail, head :: seenTuples )
     }

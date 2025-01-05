@@ -1,9 +1,5 @@
-val list  = List(1,2,3,4,5,6, 7, 8, 9, 10)
-list.permutations.size
+val l = List(1,3,4,3)
+val l2 = List(1,2,3, 3, 3, 3,7)
 
-
-def uniquePermutations(l: List[Int]): Iterator[List[Int]] =
-  (0 to l.length).toList.flatMap{ _  => l}.combinations(l.length)
-
-
-val r = uniquePermutations(list).size
+l.intersect(l2)
+l2.intersect(l)
