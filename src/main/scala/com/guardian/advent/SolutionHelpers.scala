@@ -13,14 +13,6 @@ trait SolutionHelpers {
      final def toStringList(separator: Char): List[String] = string.split(separator).toList
   }
 
-  implicit class RichLinearSeq[A, B <: LinearSeq[A]](abstractSeq: LinearSeq[A]) {
-    def tailHead: A = abstractSeq.tail.head
-
-    def tailEmpty: Boolean = abstractSeq.size == 1
-  }
-  implicit class RichList[A](list: List[A]) {
-    def doesNotContain(a: A): Boolean = !list.contains(a)
-  }
 
   implicit def gridEntryListToString[A](gridEntries: Seq[GridEntry[A]]): String = {
      gridEntries.foldLeft(new StringBuilder()) { case (strinBuilder,a) => strinBuilder.append(a.value)  }.toString
@@ -49,31 +41,39 @@ trait SolutionHelpers {
     def equalsRight(other: (A, B)): Boolean = other.right == right
   }
 
-  implicit class RichTupleList[A,B, L <: LinearSeq[(A, B)], M <: LinearSeq[(B, A)]](tuples: L) {
+  implicit class RichLinearSeq[A, B <: LinearSeq[A]](linearSeq: LinearSeq[A]) {
+    def tailHead: A = linearSeq.tail.head
+    def doesNotContain(a: A): Boolean =  linearSeq.contains(a)
+    def tailEmpty: Boolean = linearSeq.size == 1
+    def uniquePermutations(toB: IndexedSeq[A] => B): Iterator[B] = {
+      val is = (0 to linearSeq.length).flatMap{ _ => linearSeq}
+      toB(is).combinations(linearSeq.length).asInstanceOf[Iterator[B]]
+    }
+  }
+
+   implicit class RichTupleSequence[A,B](tuples: LinearSeq[(A, B)]) {
 
     type T = (A, B)
     type U = (B, A)
-    implicit def toL(linearSeq: LinearSeq[T]: L = linearSeq.asInstanceOf[L]
-    implicit def toM(linearSeq: LinearSeq[B]: M = linearSeq.asInstanceOf[M]
-
-    
-
+ /*   implicit def toL(linearSeq: LinearSeq[T]): L = linearSeq.asInstanceOf[L]
+    implicit def toM(linearSeq: LinearSeq[U]): M = linearSeq.asInstanceOf[M]
+*/
     def tupleListToMap : Map[String, T] = tupleMap[String](t => t.key)
     def tupleMapLeft: Map[A, T] = tupleMap{ t => t.left }
     def tupleListRight: Map[B, T] = tupleMap{ t => t.right }
 
-    def invert: M = tuples.map{ t => t.reverse }.asInstanceOf[M]
-    def leftMap: Map[A,L] = listMap[A]{ case t => t.left}
-    def rightMap: Map[B,L] = listMap[B] {case t => t.right}
-    def leftList: LinearSeq[A] = tuples.map { case t => t.left }
-    def rightList: LinearSeq[B] = tuples.map { case t => t.right }
+    def invert = tuples.map{ t => t.reverse }
+    def leftMap = listMap[A]{ case t => t.left}
+    def rightMap= listMap[B] {case t => t.right}
 
+    def leftList = tuples.map { case t => t.left }
+    def rightList = tuples.map { case t => t.right }
+    def listMap[K](makeKey: T => K): Map[K, LinearSeq[T]] =
+      tuples.groupMap { t => makeKey(t)}{ case(a, b) => (  a, b ) }
 
-    def listMap[K](makeKey: T => K): Map[K, LinearSeq[T]] = tuples.groupMap { t => makeKey(t)}{ case(a, b) => (  a, b ) }
-
-    def listMapLeft: Map[A, List[B]] = mapToTupleValue( t => t.left, t => t.right )
-    def listMapRight: Map[B, List[A]] = mapToTupleValue( t => t.right, t => t.left )
-    private def mapToTupleValue[K, J](makeKey: T => K, makeValue: T => J) : Map[K, List[J]] =
+    def listMapLeft = mapToTupleValue[A, B]( t => t.left, t => t.right )
+    def listMapRight = mapToTupleValue[B, A]( t => t.right, t => t.left )
+    private def mapToTupleValue[K, D](makeKey: T => K, makeValue: T => D) : Map[K, LinearSeq[D]] =
       tuples.groupMap{ case t: T => makeKey(t) } { case t: T => makeValue(t) }
 
     private def tuple[K](key: K, tuple: (A,B)) = (key, tuple)
@@ -83,4 +83,26 @@ trait SolutionHelpers {
         tuple(key, t)
       }.toMap
   }
+
+  implicit class RichIntTupleSequence(tuples: LinearSeq[(Int, Int)]) extends RichTupleSequence[Int, Int](tuples) {
+    def distinctInts: List[Int] = (tuples.leftList ++ tuples.rightList).toSet.toList
+  }
+
+  implicit class RichTupleIndexedSequence[A](tuples: LinearSeq[(A, Int)]) extends RichTupleSequence[A, Int](tuples) {
+    def isOrdered: Boolean = {
+        def loop(remaining: LinearSeq[(A, Int)], maybeLastIndex: Option[Int] = None): Boolean = {
+            if (remaining.isEmpty) true
+            else {
+              val currentIndex = remaining.head.right
+              val inOrder = maybeLastIndex.map { lastIndex => currentIndex > lastIndex }.getOrElse(true)
+              inOrder && loop(remaining.tail, Some(currentIndex))
+            }
+        }
+        loop(tuples)
+    }
+    def order: LinearSeq[(A, Int)] = tuples.sortBy{ t => t.right}
+  }
+
 }
+
+

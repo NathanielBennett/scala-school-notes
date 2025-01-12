@@ -4,7 +4,6 @@ version := "0.1"
 
 scalaVersion := "2.13.6"
 
-val awsSdkVersion212 = "1.11.1034"
 
 
 libraryDependencies ++= Seq(
@@ -12,7 +11,7 @@ libraryDependencies ++= Seq(
   "com.google.cloud" % "google-cloud-bigquery" % "2.6.0",
   "org.typelevel" %% "cats-core" % "2.8.0",
   "com.lihaoyi" %% "requests" % "0.8.0",
-  "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion212,
+  "software.amazon.awssdk" % "s3" % "2.24.8",
   "org.apache.httpcomponents" % "httpclient" % "4.5.9",
   "org.scalactic" %% "scalactic" % "3.2.19",
   "org.scalatest" %% "scalatest" % "3.2.19" % "test"
@@ -20,7 +19,7 @@ libraryDependencies ++= Seq(
 
 
 
-//resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"
+resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"
 
 
 /*

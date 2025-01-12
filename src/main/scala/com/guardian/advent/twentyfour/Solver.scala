@@ -40,7 +40,7 @@ trait IntSolver extends ListTotalSolution[Int, Int] {
 }
 
 trait PuzzleTest {
-  def test = true
+  def test: Boolean = true
 }
 
 trait PuzzleSolution {

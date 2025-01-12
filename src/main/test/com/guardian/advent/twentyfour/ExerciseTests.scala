@@ -26,11 +26,7 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
       case (adventPuzzle, expectedResult) => adventPuzzle.solve should be(expectedResult)
     }
 
-    /*
-  val testsAndExpectedPartOne: List[(DecemberOne[(Int, Int)], Int)] = List(
-*/
-
-}
+  }
 
 
   "Day one part two" should "return the correct values" in {
@@ -91,7 +87,9 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
   }
 
   "Day five" should "return the correct valuws" in {
-      DecemberFivePartOneTest.solve should be(143)
-      DecemberFivePartOneSolution.solve should be(5091)
+      DecemberFiveSecondPartOneTest.solve should be(143)
+      DecemberFiveSecondPartOneSolution.solve should be(5091)
+      DecemberFivePartTwoTest.solve should be (123)
+      DecemberFivePartTwoSolution.solve should be (4681)
   }
 }

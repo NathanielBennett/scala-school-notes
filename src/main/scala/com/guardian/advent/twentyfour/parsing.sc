@@ -1,5 +1,2 @@
-val l = List(1,3,4,3)
-val l2 = List(1,2,3, 3, 3, 3,7)
-
-l.intersect(l2)
-l2.intersect(l)
+val l = LazyList(52,77,83,31,94,75,34,95,29,38,82,19,41,39,27,98,84,13,55,21,66).permutations
+l.size
