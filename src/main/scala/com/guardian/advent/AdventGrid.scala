@@ -1,53 +1,59 @@
 package com.guardian.advent
 
+import io.opencensus.metrics.LabelKey
+
 sealed trait Direction {
-  def isCardinal: Boolean
   def nextGridCoords(x: Int, y: Int): (Int, Int)
 }
 
+trait Cardinal extends Direction {
+  def nextCardinal: Cardinal
+}
+trait SemiCardinal extends Direction
+
 trait Directions {
   def allDirections = List(North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest)
-  def cardinalDirections = allDirections.filter{ d => d.isCardinal }
-  def nonCardinals = allDirections.filter{ d => !d.isCardinal }
+  def cardinalDirects: List[Direction] = allDirections.collect {
+    case cardinal: Cardinal => cardinal
+  }
+  def nonCardinals: List[Direction] = allDirections.collect{
+    case semiCardinal: SemiCardinal => semiCardinal
+  }
   def oneDiagonal: Set[Direction] = Set(NorthWest, SouthEast)
 }
 
-case object North extends Direction {
-  override def isCardinal: Boolean = true
+case object North extends Cardinal {
+  override def nextCardinal: Cardinal = East
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x, y - 1)
 }
 
-case object NorthEast extends Direction {
-  override def isCardinal: Boolean = false
+case object NorthEast extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y - 1)
 }
 
-case object East extends Direction {
-  override def isCardinal: Boolean = true
+case object East extends Cardinal {
+  override def nextCardinal: Cardinal = South
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y)
 }
 
-case object SouthEast extends Direction {
-  override def isCardinal: Boolean = false
+case object SouthEast extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y + 1)
 }
 
-case object South extends Direction {
-  override def isCardinal: Boolean = true
+case object South extends Cardinal {
+  override def nextCardinal: Cardinal = West
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 0, y + 1)
 }
 
-case object SouthWest extends Direction {
-  override def isCardinal: Boolean = false
+case object SouthWest extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y + 1)
 }
 
-case object West extends Direction {
-  override def isCardinal: Boolean = true
+case object West extends Cardinal {
+  override def nextCardinal: Cardinal = North
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y)
 }
-case object NorthWest extends Direction {
-  override def isCardinal: Boolean = false
+case object NorthWest extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y - 1)
 }
 
