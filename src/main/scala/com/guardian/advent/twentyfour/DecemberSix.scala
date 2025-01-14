@@ -40,7 +40,8 @@ trait DecemberSix extends December[Int, CharGrid, GridEntry[Char]] with December
       case start: Start => start
     }
 
-  protected def findVisitedSquares(verticeStart: GridEntry[Char], cardinal: Cardinal, visitedSoFar: List[(Cardinal, List[GridEntry[Char]])] = List.empty):  List[(Cardinal, List[GridEntry[Char]])] = {
+  protected def findVisitedSquares(verticeStart: GridEntry[Char], cardinal: Cardinal, visitedSoFar: List[(Cardinal, List[GridEntry[Char]])] = List.empty):
+   List[(Cardinal, List[GridEntry[Char]])] = {
 
     val vertice = grid.vertice(verticeStart, cardinal) {
       (entry, list) => (entry :: list).collectFirst {
@@ -71,28 +72,35 @@ trait DecemberSixPartOne extends DecemberSix {
 
 trait DecemberSixPartTwo extends DecemberSix {
 
-  override def rawSolution: List[GridEntry[Char]] = List.empty {
+  override def rawSolution: List[GridEntry[Char]] = {
       begin.map {
          start =>
            val visited = findVisitedSquares(start, start.cardinal)
            val vistedMoreThanOnce = visited.flatMap { case (cardinal, entries) =>
               entries.map{ case entry => (entry, cardinal) }
            }
-           .zipWithIndex
+
+
+          val loopPO.zipWithIndex
            .map { case ((entry, cardinal), index ) => (entry, cardinal, index) }
            .groupBy{ case(entry, _, _) => entry }
            .filter{ case(_, entries) => entries.length == 2}
            .map{ case(entry, entries) => (entry, entries.sortBy { case(_, _, index) => index} )}
-           .filter{
-             case( entry, entries) =>
-                fo
-           }
+             .flatMap{ case (entry, entries) =>
+               for {
+                 (_, firstCardinal, _) <- entries.headOption
+                 (_, maybeNextCardinal, _) <- entries.lastOption
+               } yield (entry, firstCardinal.nextCardinal == maybeNextCardinal)
+             }
+             .filter{ case(_, loopPoint) => ;loopPoint }
+             .map { case(entry, _) => entry }
+             .toList
+
 
           visited.headOption.map{ h => h :: vistedMoreThanOnce }.getOrElse(vistedMoreThanOnce)
-      }.getOrElse(List.empty)
+      }.getOrElse(List[GridEntry[Char]]())
   }
 }
-
 
 object DecemberSixPartOneTest extends DecemberSixPartOne with PuzzleTest
 object DecemberSixPartOneSolution extends DecemberSixPartOne with PuzzleSolution
