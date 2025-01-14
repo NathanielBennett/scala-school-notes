@@ -1,8 +1,2 @@
-val l = List(1,2,3,4,5)
-
-def shift(list: List[Int], acc: List[Int] = List.empty): List[Int] = list match {
-  case Nil => acc
-  case head :: tail => shift(tail, (head :: acc) )
-}
-
-shift(l)
+val s = Set(10, 12, 17, 44)
+val s2 = Set(17, 18, 46) ++ s ++ Set(1,2, 12, 46)

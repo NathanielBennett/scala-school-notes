@@ -28,7 +28,7 @@ trait DecemberFourPartOne extends DecemberFour[String] {
   override def rawSolution: List[String] = {
     val t = grid.filterEntries( ge => ge.value == 'X')
     .flatMap{ startPosition =>
-      val entries = allDirections.map { direction => grid.vertice(startPosition, direction) { vertice => vertice.length == xMasLength } }
+      val entries = allDirections.map { direction => grid.vertice(startPosition, direction) { case (entry, vertice) => (entry :: vertice).length > xMasLength }.reverse }
       entries.map{ ens => gridEntryListToString(ens) }
     }
     t.filter( w  => w == xmas )

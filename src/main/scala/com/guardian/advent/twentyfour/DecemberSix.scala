@@ -1,6 +1,6 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{AdventOfCodeGridParser, Cardinal, East, GridEntry, North, South, West}
+import com.guardian.advent.{AdventOfCodeGridParser, Cardinal, Direction, East, GridEntry, North, South, West}
 
 sealed trait GridSpaceEntry extends GridEntry[Char]
 case class Block(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends GridSpaceEntry
@@ -17,8 +17,8 @@ object GridSpaceEntry {
        case '.' => Some(Space(xPosition, yPosition, char))
        case '>' => Some(Start(xPosition, yPosition, char, East))
        case '<' => Some(Start(xPosition, yPosition, char, West))
-       case 'v' => Some(Space(xPosition, yPosition, char, South))
-       case '^' => Some(Space(xPosition, yPosition, char,North))
+       case 'v' => Some(Start(xPosition, yPosition, char, South))
+       case '^' => Some(Start(xPosition, yPosition, char, North))
        case '#' => Some(Block(xPosition, yPosition, char))
        case _ => None
      }
@@ -29,10 +29,10 @@ trait DecemberSixParser extends AdventOfCodeGridParser[Char, CharGrid] {
   override def gridMaker(entries: Set[GridEntry[Char]]): CharGrid = CharGrid(entries)
 }
 
-trait DecemberSix extends December[Int, CharGrid, Int] with DecemberSixParser {
+trait DecemberSix extends December[Int, CharGrid, GridEntry[Char]] with DecemberSixParser {
 
   override def day: Int = 6
-  override def solver: Solver[Int, Int] = listSizeSolver
+  override def solver: Solver[GridEntry[Char], Int] = listSizeSolver
 
   val grid = rawInput
   val begin = grid.entries
@@ -40,9 +40,61 @@ trait DecemberSix extends December[Int, CharGrid, Int] with DecemberSixParser {
       case start: Start => start
     }
 
+  protected def findVisitedSquares(verticeStart: GridEntry[Char], cardinal: Cardinal, visitedSoFar: List[(Cardinal, List[GridEntry[Char]])] = List.empty):  List[(Cardinal, List[GridEntry[Char]])] = {
 
+    val vertice = grid.vertice(verticeStart, cardinal) {
+      (entry, list) => (entry :: list).collectFirst {
+          case block: Block => block
+        }.isDefined
+      }
 
-
-
-
+    vertice match {
+      case Nil => visitedSoFar
+      case head :: _ =>
+        val visited = (cardinal, vertice) :: visitedSoFar
+        if ( grid.isEdge(head) ) visited
+        else findVisitedSquares(head, cardinal.nextCardinal, visited)
+    }
+  }
 }
+
+trait DecemberSixPartOne extends DecemberSix {
+
+  override def rawSolution: List[GridEntry[Char]] = {
+     begin.map {
+        start => findVisitedSquares(start, start.cardinal).flatMap {
+          case (_, entries) => entries
+        }.toSet.toList
+     }
+  }.getOrElse(List.empty)
+}
+
+trait DecemberSixPartTwo extends DecemberSix {
+
+  override def rawSolution: List[GridEntry[Char]] = List.empty {
+      begin.map {
+         start =>
+           val visited = findVisitedSquares(start, start.cardinal)
+           val vistedMoreThanOnce = visited.flatMap { case (cardinal, entries) =>
+              entries.map{ case entry => (entry, cardinal) }
+           }
+           .zipWithIndex
+           .map { case ((entry, cardinal), index ) => (entry, cardinal, index) }
+           .groupBy{ case(entry, _, _) => entry }
+           .filter{ case(_, entries) => entries.length == 2}
+           .map{ case(entry, entries) => (entry, entries.sortBy { case(_, _, index) => index} )}
+           .filter{
+             case( entry, entries) =>
+                fo
+           }
+
+          visited.headOption.map{ h => h :: vistedMoreThanOnce }.getOrElse(vistedMoreThanOnce)
+      }.getOrElse(List.empty)
+  }
+}
+
+
+object DecemberSixPartOneTest extends DecemberSixPartOne with PuzzleTest
+object DecemberSixPartOneSolution extends DecemberSixPartOne with PuzzleSolution
+
+object DecemberSixPartTwoTest extends DecemberSixPartTwo with PuzzleTest

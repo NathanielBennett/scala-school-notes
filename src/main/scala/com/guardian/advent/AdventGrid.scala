@@ -63,6 +63,7 @@ trait GridEntry[T] {
   def value: T
   def nextCoords(direction: Direction): (Int,Int) = direction.nextGridCoords(xPosition, yPosition)
   def equalPosition(x: Int, y: Int): Boolean = x == xPosition && y == yPosition
+  def point: (Int, Int) = (xPosition, yPosition)
 }
 
 trait Grid[T] extends Directions {
@@ -79,16 +80,20 @@ trait Grid[T] extends Directions {
   }
 
   private def getRow(row: Int) : List[GridEntry[T]] = entries.filter{ t => t.yPosition == row}.toList.sortBy(_.xPosition)
+  private def edgeX(xPosition: Int): Boolean = xPosition == 0 || xPosition == maxX
+  private def edgeY(yPosition: Int): Boolean = yPosition == 0 || yPosition == maxY
 
-  def vertice(start: GridEntry[T], direction: Direction)( isLast: List[GridEntry[T]] => Boolean ): List[GridEntry[T]] = {
+  def isEdge(gridEntry: GridEntry[T]): Boolean = edgeX(gridEntry.xPosition) || edgeY(gridEntry.yPosition)
+
+  def vertice(start: GridEntry[T], direction: Direction)( isLast: (GridEntry[T], List[GridEntry[T]]) => Boolean ): List[GridEntry[T]] = {
      def nextEntry(entry: GridEntry[T], acc: List[GridEntry[T]]): List[GridEntry[T]] = {
        val tail = (entry :: acc)
-       if (isLast(tail)) tail.reverse
+       if (isLast(entry, acc)) acc
        else {
          val (nextX, nextY) = direction.nextGridCoords(entry.xPosition, entry.yPosition)
          entries.find(ge => ge.xPosition == nextX && ge.yPosition == nextY).map {
            next => nextEntry(next, tail)
-         }.getOrElse { (entry :: acc).reverse }
+         }.getOrElse { (entry :: acc ) }
        }
      }
      nextEntry(start, Nil)
@@ -113,6 +118,8 @@ trait Grid[T] extends Directions {
           (entry, direction)
         }
     }
+
+  def findEntry(xPosition: Int, yPosition: Int): Option[GridEntry[T]] = entries.find { entry => entry.xPosition == xPosition && entry.yPosition == yPosition }
 
   def printGrid(separator: Option[String] = None) : Unit = {
     (0 to maxY).toList.foreach{
