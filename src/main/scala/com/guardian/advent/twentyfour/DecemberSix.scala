@@ -70,26 +70,26 @@ trait DecemberSixPartOne extends DecemberSix {
 trait DecemberSixPartTwo extends DecemberSix {
 
   def isLoop(maybeLoopStart: GridEntry[Char], verticeStart: GridEntry[Char], cardinal: Cardinal, seen: List[GridEntry[Char]]): Boolean = {
-      verticeToBlock(verticeStart, cardinal) match {
-        case Nil => false
-        case head :: tail =>
-          val visited = (head :: tail) ::: seen
-          if ( head == maybeLoopStart) true
-          else isLoop(maybeLoopStart, head, cardinal.nextCardinal, visited)
-      }
+    verticeToBlock(verticeStart, cardinal) match {
+      case Nil => false
+      case head :: tail =>
+        val visited = (head :: tail) ::: seen
+        if (head == maybeLoopStart) true
+        else isLoop(maybeLoopStart, head, cardinal.nextCardinal, visited)
+    }
   }
 
-  def findVisitedVertexes(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[(Cardinal, List[GridEntry[Char]])] = List.empty): List[(Cardinal, List[GridEntry[Char]])] = {
+  def findVisitedVertexes(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[(List[GridEntry[Char]], Cardinal)] = List.empty): List[(List[GridEntry[Char]], Cardinal)] = {
     verticeToBlock(verticeStart, cardinal) match {
       case Nil => acc
       case head :: tail =>
-        val nextAcc = (cardinal, head :: tail) :: acc
-        if( grid.isEdge(head) ) nextAcc
+        val nextAcc = (head :: tail, cardinal) :: acc
+        if (grid.isEdge(head)) nextAcc
         else findVisitedVertexes(head, cardinal.nextCardinal, nextAcc)
     }
   }
 
-  def checkVerticeForLoop(start: GridEntry[Char],  vertice: List[GridEntry[Char]], cardinal: Cardinal): Boolean = {
+  def checkVerticeForLoop(start: GridEntry[Char], vertice: List[GridEntry[Char]], cardinal: Cardinal): Boolean = {
     vertice.headOption match {
       case None => false
       case Some(head) if grid.isEdge(head) => false
@@ -98,14 +98,15 @@ trait DecemberSixPartTwo extends DecemberSix {
         nextVertice.contains(start) || checkVerticeForLoop(start, nextVertice, cardinal.nextCardinal)
     }
   }
-
-  def findLoops(start: Start, loops: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
+}
+/*  def findLoops(start: Start, loops: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
     val vistedVertices = findVisitedVertexes(start, start.cardinal)
-    vistedVertices.map { vertex =>
+    vistedVertices.map { case ( cardinal, vertice ) =>
+
 
     }
-  }
-}
+  }*/
+/*}
 
 
 
@@ -117,7 +118,7 @@ trait DecemberSixPartTwo extends DecemberSix {
 
     }
 
-}
+}*/
 
 object DecemberSixPartOneTest extends DecemberSixPartOne with PuzzleTest
 object DecemberSixPartOneSolution extends DecemberSixPartOne with PuzzleSolution
