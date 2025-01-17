@@ -98,6 +98,24 @@ trait DecemberSixPartTwo extends DecemberSix {
         nextVertice.contains(start) || checkVerticeForLoop(start, nextVertice, cardinal.nextCardinal)
     }
   }
+
+  def checkVerticeEntryForLoop(verticwTail: List[GridEntry[Char]], cardinal: Cardinal, acc: List[GridEntry[Char]] = List.empty ): List[GridEntry[Char]] = {
+    verticwTail match {
+      case Nil => acc
+      case _ :: Nil => acc
+      case head :: tail =>
+        val isLoop = checkVerticeForLoop(head, cardinal)
+        val nextAcc = if (isLoop) head :: acc else acc
+        checkVerticeEntryForLoop(tail, cardinal, nextAcc)
+    }
+  }
+
+  def findLoopa(start: Start): List[GridEntry[Char]] = {
+    val vertices = findVisitedVertexes(start, start.cardinal)
+    vertices.flatMap{ case(vertice, cardinal) =>
+        checkVerticeEntryForLoop(vertice.tail, cardinal)
+    }
+  }
 }
 /*  def findLoops(start: Start, loops: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
     val vistedVertices = findVisitedVertexes(start, start.cardinal)
