@@ -49,7 +49,6 @@ trait DecemberSix extends December[Int, CharGrid, GridEntry[Char]] with December
   }
 
   protected def findVisitedSquares(verticeStart: GridEntry[Char], cardinal: Cardinal, visitedSoFar: List[GridEntry[Char]] = List.empty):  List[GridEntry[Char]] = {
-
     verticeToBlock(verticeStart, cardinal) match {
       case Nil => visitedSoFar
       case head :: tail =>
@@ -61,6 +60,31 @@ trait DecemberSix extends December[Int, CharGrid, GridEntry[Char]] with December
 }
 
 trait DecemberSixPartOne extends DecemberSix {
+
+  def findVisitedVertexes(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[(Direction, List[GridEntry[Char]])] ): List[(Direction, List[GridEntry[Char]])] = {
+      verticeToBlock(verticeStart, cardinal) match {
+        case Nil => acc
+        case head :: tail =>
+          val nextAcc = (cardinal, head :: tail) :: acc
+          if( grid.isEdge(head) ) nextAcc
+          else findVisitedVertexes(head, cardinal.nextCardinal, nextAcc)
+      }
+  }
+
+  def checkVerticeForLoop(start: GridEntry[Char],  vertice: List[GridEntry[Char]], cardinal: Cardinal): Boolean = {
+      vertice.headOption match {
+        case None => false
+        case Some(head) if grid.isEdge(head) => false
+        case Some(head) =>
+            val nextVertice = verticeToBlock(head, cardinal)
+            nextVertice.contains(start) || checkVerticeForLoop(start, nextVertice, cardinal.nextCardinal)
+          }
+      }
+  }
+
+  def checkVerticeForLoops(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
+    val vertices =
+  }
 
   override def rawSolution: List[GridEntry[Char]] =
      begin.map { start => findVisitedSquares(start, start.cardinal).toSet.toList }
