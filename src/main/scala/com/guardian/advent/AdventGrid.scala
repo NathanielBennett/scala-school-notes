@@ -8,6 +8,7 @@ sealed trait Direction {
 
 trait Cardinal extends Direction {
   def nextCardinal: Cardinal
+  def previousCardinal: Cardinal
 }
 trait SemiCardinal extends Direction
 
@@ -24,6 +25,7 @@ trait Directions {
 
 case object North extends Cardinal {
   override def nextCardinal: Cardinal = East
+  override def previousCardinal: Cardinal = West
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x, y - 1)
 }
 
@@ -33,6 +35,7 @@ case object NorthEast extends SemiCardinal {
 
 case object East extends Cardinal {
   override def nextCardinal: Cardinal = South
+  override def previousCardinal: Cardinal = North
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y)
 }
 
@@ -42,6 +45,7 @@ case object SouthEast extends SemiCardinal {
 
 case object South extends Cardinal {
   override def nextCardinal: Cardinal = West
+  override def previousCardinal: Cardinal = East
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 0, y + 1)
 }
 
@@ -51,7 +55,9 @@ case object SouthWest extends SemiCardinal {
 
 case object West extends Cardinal {
   override def nextCardinal: Cardinal = North
+  override def previousCardinal: Cardinal = South
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y)
+
 }
 case object NorthWest extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y - 1)
@@ -66,7 +72,7 @@ trait GridEntry[T] {
   def point: (Int, Int) = (xPosition, yPosition)
 }
 
-trait Grid[T] extends Directions {
+trait Grid[T] extends Directions with SolutionHelpers {
 
   def defaultRange = (-1 to 1)
   def entries: Set[GridEntry[T]]
@@ -99,6 +105,11 @@ trait Grid[T] extends Directions {
      nextEntry(start, Nil)
   }
 
+  def nextEntryByDirection(gridEntry: GridEntry[T], direction: Direction): Option[GridEntry[T]] = {
+      val (nextX, nextY) = gridEntry.nextCoords(direction)
+      entries.find{ e => e.xPosition == nextX && e.yPosition == nextY}
+  }
+
   def filterEntries(filter: GridEntry[T] => Boolean): List[GridEntry[T]] = entries.filter(filter).toList
 
   def neibouringEntries(gridEntry: GridEntry[T])(filter: (GridEntry[T], GridEntry[T]) => Boolean = (_, _) => true): List[GridEntry[T]] = {
@@ -129,6 +140,21 @@ trait Grid[T] extends Directions {
           .mkString(separator.getOrElse(""))
         println(row)
     }
+  }
+
+  def printGridDebug(gridEntry: GridEntry[T] ): Unit = {
+    println(gridEntry)
+    println()
+    (0 to maxY).toList.foreach{
+      y =>
+        val rowEntries = entries.filter(_.yPosition == y).toList.sortBy(_.xPosition)
+        val row = rowEntries.map{ t =>
+           if ( t == gridEntry) "0"
+           else t.value.toString
+        }.mkString(" ")
+        println(row)
+    }
+    println()
   }
 }
 
