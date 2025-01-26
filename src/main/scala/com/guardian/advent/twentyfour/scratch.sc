@@ -1,2 +1,4 @@
-val s = Set(10, 12, 17, 44)
-val s2 = Set(17, 18, 46) ++ s ++ Set(1,2, 12, 46)
+List(1, 2, 3) match {
+  case Nil => println("Nil")
+  case head :: t :: tail => println(s"$")
+}

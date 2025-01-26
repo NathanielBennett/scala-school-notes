@@ -69,6 +69,7 @@ trait GridEntry[T] {
   def value: T
   def nextCoords(direction: Direction): (Int,Int) = direction.nextGridCoords(xPosition, yPosition)
   def equalPosition(x: Int, y: Int): Boolean = x == xPosition && y == yPosition
+  def equalPosition(gridEntry: GridEntry[T]): Boolean = gridEntry.xPosition == xPosition && gridEntry.yPosition == yPosition
   def point: (Int, Int) = (xPosition, yPosition)
 }
 

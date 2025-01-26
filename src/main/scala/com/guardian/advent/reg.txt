@@ -1,5 +1,2 @@
-LLR
-
-AAA = (BBB, BBB)
-BBB = (AAA, ZZZ)
-ZZZ = (ZZZ, ZZZ)
+projects/874328384809/locations/global/workloadIdentityPools/github-actions/providers/github-actions 
+github-actions-ophan-datalake@datatech-platform-prod.iam.gserviceaccount.com
