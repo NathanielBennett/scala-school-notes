@@ -77,8 +77,10 @@ trait Grid[T] extends Directions with SolutionHelpers {
 
   def defaultRange = (-1 to 1)
   def entries: Set[GridEntry[T]]
+
   lazy val maxX = entries.maxBy{_.xPosition}.xPosition
   lazy val maxY = entries.maxBy(_.yPosition).yPosition
+
   private def neighbours(xRange: Range, yRange: Range): List[(Int, Int)] = {
     (for {
       y <- yRange
@@ -87,6 +89,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
   }
 
   private def getRow(row: Int) : List[GridEntry[T]] = entries.filter{ t => t.yPosition == row}.toList.sortBy(_.xPosition)
+
   private def edgeX(xPosition: Int): Boolean = xPosition == 0 || xPosition == maxX
   private def edgeY(yPosition: Int): Boolean = yPosition == 0 || yPosition == maxY
 
@@ -104,6 +107,15 @@ trait Grid[T] extends Directions with SolutionHelpers {
        }
      }
      nextEntry(start, Nil)
+  }
+
+  def nextMatchingEntry(start: GridEntry[T], direction: Direction, matchesLast: GridEntry[T] => Boolean): Option[GridEntry[T]] = {
+      nextEntryByDirection(start, direction) match {
+        case Some(entry) =>
+          if (matchesLast(entry)) Some(entry)
+          else nextMatchingEntry(entry, direction, matchesLast)
+        case _ => None
+      }
   }
 
   def nextEntryByDirection(gridEntry: GridEntry[T], direction: Direction): Option[GridEntry[T]] = {
