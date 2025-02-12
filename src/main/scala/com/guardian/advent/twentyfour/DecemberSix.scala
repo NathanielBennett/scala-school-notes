@@ -71,19 +71,6 @@ object DecemberSixPartOneSolution extends DecemberSixPartOne with PuzzleSolution
 
 trait DecemberSixPartTwo extends DecemberSix {
 
-/*
-  def isLoop(maybeLoopStart: GridEntry[Char], verticeStart: GridEntry[Char], cardinal: Cardinal, seen: List[GridEntry[Char]]): Boolean = {
-    verticeToBlock(verticeStart, cardinal) match {
-      case Nil => false
-      case head :: tail =>
-        val visited = (head :: tail) ::: seen
-        if (head == maybeLoopStart) true
-        else isLoop(maybeLoopStart, head, cardinal.nextCardinal, visited)
-    }
-  }
-*/
-
-/*
   def findVisitedVertices(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[(List[GridEntry[Char]], Cardinal)] = List.empty): List[(List[GridEntry[Char]], Cardinal)] = {
     verticeToBlock(verticeStart, cardinal) match {
       case Nil => acc
@@ -94,217 +81,77 @@ trait DecemberSixPartTwo extends DecemberSix {
     }
   }
 
-  def checkVerticeForLoop(start: GridEntry[Char], vertice: List[GridEntry[Char]], cardinal: Cardinal): Boolean = {
-    vertice.headOption match {
-      case None => false
-      case Some(head) if grid.isEdge(head) => false
-      case  Some(head) =>
-        val nextVertice = verticeToBlock(head, cardinal)
-        val foundLoop = nextVertice.size > 1 &&  nextVertice.contains(start)
-        if (foundLoop) println(s"sVert $start.($cardinal) v $nextVertice: Good: ${nextVertice.size > 1}" )
-        foundLoop || checkVerticeForLoop(start, nextVertice,  cardinal.nextCardinal)
+  def visitedWithDirection(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[List[(GridEntry[Char], Cardinal)]] = List.empty): List[List[(GridEntry[Char], Cardinal)]] = {
+    verticeToBlock(verticeStart, cardinal) match {
+      case Nil => acc.reverse
+      case head :: tail =>
+        val nextAcc = (head :: tail).map { entry => (entry, cardinal) }.reverse :: acc
+        if( grid.isEdge(head) ) nextAcc.reverse
+        else visitedWithDirection(head, cardinal.nextCardinal, nextAcc)
     }
   }
 
-  def checkVerticeForLoopTwo(start: GridEntry[Char], vertice: List[GridEntry[Char]], cardinal: Cardinal): Boolean = {
-     vertice match {
-       case Nil => false
-       case _ :: Nil => false
-       case head :: _ if (grid.isEdge(head)) => false
-       case head :: tail =>
-         val nextVertice = verticeToBlock(head, cardinal)
-         val foundLoop = nextVertice.contains(start)
-         foundLoop || checkVerticeForLoopThree(start, nextVertice, cardinal.nextCardinal)
-     }
-  }
 
-  def checkVerticeForLoopThree(start: GridEntry[Char], vertice: List[GridEntry[Char]], cardinal: Cardinal): Boolean = {
+  def isLoop(maybeLoopStart: (GridEntry[Char], Cardinal), visited: List[(GridEntry[Char], Cardinal)] ): Boolean = {
+    val (startEntry, startCardinal) = maybeLoopStart
+    val vertice = verticeToBlock(startEntry, startCardinal.nextCardinal) //Reverse?/
     vertice match {
       case Nil => false
-      case _ :: Nil => false
-      case head :: _ if(grid.isEdge(head)) => false
-      case head :: tail =>
-        val foundLøop = vertice.contains(start)
-        foundLøop || checkVerticeForLoopTwo(start, verticeToBlock(head, cardinal.nextCardinal), cardinal.nextCardinal)
-
+      case head :: _ =>
+        if (grid.isEdge(head) ) false
+        else visited.exists{ case(entry, cardinwl) => entry.equalPosition(head) && cardinwl == startCardinal.nextCardinal} // Need tp recur || isLoop((head, startCardinal.nextCardinal), maybeLoopStart :: visited )
     }
   }
 
-  def checkVerticeEntryForLoop(verticeTail: List[GridEntry[Char]], cardinal: Cardinal, acc: List[GridEntry[Char]] = List.empty ): List[GridEntry[Char]] = {
-    verticeTail match {
+  def checkVerticeFour( path: List[(GridEntry[Char], Cardinal)], visited: List[(GridEntry[Char], Cardinal)], acc: List[GridEntry[Char]] ): List[GridEntry[Char]] = {
+    path match {
       case Nil => acc
       case _ :: Nil => acc
-      case head :: tail =>
-        val verticeToCheck = verticeToBlock(head, cardinal.nextCardinal)
-        val isLoop = checkVerticeForLoopTwo(head, verticeToCheck, cardinal.nextCardinal)
-        //val nextAcc = if (isLoop) head :: acc else acc
-        val nextAcc = if (isLoop) {
-//          println(s" headL $head F: $cardinal, N: ${cardinal.nextCardinal} ")
-  //        grid.printGridDebug(head)
-          println("+")
-          head :: acc
+      case head :: next :: tail =>
+        val nextAcc = if ( isLoop(head, visited) ) {
+          val (loop, _) = head
+          loop :: acc
         } else acc
-//        else grid.nextEntryByDirection(head, cardinal.previousCardinal).map { e => e :: acc}.getOrElse(acc)
-        checkVerticeEntryForLoop(tail, cardinal, nextAcc)
-    }
-  }
-*/
-
-  def findVisitedVertices(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[(List[GridEntry[Char]], Cardinal)] = List.empty): List[(List[GridEntry[Char]], Cardinal)] = {
-    verticeToBlock(verticeStart, cardinal) match {
-      case Nil => acc
-      case head :: tail =>
-        val nextAcc = (head :: tail, cardinal) :: acc
-        if (grid.isEdge(head)) nextAcc
-        else findVisitedVertices(head, cardinal.nextCardinal, nextAcc)
+        checkVerticeFour(next :: tail, visited, nextAcc)
     }
   }
 
-  def findLoops(vertices: List[(List[GridEntry[Char]], Cardinal)], visited: List[(GridEntry[Char], Cardinal)] = List.empty, loops: List[GridEntry[Char]] = List.empty ): List[GridEntry[Char]] = {
-      vertices match {
+  def checkPath(remainingPath: List[List[(GridEntry[Char], Cardinal)]], visited: List[(GridEntry[Char], Cardinal)] = List.empty, loops: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
+      remainingPath match {
         case Nil => loops
         case head :: tail =>
-          val (vertice, cardinal) = head
-          val maybeLoops = (for{
-            entry <- vertice
-            (loopStart, _) <- visited.find{ case(gridEntry, entryCardinal) => entry.equalPosition(gridEntry) && cardinal.nextCardinal == entryCardinal }
-            obstruction <- grid.nextEntryByDirection(loopStart, cardinal)
-          } yield obstruction )
-
-          val nextVisted = vertice.map{ entry => (entry, cardinal)} ::: visited
-          findLoops(tail, nextVisted, maybeLoops ::: loops )
+         val nextLoops = checkVerticeFour(head, visited, loops)
+         checkPath(tail, head ::: visited, nextLoops)
       }
-  }
-
-  def checkVerticeEntriesForLoop( baseVertice: List[GridEntry[Char]], verticeCardinal: Cardinal, checkCardinal: Cardinal, alreadyVisited: List[(GridEntry[Char], Cardinal)], loopAcc: List[GridEntry[Char]] = List.empty ): List[GridEntry[Char]] = {
-    baseVertice match {
-      case Nil => loopAcc
-      case _ :: Nil => loopAcc
-      case head :: next :: tail =>
-        println(s"============ ${baseVertice.length}")
-        val nowVisited = (head, verticeCardinal) :: alreadyVisited
-        val isNextLoop = checkVerticeForLoop(next, checkCardinal, nowVisited)
-//        println(s"F: $isNextLoop")
-        val nextLoopAcc = if (isNextLoop) head :: loopAcc else loopAcc
-        checkVerticeEntriesForLoop(next :: tail, verticeCardinal, checkCardinal, nowVisited, nextLoopAcc)
-    }
-  }
-
-  def checkVerticeForLoop(start: GridEntry[Char], cardinal: Cardinal, alreadyVisited: List[(GridEntry[Char], Cardinal)], seenCnt: Int = 0): Boolean = {
-   // println(s"Visited: ${alreadyVisited.size}")
-    println(s"start: X: $start, C: $cardinal: Seen: $seenCnt, Visited@ ${alreadyVisited.size}")
-
-    val vertice = verticeToBlock(start, cardinal)
-    //if (bool) println(s"start: $start, vertice: ${vertice} ")
-    vertice match {
-      case Nil =>
-        println("Gotcha")
-        false
-      case head :: tail =>
-/*
-        if(bool) {
-          println(s"IsEdge: ${grid.isEdge(head)}")
-          println(s"Seen: ${alreadyVisited.contains(head, cardinal)}}")
-        }
-*/
-//        println(s"$head: E; $tail")
-        if (grid.isEdge(head)) false
-        else alreadyVisited.contains((head, cardinal)) || checkVerticeForLoop(head, cardinal.nextCardinal, (head, cardinal) :: alreadyVisited, seenCnt + 1 )
-    }
-  }
-
-  def makeAlreadyVisited(vertices: List[(List[GridEntry[Char]], Cardinal)], visited: List[(GridEntry[Char], Cardinal)] = List.empty, cnt: Int = 0): List[(GridEntry[Char], Cardinal)] =
-    if(cnt > 6) visited
-    else {
-      val (vertice, cardinal) = vertices.head
-      makeAlreadyVisited(vertices.tail, vertice.map{case entry => (entry, cardinal)} ::: visited, cnt + 1)
-    }
-
-  def findBlocksOnPath(vistedVertices: List[(List[GridEntry[Char]], Cardinal) ] ): List[(Block, Cardinal)] = {
-      vistedVertices
-      .flatMap{ case (vertice, cardinal) =>
-          grid.nextEntryByDirection(vertice.head, cardinal)
-            .map{ case next => (next, cardinal) }
-            .collect {
-              case (block: Block, cardinal: Cardinal) => (block, cardinal)
-            }
-      }
-  }
-  def checkVertice(vertice: List[GridEntry[Char]], cardinal: Cardinal, seenBlocks: List[Block], loopAcc: List[GridEntry[Char]] ): List[GridEntry[Char]] = {
-    def entryMatches(gridEntry: GridEntry[Char]): Boolean = gridEntry.isInstanceOf[Block]
-
-    vertice match {
-      case Nil => loopAcc
-      case head :: tail =>
-        grid.nextMatchingEntry(head, cardinal, entryMatches) match {
-          case Some(block)  =>
-            val nextAcc = if (seenBlocks.contains(block)) block :: loopAcc else loopAcc
-            checkVertice(tail, cardinal, seenBlocks, nextAcc)
-        }
-    }
   }
 
   override def rawSolution: List[GridEntry[Char]] = {
     begin.map {
       start =>
-        val visitedVertexesAndDirections = findVisitedVertices(start, start.cardinal).reverse
-        val blocksAndDirections = findBlocksOnPath(visitedVertexesAndDirections)
-
-
-
-    }
-    List.empty
+          val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
+          checkPath(verticesWithDirecttions).toSet.toList //503
+    }.getOrElse(List.empty)
   }
-
-
-   def rawSolutionX2: List[GridEntry[Char]] = {
-    begin.map {
-      case start =>
-   //     println(s"Start: $start")
-        val verticesAndCardinals = findVisitedVertices(start, start.cardinal).reverse
-        val alreadyVisited: List[(GridEntry[Char], Cardinal)] = List.empty
-        val loopAcc: List[GridEntry[Char]] = List.empty
-        val (loops, _) = verticesAndCardinals.foldLeft((loopAcc, alreadyVisited)) {
-          case ((loopAcc, visited), verticeCardinal) =>
-            //println(s"loops: $verticeCardinal")
-            val (vertice, cardinal) = verticeCardinal
-            val newLoops = checkVerticeEntriesForLoop(vertice, cardinal, cardinal.nextCardinal, visited) ::: loopAcc
-            println("+++++++")
-            //println(s"new ${newLoops}")
-            val newVisted = vertice.map{ case entry => (entry, cardinal)} ::: visited
-            (newLoops, newVisted)
-        }
-        loops
-      }.getOrElse(List.empty)
-    }
-
-
-/*
-    def rawSolutionX: List[GridEntry[Char]] = {
-      begin.map {
-        start =>
-          val vertices = findVisitedVertices(start, start.cardinal).reverse
-          val alreadyVisited = makeAlreadyVisited(vertices)
-          val (vertice, cardinal) = vertices(7)
-          val c = checkVerticeEntriesForLoop(vertice, cardinal.nextCardinal, alreadyVisited )
-     //     println(c)
-          List.empty
-        //findLoops(vertices.reverse)
-      }.getOrElse(List.empty)
-    }
-*/
-
 }
 
 object DecemberSixPartTwoTest extends DecemberSixPartTwo with PuzzleTest
 object DecemberSixPartTwoSolution extends DecemberSixPartTwo with PuzzleSolution
 
 object DecemberSixPartTwoDebug extends DecemberSixPartTwo with PuzzleSolution with App {
-  grid.findEntry(106, 37).map {
-     entry =>
-      val vertice = verticeToBlock(entry, East)
-      println(vertice)
-      println(grid.isEdge(vertice.head))
+  begin.map {
+    start =>
+      val visitedVertexesAndDirections = visitedWithDirection(start, start.cardinal)
+        .foldLeft(List[(GridEntry[Char], Cardinal)]()) {
+          case(acc, entries) => entries ::: acc
+        }
+
+
+      visitedVertexesAndDirections.foreach{
+        case(entry, cardinal) => println(s"$entry ($cardinal)")
+      }
+
+      grid.printGridPathDebeg(start, visitedVertexesAndDirections)
+
   }
 }
 

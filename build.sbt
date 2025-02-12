@@ -14,7 +14,11 @@ libraryDependencies ++= Seq(
   "software.amazon.awssdk" % "s3" % "2.24.8",
   "org.apache.httpcomponents" % "httpclient" % "4.5.9",
   "org.scalactic" %% "scalactic" % "3.2.19",
-  "org.scalatest" %% "scalatest" % "3.2.19" % "test"
+  "org.scalatest" %% "scalatest" % "3.2.19" % "test",
+  "io.circe" %% "circe-parser" % "0.14.10",
+  "io.circe" %% "circe-generic" % "0.14.10",
+  "org.typelevel" %% "cats-core" % "2.6.1"
+
 )
 
 

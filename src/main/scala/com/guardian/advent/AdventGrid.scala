@@ -155,19 +155,38 @@ trait Grid[T] extends Directions with SolutionHelpers {
     }
   }
 
-  def printGridDebug(gridEntry: GridEntry[T] ): Unit = {
-    println(gridEntry)
+  def printGridDebug(gridEntries: List[GridEntry[T]] ): Unit = {
+    println(gridEntries)
     println()
     (0 to maxY).toList.foreach{
       y =>
         val rowEntries = entries.filter(_.yPosition == y).toList.sortBy(_.xPosition)
         val row = rowEntries.map{ t =>
-           if ( t == gridEntry) "0"
+           if ( gridEntries.contains(t)) "0"
            else t.value.toString
         }.mkString(" ")
         println(row)
     }
     println()
   }
+
+  def printGridPathDebeg(start: GridEntry[T], entriesAndCardninals: List[(GridEntry[T], Cardinal)]) = {
+      (0 to maxY).toList.foreach{
+        y =>
+          val rowEntries = entries.filter(_.yPosition == y).toList.sortBy(_.xPosition)
+          val row = rowEntries.foldLeft(new StringBuilder()) { case (sb, t) =>
+            val s = entriesAndCardninals.find { case (entry, _) => entry == t }.map {
+                case (_, cardinal) => cardinal match {
+                  case North => "^"
+                  case East => ">"
+                  case South => "v"
+                  case West => "<"
+                }
+              }.getOrElse(t.value.toString)
+              if(t == start) sb.append(s"0 ") else sb.append(s"$s ")
+            }
+          println(row)
+      }
+    }
 }
 
