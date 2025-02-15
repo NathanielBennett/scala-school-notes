@@ -27,6 +27,7 @@ object BucketCleanerThree extends App {
  println(s"Raw: ${transferredSegmentBlobs.length}")
 
 
+
   val filtered =   transferredSegmentBlobs.filter { blob =>
       //Today and not all segments
       blob.getName.contains(runDate)

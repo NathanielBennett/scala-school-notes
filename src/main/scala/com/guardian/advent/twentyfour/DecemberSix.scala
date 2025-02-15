@@ -81,9 +81,11 @@ trait DecemberSixPartTwo extends DecemberSix {
     }
   }
 
+
   def visitedWithDirection(verticeStart: GridEntry[Char], cardinal: Cardinal, acc: List[List[(GridEntry[Char], Cardinal)]] = List.empty): List[List[(GridEntry[Char], Cardinal)]] = {
     verticeToBlock(verticeStart, cardinal) match {
-      case Nil => acc.reverse
+      case Nil =>
+        acc.reverse
       case head :: tail =>
         val nextAcc = (head :: tail).map { entry => (entry, cardinal) }.reverse :: acc
         if( grid.isEdge(head) ) nextAcc.reverse
@@ -92,14 +94,17 @@ trait DecemberSixPartTwo extends DecemberSix {
   }
 
 
+
+
   def isLoop(maybeLoopStart: (GridEntry[Char], Cardinal), visited: List[(GridEntry[Char], Cardinal)] ): Boolean = {
+
     val (startEntry, startCardinal) = maybeLoopStart
     val vertice = verticeToBlock(startEntry, startCardinal.nextCardinal) //Reverse?/
     vertice match {
       case Nil => false
       case head :: _ =>
-        if (grid.isEdge(head) ) false
-        else visited.exists{ case(entry, cardinwl) => entry.equalPosition(head) && cardinwl == startCardinal.nextCardinal} // Need tp recur || isLoop((head, startCardinal.nextCardinal), maybeLoopStart :: visited )
+        if (grid.isEdge(head)) false
+        else visited.exists { case (entry, cardinwl) => entry.equalPosition(head) && cardinwl == startCardinal.nextCardinal } // Need tp recur || isLoop((head, startCardinal.nextCardinal), maybeLoopStart :: visited )
     }
   }
 
@@ -107,8 +112,8 @@ trait DecemberSixPartTwo extends DecemberSix {
     path match {
       case Nil => acc
       case _ :: Nil => acc
-      case head :: next :: tail =>
-        val nextAcc = if ( isLoop(head, visited) ) {
+      case  head :: next :: tail =>
+        val nextAcc = if ( isLoop(next, visited) ) {
           val (loop, _) = head
           loop :: acc
         } else acc
@@ -129,7 +134,7 @@ trait DecemberSixPartTwo extends DecemberSix {
     begin.map {
       start =>
           val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
-          checkPath(verticesWithDirecttions).toSet.toList //503
+          checkPath(verticesWithDirecttions) //503
     }.getOrElse(List.empty)
   }
 }
@@ -137,20 +142,21 @@ trait DecemberSixPartTwo extends DecemberSix {
 object DecemberSixPartTwoTest extends DecemberSixPartTwo with PuzzleTest
 object DecemberSixPartTwoSolution extends DecemberSixPartTwo with PuzzleSolution
 
-object DecemberSixPartTwoDebug extends DecemberSixPartTwo with PuzzleSolution with App {
+object DecemberSixPartTwoDebug extends DecemberSixPartTwo with PuzzleTest with App {
   begin.map {
     start =>
       val visitedVertexesAndDirections = visitedWithDirection(start, start.cardinal)
-        .foldLeft(List[(GridEntry[Char], Cardinal)]()) {
-          case(acc, entries) => entries ::: acc
-        }
 
+      for {
+        verticeDirections <- visitedVertexesAndDirections
+        verticeWithDirection <- verticeDirections
 
-      visitedVertexesAndDirections.foreach{
-        case(entry, cardinal) => println(s"$entry ($cardinal)")
+      } yield {
+        val (vertice, direction) = verticeWithDirection
+        println(s"$vertice ($direction)")
       }
 
-      grid.printGridPathDebeg(start, visitedVertexesAndDirections)
+//      grid.printGridPathDebeg(start, visitedVertexesAndDirections)
 
   }
 }
