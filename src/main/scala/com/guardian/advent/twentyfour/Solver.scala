@@ -47,5 +47,9 @@ trait PuzzleSolution {
   def test: Boolean = false
 }
 
+trait PuzzleDebug {
+  def number: Int
+}
+
 
 

@@ -5,9 +5,9 @@ import com.guardian.advent.{AdventOfCodeGridParser, Cardinal, Direction, East, G
 sealed trait GridSpaceEntry extends GridEntry[Char]
 case class Block(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends GridSpaceEntry
 
-trait EmptyEEntry extends GridSpaceEntry
-case class Space(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends EmptyEEntry
-case class Start(override val xPosition: Int, override val yPosition: Int, override val value: Char, cardinal: Cardinal) extends EmptyEEntry
+trait EmptyEntry extends GridSpaceEntry
+case class Space(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends EmptyEntry
+case class Start(override val xPosition: Int, override val yPosition: Int, override val value: Char, cardinal: Cardinal) extends EmptyEntry
 
 object GridSpaceEntry {
    def apply(xPosition: Int, yPosition: Int, char: Char): Option[GridSpaceEntry] =
@@ -38,8 +38,9 @@ trait DecemberSix extends December[Int, CharGrid, GridEntry[Char]] with December
       case start: Start => start
     }
 
-  protected def verticeToBlock(verticeStart: GridEntry[Char], cardinal: Cardinal): List[GridEntry[Char]] = {
+  protected def verticeToBlock(verticeStart: GridEntry[Char],  cardinal: Cardinal, maybeBlock: Option[GridEntry[Char]] = None): List[GridEntry[Char]] = {
     grid.vertice(verticeStart, cardinal){ case (entry, entries) =>
+      Some(entry) == maybeBlock ||
       (entry :: entries).collectFirst {
         case block: Block => block
       }.isDefined
@@ -61,7 +62,8 @@ trait DecemberSix extends December[Int, CharGrid, GridEntry[Char]] with December
 trait DecemberSixPartOne extends DecemberSix {
 
   override def rawSolution: List[GridEntry[Char]] =
-     begin.map { start => findVisitedSquares(start, start.cardinal).toSet.toList }
+     begin.map { start =>
+       findVisitedSquares(start, start.cardinal).toSet.toList }
       .getOrElse(List.empty)
 }
 
@@ -87,24 +89,28 @@ trait DecemberSixPartTwo extends DecemberSix {
       case Nil =>
         acc.reverse
       case head :: tail =>
-        val nextAcc = (head :: tail).map { entry => (entry, cardinal) }.reverse :: acc
+        val nextAcc = (head :: tail).reverse.map { entry => (entry, cardinal) } :: acc
         if( grid.isEdge(head) ) nextAcc.reverse
         else visitedWithDirection(head, cardinal.nextCardinal, nextAcc)
     }
   }
 
+  def isLoop(maybeLoopStart: (GridEntry[Char], Cardinal), maybeBlock: GridEntry[Char], visited: List[(GridEntry[Char], Cardinal)] ): Boolean = {
 
-
-
-  def isLoop(maybeLoopStart: (GridEntry[Char], Cardinal), visited: List[(GridEntry[Char], Cardinal)] ): Boolean = {
+    //This
+    def verticeContainsVisited(verticeToCheck: List[GridEntry[Char]], cardinalToCheck: Cardinal): Boolean =
+        visited.exists{ case (entry, cardinal) => verticeToCheck.exists( e => e.equalPosition(entry)) && cardinal == cardinalToCheck }
 
     val (startEntry, startCardinal) = maybeLoopStart
-    val vertice = verticeToBlock(startEntry, startCardinal.nextCardinal) //Reverse?/
+ //   println(s"$startEntry ($startCardinal) $visited")
+    val vertice = verticeToBlock(startEntry, startCardinal.nextCardinal, Some(maybeBlock)) //Reverse?/
     vertice match {
       case Nil => false
       case head :: _ =>
         if (grid.isEdge(head)) false
-        else visited.exists { case (entry, cardinwl) => entry.equalPosition(head) && cardinwl == startCardinal.nextCardinal } // Need tp recur || isLoop((head, startCardinal.nextCardinal), maybeLoopStart :: visited )
+        // else visited.exists { case (entry, cardinal) => entry.equalPosition(head) && cardinal == startCardinal.nextCardinal } // Need tp recur || isLoop((head, startCardinal.nextCardinal), maybeLoopStart :: visited )
+        else verticeContainsVisited(vertice, startCardinal.nextCardinal) ||
+          isLoop((head, startCardinal.nextCardinal), maybeBlock, vertice.map { entry => (entry, startCardinal.nextCardinal) } ::: (maybeLoopStart :: visited))
     }
   }
 
@@ -113,19 +119,30 @@ trait DecemberSixPartTwo extends DecemberSix {
       case Nil => acc
       case _ :: Nil => acc
       case  head :: next :: tail =>
-        val nextAcc = if ( isLoop(next, visited) ) {
-          val (loop, _) = head
-          loop :: acc
+        val (nextEntry, _) = next
+        val nextAcc = if ( isLoop(head, nextEntry, visited) ) {
+          println(next)
+          nextEntry :: acc
         } else acc
-        checkVerticeFour(next :: tail, visited, nextAcc)
+        checkVerticeFour(next :: tail, head :: visited, nextAcc)
     }
   }
 
   def checkPath(remainingPath: List[List[(GridEntry[Char], Cardinal)]], visited: List[(GridEntry[Char], Cardinal)] = List.empty, loops: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
-      remainingPath match {
+
+    def filterVerticeByVisited(vertice: List[(GridEntry[Char], Cardinal)]): List[(GridEntry[Char], Cardinal)] = {
+         vertice.filterNot{ case (entry, cardinal) =>
+            entry.isInstanceOf[Start] ||
+            visited.exists{ case(visitedEntry, visitedCardinal) => entry.equalPosition(visitedEntry)  &&
+              Set(cardinal, cardinal.counterCardinal).contains(visitedCardinal) } }
+    }
+
+    remainingPath match {
         case Nil => loops
         case head :: tail =>
-         val nextLoops = checkVerticeFour(head, visited, loops)
+        // println(head)
+         val unvisitedInCurrentVertice = filterVerticeByVisited(head)
+         val nextLoops = checkVerticeFour(unvisitedInCurrentVertice, visited, loops)
          checkPath(tail, head ::: visited, nextLoops)
       }
   }
@@ -133,8 +150,13 @@ trait DecemberSixPartTwo extends DecemberSix {
   override def rawSolution: List[GridEntry[Char]] = {
     begin.map {
       start =>
-          val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
-          checkPath(verticesWithDirecttions) //503
+        val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
+        val loops = checkPath(verticesWithDirecttions) //503
+        println(loops)
+        println(loops.size)
+        println(loops.toSet.toList.size)
+        grid.printGridDebug(loops)
+        loops.toSet.toList
     }.getOrElse(List.empty)
   }
 }
@@ -143,9 +165,37 @@ object DecemberSixPartTwoTest extends DecemberSixPartTwo with PuzzleTest
 object DecemberSixPartTwoSolution extends DecemberSixPartTwo with PuzzleSolution
 
 object DecemberSixPartTwoDebug extends DecemberSixPartTwo with PuzzleTest with App {
+
+
+  //1, 1, 2 1, 3 1, 4 0
+  override lazy val resourceName: String = "debug/day_6_debug_4.txt"
+
   begin.map {
     start =>
-      val visitedVertexesAndDirections = visitedWithDirection(start, start.cardinal)
+      begin.map {
+        start =>
+          val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
+          val loops = checkPath(verticesWithDirecttions) //503
+          println(s"*${loops.size}")
+          grid.printGridDebug(loops)
+        /*
+              val containsStart = verticeDirection.collectFirst {
+                case (start: Start, _) => start
+              }.isDefined
+             if(containsStart) println(s"$b: $verticeDirection.")
+*/
+      }
+
+    // grid.printGridPathDebeg(start, visitedVertexesAndDirections.flatten)
+    /*        val (visited, path) = visitedVertexesAndDirections.splitAt(3)
+         println(path.head)
+         println(visited.flatten)
+         val loops = checkVerticeFour(path.head, visited.flatten, List.empty)
+         println(loops)
+ *//*       val vertice = verticeToBlock(start, start.cardinal)
+        println(start.cardinal)
+        println(vertice.reverse)
+        checkPath(List(vertice.map{ entry => (entry, start.cardinal)}.reverse))
 
       for {
         verticeDirections <- visitedVertexesAndDirections
@@ -155,8 +205,8 @@ object DecemberSixPartTwoDebug extends DecemberSixPartTwo with PuzzleTest with A
         val (vertice, direction) = verticeWithDirection
         println(s"$vertice ($direction)")
       }
-
-//      grid.printGridPathDebeg(start, visitedVertexesAndDirections)
+*/
+    //      grid.printGridPathDebeg(start, visitedVertexesAndDirections.flatten)
 
   }
 }

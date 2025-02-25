@@ -27,3 +27,5 @@ trait December[A, S, T] extends RawInputProvider[S] with AdventOfCodePuzzle[T]  
     }
 }
 
+
+

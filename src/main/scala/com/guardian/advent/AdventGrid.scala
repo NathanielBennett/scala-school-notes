@@ -4,11 +4,13 @@ import io.opencensus.metrics.LabelKey
 
 sealed trait Direction {
   def nextGridCoords(x: Int, y: Int): (Int, Int)
+  def prevGridCoords(x: Int, y: Int): (Int, Int)
 }
 
 trait Cardinal extends Direction {
   def nextCardinal: Cardinal
   def previousCardinal: Cardinal
+  def counterCardinal: Cardinal
 }
 trait SemiCardinal extends Direction
 
@@ -26,41 +28,53 @@ trait Directions {
 case object North extends Cardinal {
   override def nextCardinal: Cardinal = East
   override def previousCardinal: Cardinal = West
+  override def counterCardinal: Cardinal = South
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x, y - 1)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x, y + 1)
 }
 
 case object NorthEast extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y - 1)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y + 1)
 }
 
 case object East extends Cardinal {
   override def nextCardinal: Cardinal = South
   override def previousCardinal: Cardinal = North
+  override def counterCardinal: Cardinal = West
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y)
 }
 
 case object SouthEast extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y + 1)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y - 1)
 }
 
 case object South extends Cardinal {
   override def nextCardinal: Cardinal = West
   override def previousCardinal: Cardinal = East
+  override def counterCardinal: Cardinal = North
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 0, y + 1)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x + 0, y - 1)
 }
 
 case object SouthWest extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y + 1)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y - 1)
 }
 
 case object West extends Cardinal {
   override def nextCardinal: Cardinal = North
   override def previousCardinal: Cardinal = South
+  override def counterCardinal: Cardinal = East
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y)
 
 }
 case object NorthWest extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y - 1)
+  override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y + 1)
 }
 
 trait GridEntry[T] {
@@ -68,6 +82,7 @@ trait GridEntry[T] {
   def yPosition: Int
   def value: T
   def nextCoords(direction: Direction): (Int,Int) = direction.nextGridCoords(xPosition, yPosition)
+  def previousCoords(direction: Direction): (Int, Int) = direction.prevGridCoords(xPosition, yPosition)
   def equalPosition(x: Int, y: Int): Boolean = x == xPosition && y == yPosition
   def equalPosition(gridEntry: GridEntry[T]): Boolean = gridEntry.xPosition == xPosition && gridEntry.yPosition == yPosition
   def point: (Int, Int) = (xPosition, yPosition)
@@ -123,6 +138,11 @@ trait Grid[T] extends Directions with SolutionHelpers {
       entries.find{ e => e.xPosition == nextX && e.yPosition == nextY}
   }
 
+  def previousEntryByDirection(gridEntry: GridEntry[T], direction: Direction): Option[GridEntry[T]] = {
+    val (nextX, nextY) = gridEntry.previousCoords(direction)
+    entries.find{ e => e.xPosition == nextX && e.yPosition == nextY}
+  }
+
   def filterEntries(filter: GridEntry[T] => Boolean): List[GridEntry[T]] = entries.filter(filter).toList
 
   def neibouringEntries(gridEntry: GridEntry[T])(filter: (GridEntry[T], GridEntry[T]) => Boolean = (_, _) => true): List[GridEntry[T]] = {
@@ -156,7 +176,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
   }
 
   def printGridDebug(gridEntries: List[GridEntry[T]] ): Unit = {
-    println(gridEntries)
+   // println(gridEntries)
     println()
     (0 to maxY).toList.foreach{
       y =>
@@ -188,5 +208,6 @@ trait Grid[T] extends Directions with SolutionHelpers {
           println(row)
       }
     }
+
 }
 
