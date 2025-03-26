@@ -109,6 +109,12 @@ trait Grid[T] extends Directions with SolutionHelpers {
   private def edgeY(yPosition: Int): Boolean = yPosition == 0 || yPosition == maxY
 
   def isEdge(gridEntry: GridEntry[T]): Boolean = edgeX(gridEntry.xPosition) || edgeY(gridEntry.yPosition)
+  def endsEdge(vertice: List[GridEntry[T]]): Boolean = vertice.headOption match {
+    case Some(gridEntry) => isEdge(gridEntry)
+    case None => false
+  }
+
+
 
   def vertice(start: GridEntry[T], direction: Direction)( isLast: (GridEntry[T], List[GridEntry[T]]) => Boolean ): List[GridEntry[T]] = {
      def nextEntry(entry: GridEntry[T], acc: List[GridEntry[T]]): List[GridEntry[T]] = {

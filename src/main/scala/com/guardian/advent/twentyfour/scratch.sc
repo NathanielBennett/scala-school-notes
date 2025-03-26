@@ -1,1 +1,4 @@
-val l = List(1,2,3,4,5,6).splitAt(3)
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+val d = LocalDate.parse("2025-03-19", DateTimeFormatter.ISO_DATE)

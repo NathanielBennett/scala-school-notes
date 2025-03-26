@@ -98,7 +98,7 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
      // (DecemberSixPartOneTest, 41),
       //(DecemberSixPartOneSolution, 4890),
       (DecemberSixPartTwoTest, 6),
-    // (DecemberSixPartTwoSolution, 6)
+      (DecemberSixPartTwoSolution, 6) //2149
     )
 
     testsAndExpected.foreach {
@@ -107,4 +107,10 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
         adventPuzzle.solve should be(expectedResult)
     }
   }
+
+  "Day Six" should "return the correct values for the corner cases" in {
+     val expectedResults = (1, 2, 2, 0, 19, 0, 2, 0)
+  }
+
+
 }

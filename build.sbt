@@ -8,7 +8,7 @@ scalaVersion := "2.13.6"
 
 libraryDependencies ++= Seq(
   "com.google.cloud" % "google-cloud-storage" % "2.43.2",
-  "com.google.cloud" % "google-cloud-bigquery" % "2.6.0",
+  "com.google.cloud" % "google-cloud-bigquery" % "2.43.2",
   "org.typelevel" %% "cats-core" % "2.8.0",
   "com.lihaoyi" %% "requests" % "0.8.0",
   "software.amazon.awssdk" % "s3" % "2.24.8",
