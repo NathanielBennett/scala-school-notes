@@ -11,7 +11,7 @@ libraryDependencies ++= Seq(
   "com.google.cloud" % "google-cloud-bigquery" % "2.43.2",
   "org.typelevel" %% "cats-core" % "2.8.0",
   "com.lihaoyi" %% "requests" % "0.8.0",
-  "software.amazon.awssdk" % "s3" % "2.24.8",
+  "software.amazon.awssdk" % "s3" % "2.31.12",
   "org.apache.httpcomponents" % "httpclient" % "4.5.9",
   "org.scalactic" %% "scalactic" % "3.2.19",
   "org.scalatest" %% "scalatest" % "3.2.19" % "test",

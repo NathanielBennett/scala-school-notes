@@ -22,7 +22,8 @@ object GridSpaceEntry {
      }
 }
 
-trait DecemberSixParser extends AdventOfCodeGridParser[Char, CharGrid] {
+trait
+DecemberSixParser extends AdventOfCodeGridParser[Char, CharGrid] {
   override def entryParser(x: Int, y: Int, value: Char): Option[GridEntry[Char]] = GridSpaceEntry(x, y, value)
   override def gridMaker(entries: Set[GridEntry[Char]]): CharGrid = CharGrid(entries)
 }

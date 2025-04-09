@@ -1,1 +1,1 @@
-val l = (0 to 10).toList.reverse.takeWhile{ i => i != 5 }
+None.getOrElse(null)

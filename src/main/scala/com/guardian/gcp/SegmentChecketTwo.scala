@@ -2,6 +2,10 @@ package com.guardian.gcp
 
 import com.google.cloud.storage.Storage.BlobListOption
 import com.google.cloud.storage.{Blob, Storage, StorageOptions}
+import com.guardian.gcp.SegmentChecketTwo.s3Client
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.{Delete, DeleteBucketRequest, DeleteObjectsRequest, ListObjectsV2Request, ObjectIdentifier}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -10,29 +14,79 @@ import scala.jdk.CollectionConverters._
 
 object SegmentChecketTwo extends App {
 
-  val transferredBlobPrefixPattern = """^segment-export/(\S+)/(\d{4}-\d{2}-\d{2})/(\S+)/(\S+\.gz)$""".r
-  val runDate = LocalDate.of(2025, 2, 13).format(DateTimeFormatter.ISO_DATE)
+  val bucketName = "ophan-temp-braze-system"
 
-  val storage = StorageOptions.newBuilder().build().getService
-  val srcBucketName = "gu-datatech-raw-braze-segment-memberships-prod"
-  val destBucketName = "gu-datatech-raw-braze-segment-memberships-code"
-  implicit val ec = ExecutionContext.global
+  def countBucket(bucketName: String, acc: List[ObjectIdentifier] = List.empty, continuationToken: Option[String] = None): Unit = {
 
-  def listBlobs(blobListOptions: List[BlobListOption]): List[Blob] = {
-    storage.list(srcBucketName, blobListOptions:_*)
-      .iterateAll()
-      .asScala
-      .toList
+
+
+    val listObjectsRequest = ListObjectsV2Request
+      .builder()
+      .continuationToken(continuationToken.getOrElse(null))
+      .bucket(bucketName)
+      .build()
+
+    val resoponse = s3Client.listObjectsV2(listObjectsRequest)
+    Option(resoponse.nextContinuationToken) match {
+      case None => println(s"There ar ${resoponse.contents.size + acc} in ${bucketName}")
+      case Some(contT) =>
+        println(s"More: $contT")
+        countBucket(bucketName, acc + resoponse.contents.size, Some(contT))
+    }
   }
 
-  val transferredSegmentTotals = listBlobs(List(BlobListOption.prefix("segment-export/"), BlobListOption.currentDirectory()))
-    .foreach{ segment =>
-       listBlobs(List(BlobListOption.prefix(s"${segment.getName}$runDate/")))
-         .foreach { b =>
-           val dest = b.getName
-            println(s"copying: ${b.getName}" )
-           b.copyTo(destBucketName, b.getName)
+  def listBucket(bucketName: String): List[ObjectIdentifier] = {
+    val listObjectsRequest = ListObjectsV2Request
+      .builder()
+      .bucket(bucketName)
+      .build()
 
-         }
-    }
+    s3Client.listObjectsV2(listObjectsRequest)
+      .contents()
+      .asScala
+      .toList
+      .map {
+        s3Object =>
+          ObjectIdentifier.builder()
+            .key(s3Object.key())
+            .build
+      }
+  }
+
+  val s3Client = S3Client.builder()
+    .region(Region.EU_WEST_1)
+    .build()
+
+  countBucket(bucketName)
+
+  val identifiers = listBucket(bucketName)
+
+  if ( identifiers.nonEmpty && false ) {
+
+    val delete = Delete.builder()
+      .objects(identifiers: _*)
+      .build()
+
+    val deleteObjectsRequest = DeleteObjectsRequest.builder()
+      .bucket(bucketName)
+      .delete(delete)
+      .build()
+
+    println(s"Deleting ${identifiers.size} keys!")
+    s3Client.deleteObjects(deleteObjectsRequest)
+    println("Done!")
+
+    val deleteBucketRequest = DeleteBucketRequest
+      .builder()
+      .bucket(bucketName)
+      .build()
+
+    println(s"Deletiing $bucketName")
+    s3Client.deleteBucket(deleteBucketRequest)
+    println(s"DeletED $bucketName")
+
+
+  } else {
+    println("Empty!")
+  }
 }
