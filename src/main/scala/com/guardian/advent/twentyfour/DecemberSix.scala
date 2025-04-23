@@ -106,7 +106,7 @@ trait DecemberSixPartTwo extends DecemberSix {
       val (entry, cardinal) = maybeLoopStart
       (entry, cardinal, cardinal.nextCardinal)
     }
-    println(s"Loop $startEntry, $maybeBlock")
+//    println(s"Loop $startEntry, $maybeBlock")
 
     val vertice = verticeToBlock(startEntry, cardinalForVertice)
 
@@ -121,7 +121,7 @@ trait DecemberSixPartTwo extends DecemberSix {
   }
 
   def checkVerticeFour( path: List[(GridEntry[Char], Cardinal)], visited: List[(GridEntry[Char], Cardinal)], acc: List[GridEntry[Char]] ): List[GridEntry[Char]] = {
-    println(s"Path ${path.size}")
+    //println(s"Path ${path.size}")
     path match {
       case Nil => acc
       case _ :: Nil => acc
@@ -144,8 +144,6 @@ trait DecemberSixPartTwo extends DecemberSix {
           Set(cardinal, cardinal.counterCardinal).contains(visitedCardinal) } }
     }
 
-    println(s"Vertices remaining: ${remainingPath.size}")
-
     remainingPath match {
         case Nil => loops
         case head :: tail =>
@@ -161,10 +159,12 @@ trait DecemberSixPartTwo extends DecemberSix {
       start =>
         val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
         val loops = checkPath(verticesWithDirecttions) //503
+/*
         println(loops)
         println(loops.size)
         println(loops.toSet.toList.size)
-        grid.printGridDebug(loops)
+*/
+        grid.printGridDebug(loops, "")
         loops.toSet.toList
     }.getOrElse(List.empty)
   }
@@ -331,7 +331,7 @@ class DecemberSixEdgeCaseTester(fileIndex: Int) extends DecemberSixPartTwoRefact
   override lazy val resourceName: String = s"debug/day_6_debug_${fileIndex}.txt"
 }
 
-object RefactorDebug extends DecemberSixPartTwoRefactor with App with PuzzleTest {
+object RefactorDebug extends DecemberSixPartTwoRefactor  with App with PuzzleTest {
    override lazy val resourceName: String = "debug/day_6_debug_16.txt"
   rawSolution
 }
@@ -339,14 +339,12 @@ object RefactorDebug extends DecemberSixPartTwoRefactor with App with PuzzleTest
 
 
 //class DecemberSixPartTwoDebug(override val resourceName: String) extends DecemberSixPartTwo with PuzzleTest with App {
-object DecemberSixPartTwoDebug extends DecemberSixPartTwo with PuzzleTest with App {
+class DecemberSixPartTwoDebug(override val debugCase: Int)  extends DecemberSixPartTwo with PuzzleDebugger {
 
   //1, 1, 2 1, 3 2, 4 0 db 19 6:0
 
   //11: 6 12 1 13 0
-  override lazy val resourceName: String = "debug/day_6_debug_3.txt"
-
-  begin.map {
+  /*  begin.map {
     start =>
       val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
 
@@ -356,6 +354,42 @@ object DecemberSixPartTwoDebug extends DecemberSixPartTwo with PuzzleTest with A
       println(s"Loops: ${loops.size}")
       println(s"Loops: ${loops}")
       grid.printGridDebug(loops)
+  }*/
+  override def rawSolution: List[GridEntry[Char]] = {
+    val blocks = super.rawSolution
+    grid.printGridDebug(blocks, "")
+    println(s"(${blocks.length})")
+    println()
+    blocks
   }
+
+  override def test: Boolean = true
+}
+
+class DecemberSixPartTwoDebugRefactor(override val debugCase: Int)  extends DecemberSixPartTwoRefactor with PuzzleDebugger {
+
+  //1, 1, 2 1, 3 2, 4 0 db 19 6:0
+
+  //11: 6 12 1 13 0
+  /*  begin.map {
+    start =>
+      val verticesWithDirecttions = visitedWithDirection(start, start.cardinal)
+
+
+
+      val loops = checkPath(verticesWithDirecttions) //503
+      println(s"Loops: ${loops.size}")
+      println(s"Loops: ${loops}")
+      grid.printGridDebug(loops)
+  }*/
+  override def rawSolution: List[GridEntry[Char]] = {
+    val blocks = super.rawSolution
+    grid.printGridDebug(blocks, "")
+    println(s"(${blocks.length})")
+    println()
+    blocks
+  }
+
+  override def test: Boolean = true
 }
 

@@ -27,5 +27,12 @@ trait December[A, S, T] extends RawInputProvider[S] with AdventOfCodePuzzle[T]  
     }
 }
 
+trait PuzzleDebugger extends InputFileReader {
+  def debugCase: Int
+
+  override lazy val resourceName: String = s"debug/$day/day_${day}_debug_${debugCase}.txt"
+}
+
+
 
 

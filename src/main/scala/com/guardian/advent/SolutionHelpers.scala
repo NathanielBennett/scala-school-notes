@@ -43,7 +43,7 @@ trait SolutionHelpers {
 
   implicit class RichLinearSeq[A, B <: LinearSeq[A]](linearSeq: LinearSeq[A]) {
     def tailHead: A = linearSeq.tail.head
-    def doesNotContain(a: A): Boolean =  linearSeq.contains(a)
+    def doesNotContain(a: A): Boolean =  !linearSeq.contains(a)
     def tailEmpty: Boolean = linearSeq.size == 1
     def uniquePermutations(toB: IndexedSeq[A] => B): Iterator[B] = {
       val is = (0 to linearSeq.length).flatMap{ _ => linearSeq}

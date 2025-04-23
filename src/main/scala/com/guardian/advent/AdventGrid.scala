@@ -181,7 +181,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
     }
   }
 
-  def printGridDebug(gridEntries: List[GridEntry[T]] ): Unit = {
+  def printGridDebug(gridEntries: List[GridEntry[T]], concat: String = " " ): Unit = {
    // println(gridEntries)
     println()
     (0 to maxY).toList.foreach{
@@ -190,13 +190,13 @@ trait Grid[T] extends Directions with SolutionHelpers {
         val row = rowEntries.map{ t =>
            if ( gridEntries.contains(t)) "0"
            else t.value.toString
-        }.mkString(" ")
+        }.mkString(concat)
         println(row)
     }
     println()
   }
 
-  def printGridPathDebeg(start: GridEntry[T], entriesAndCardninals: List[(GridEntry[T], Cardinal)]) = {
+  def printGridPathDebug(start: GridEntry[T], entriesAndCardninals: List[(GridEntry[T], Cardinal)]) = {
       (0 to maxY).toList.foreach{
         y =>
           val rowEntries = entries.filter(_.yPosition == y).toList.sortBy(_.xPosition)
@@ -209,7 +209,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
                   case West => "<"
                 }
               }.getOrElse(t.value.toString)
-              if(t == start) sb.append(s"0 ") else sb.append(s"$s ")
+              if(t == start) sb.append(s"0") else sb.append(s"$s")
             }
           println(row)
       }

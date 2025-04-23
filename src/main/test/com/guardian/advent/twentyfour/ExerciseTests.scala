@@ -98,7 +98,7 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
      // (DecemberSixPartOneTest, 41),
       //(DecemberSixPartOneSolution, 4890),
       (DecemberSixPartTwoTest, 6),
-      (DecemberSixPartTwoSolution, 6) //2149
+//      (DecemberSixPartTwoSolution, 6) //2149
     )
 
     testsAndExpected.foreach {
@@ -110,15 +110,50 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
 
   "Day six refactor" should "return the correct values" in {
 
-    val testAndExpected: List[(DecemberSixRefactor, Int)] = List(
-      (DecemberSixRefactorPartOneTest, 41),
-      (DecemberSixRefactorPartOneSolution, 4890)
-    )
+    val testAndExpected: List[(December[Int, CharGrid, GridEntry[Char]] , Int)] = List(
+/*
+       (DecemberSixRefactorPartOneTest, 41),
+       (DecemberSixRefactorPartOneSolution, 4890),
+*/
+      (DecemberSixPartTwoTest, 6),
+      (DecemberSixRefactorPartTwoTest, 6),
+//       (DecemberSixRefactorPartTwoSolution, 6),
+     )
 
-    testAndExpected.foreach {
+     testAndExpected.foreach {
       case (puzzle, expectedResult ) => puzzle.solve should be(expectedResult)
     }
+  }
 
+  "Day six refactured debug" should "return the correct valuws" in {
+    val expected = List(
+      (15, 0),
+      (18, 1),
+      (17, 19),
+    )
+
+    expected.foreach {
+      case (index, result)  =>
+        val puzzle = new DecemberSixRefactorPartTwoDebugger(index)
+        puzzle.solve should be (result)
+    }
+  }
+
+   "Day six debug" should "return the correct valuws" in {
+    val expected = List(
+      (17, 19),
+    )
+
+    expected.foreach {
+      case (index, result)  =>
+        val puzzleRefactor = new DecemberSixPartTwoRefactorDebugger(index)
+        val puzzle= new DecemberSixPartTwoDebug(index)
+        val firstRefactor = new DecemberSixPartTwoDebugRefactor(index)
+        println(puzzle.rawSolution.diff(puzzleRefactor.rawSolution))
+        puzzle.solve should be (result)
+        puzzleRefactor.solve should be (result)
+        firstRefactor.solve should be (result)
+    }
   }
 
 

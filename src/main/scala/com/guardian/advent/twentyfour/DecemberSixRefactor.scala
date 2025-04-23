@@ -5,6 +5,7 @@ import com.guardian.advent.{Cardinal, GridEntry}
 trait DecemberSixRefactor extends December[Int, CharGrid, GridEntry[Char]] with DecemberSixParser {
 
   type PathEntry = (GridEntry[Char], Cardinal)
+  type BlockMap = Map[GridEntry[Char], List[Cardinal]]
 
   override def day: Int = 6
   override def solver: Solver[GridEntry[Char], Int] = listSizeSolver
@@ -14,11 +15,11 @@ trait DecemberSixRefactor extends December[Int, CharGrid, GridEntry[Char]] with 
     case start: Start => start
   }
 
-  protected def verticeToBlock(start: GridEntry[Char], cardinal: Cardinal): List[PathEntry] = {
+  protected def verticeToBlock(start: GridEntry[Char], cardinal: Cardinal, blockMap: BlockMap = Map.empty): List[PathEntry] = {
     grid.vertice(start, cardinal) { case (entry, entries) =>
-      (entry :: entries).collectFirst {
-        case block: Block => block
-      }.isDefined
+        blockMap.keySet.contains(entry) || (entry :: entries).collectFirst {
+          case block: Block => block
+        }.isDefined
     }
     .map{ entry => (entry, cardinal)}
   }
@@ -36,7 +37,7 @@ trait DecemberSixRefactor extends December[Int, CharGrid, GridEntry[Char]] with 
   }
 
   protected def walkPath ( maybeVerticeStart: Option[PathEntry], pathSoFar: List[PathEntry] ): List[PathEntry] = {
-    maybeVerticeStart.map{
+    maybeVerticeStart.map {
       case(entry, cardinal) =>
         val vertice = verticeToBlock(entry, cardinal)
         val maybeNextVerticeStart = vertice.headOption.flatMap {
@@ -46,25 +47,33 @@ trait DecemberSixRefactor extends December[Int, CharGrid, GridEntry[Char]] with 
     }.getOrElse(pathSoFar.reverse)
   }
 
-  protected def findPath: List[GridEntry[Char]] = begin.map { start =>
+  protected def findPath: List[PathEntry] = begin.map { start =>
     val firstStart = grid.nextEntryByDirection(start, start.cardinal).map { entry => (entry, start.cardinal) }
-    walkPath(firstStart, List((start, start.cardinal)))
-      .map{ case (entry, _) => entry}
-      .toSet
-      .toList
+       val path = walkPath(firstStart, List((start, start.cardinal)))
+  //     grid.printGridPathDebug(start, path)
+       path
    }.getOrElse(List.empty)
 }
 
 trait DecemberSixRefactorPartOne extends DecemberSixRefactor {
-  override def rawSolution: List[GridEntry[Char]] = findPath
+  override def rawSolution: List[GridEntry[Char]] = {
+    findPath.map{ case(entry, _) => entry}
+      .toSet
+      .toList
+  }
 }
 
 object DecemberSixRefactorPartOneTest extends DecemberSixRefactorPartOne with PuzzleTest
 object DecemberSixRefactorPartOneSolution extends DecemberSixRefactorPartOne with PuzzleSolution
 
-trait DecemberSixRefactorPartTwoTest extends DecemberSixRefactor with PuzzleSolution {
+trait DecemberSixRefactorPartTwo extends DecemberSixRefactor {
 
-  type BlockMap = Map[GridEntry[Char], List[Cardinal]]
+  implicit def pathToVertice(path: List[PathEntry]): List[GridEntry[Char]] = path.map{ case(entry, _) => entry}
+
+  private def debugPathSize(path: List[PathEntry]): Unit = {
+    println(s"Raw path size: ${path.size}")
+    println(s"Deduped = ${pathToVertice(path).toSet.size}")
+  }
 
   private def getCurrentVertice(path: List[PathEntry]): (List[PathEntry], List[PathEntry]) = {
     path.headOption.map {
@@ -91,20 +100,15 @@ trait DecemberSixRefactorPartTwoTest extends DecemberSixRefactor with PuzzleSolu
     }
   }
 
-  private def rawVerticeToblock(verticeStart: GridEntry[Char], cardinal: Cardinal): List[GridEntry[Char]] = {
-    verticeToBlock(verticeStart, cardinal).map{ case(entry, _) => entry }
-  }
-
   //TODO move blokmap methods to class
-  private def updateBlockMapForVertice(vertice: List[GridEntry[Char]], cardinal: Cardinal, blockMap: BlockMap): BlockMap = {
+  private def  updateBlockMapForVertice(head: PathEntry, blockMap: BlockMap): BlockMap = {
 
-    val headForVertice = blockForVertice(vertice, cardinal)
+    //TODO - squeeze dawn?
+     val (headEntry, cardinal) = head
 
-    headForVertice.map {
-      head => getBlocksForVertice(head, cardinal).foldRight(blockMap) {
-        case(pathEntry, blockMap) => updateBlockMap(blockMap, pathEntry)
+     getBlocksForVertice(headEntry, cardinal).foldRight(blockMap) {
+          case(pathEntry, blockMap) => updateBlockMap(blockMap, pathEntry)
       }
-    }.getOrElse(blockMap)
   }
 
   //Vertice class
@@ -112,90 +116,108 @@ trait DecemberSixRefactorPartTwoTest extends DecemberSixRefactor with PuzzleSolu
      vertice.headOption.flatMap{ verticeHead => grid.nextEntryByDirection(verticeHead, cardinal)}
   }
 
-
   def getBlocksForVertice(lastHead: GridEntry[Char], cardinal: Cardinal, blocksEntries: List[PathEntry] = List.empty):  List[PathEntry] = {
     grid.nextEntryByDirection(lastHead, cardinal) match {
       case Some(block: Block) => getBlocksForVertice(lastHead, cardinal.nextCardinal, (block, cardinal) :: blocksEntries)
-      case None => blocksEntries
+      case _ => blocksEntries
     }
   }
 
   //Not Path Entry
-  private def checkLoop(maybeVerticeStart: Option[PathEntry], blockCandidate: GridEntry[Char], blockMap: BlockMap): Boolean = {
+  private def checkLoop(maybeVerticeStart: Option[PathEntry], blockMap: BlockMap): Boolean = {
 
-    def blockHitPreviously(blockEntry: GridEntry[Char], cardinal: Cardinal): Boolean = {
-       blockMap.get(blockEntry).map{
-         cadinalsForBlock => cadinalsForBlock.contains(cardinal) }
-       .getOrElse(false)
-    }
 
-    def checkBlock(vertice: List[GridEntry[Char]], cardinal: Cardinal): Boolean = {
-      val maybeBlock = vertice.contains(blockCandidate) match {
-        case true => vertice.reverse
-          .takeWhile{ entry => entry != blockCandidate }
-          .lastOption
-        case false => blockForVertice(vertice, cardinal)
-      }
-
-      maybeBlock.map{ block => blockHitPreviously(block, cardinal)}.getOrElse(false)
+    def blockHitPreviouslyF(vertice: List[PathEntry], cardinal: Cardinal): Boolean = {
+      (for{
+        blockEntry <- blockForVertice(vertice, cardinal)
+        cardinalsForBlock <- blockMap.get(blockEntry)
+      } yield cardinalsForBlock.contains(cardinal)).getOrElse(false)
     }
 
     maybeVerticeStart.map {
       verticeStart =>
 
         val (startEntry, cardinal) = verticeStart
-        val vertice = rawVerticeToblock(startEntry, cardinal)
+        val vertice = verticeToBlock(startEntry, cardinal, blockMap)
 
         vertice match {
           case Nil => false
-          case _ :: _ =>
-            val isLoop = checkBlock(vertice, cardinal)
+          case head :: _ =>
+            val isLoop = blockHitPreviouslyF(vertice, cardinal)
+
             isLoop || {
-              val nextBlockMap = updateBlockMapForVertice(vertice, cardinal, blockMap)
-              val maybeNextVerticeStart = vertice.headOption.flatMap{
-                head => nextVerticeStart(head, cardinal.nextCardinal)
+              val nextBlockMap = updateBlockMapForVertice(head, blockMap)
+              val maybeNextVerticeStart = vertice.headOption.flatMap {
+                head => nextVerticeStart(head._1, cardinal.nextCardinal)
               }
-              checkLoop(maybeNextVerticeStart, blockCandidate, nextBlockMap)
+              checkLoop(maybeNextVerticeStart, nextBlockMap)
             }
         }
     }.getOrElse(false)
   }
 
+  def checkVertice(vertice: List[PathEntry], visited: List[GridEntry[Char]], blockMap: BlockMap, blocks: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
 
-
-  def checkVertice(vertice: List[PathEntry], visited: List[PathEntry], blockMap: BlockMap, blocks: List[GridEntry[Char]]): List[GridEntry[Char]] = {
-
-    def isBlockCandidate(entry: GridEntry[Char], visitedEntries: List[GridEntry[Char]]): Boolean = {
-      !entry.isInstanceOf[Start] && visitedEntries.doesNotContain(entry)
-    }
+    def isBlockCandidate(entry: GridEntry[Char]): Boolean = visited.doesNotContain(entry)
 
     vertice match {
       case head :: next :: tail =>
-        val (maybeBlock, cardinal) = next
-        lazy val loopStart = (head._1, cardinal.nextCardinal)
-        val visitedEntries = visited.map{ case(entry,  _) => entry }
-        val isThisLoop = isBlockCandidate(maybeBlock, visitedEntries) && checkLoop(Some(loopStart), maybeBlock, blockMap)
+        val (headEntry, cardinal) = head
+        val (maybeBlock, _) = next
+        lazy val loopStart = (headEntry, cardinal.nextCardinal)
+        val isThisLoop = isBlockCandidate(maybeBlock) && {
+          val blockMapWithBlockCandidate = updateBlockMap(blockMap, next)
+          checkLoop(Some(loopStart), blockMapWithBlockCandidate)
+        }
         val nextBlocks = if(isThisLoop) maybeBlock :: blocks else blocks
-        checkVertice(next :: tail, head :: visited, blockMap, nextBlocks)
+        checkVertice(next :: tail, headEntry :: visited, blockMap, nextBlocks)
       case _ => blocks
     }
   }
 
-  def findBlocks( pathRemaining: List[PathEntry], visited: List[PathEntry] = List.empty, blockMap: BlockMap = Map.empty, blocks: List[GridEntry[Char]] = List.empty ): List[GridEntry[Char]] = {
+  def findBlocks( pathRemaining: List[PathEntry], visited: List[GridEntry[Char]] = List.empty, blockMap: BlockMap = Map.empty, blocks: List[GridEntry[Char]] = List.empty ): List[GridEntry[Char]] = {
      pathRemaining match {
        case Nil => blocks
-       case _ =>
-          val (currentVertice, nextPathRemaining) = getCurrentVertice(pathRemaining)
-         // val currentLoops = checkVertice(currentVertice,
-
+       case _ :: _ =>
+         val (currentVertice, nextPathRemaining) = getCurrentVertice(pathRemaining)
+         val blocksForVertice = checkVertice(currentVertice, visited, blockMap)
+         val nextBlockMap =
+           currentVertice.reverse.headOption.map{ head => updateBlockMapForVertice(head, blockMap) }.getOrElse(blockMap)
+         findBlocks(nextPathRemaining, currentVertice ::: visited, nextBlockMap, blocksForVertice ::: blocks)
      }
-     List.empty
-
-
   }
 
   override def rawSolution: List[GridEntry[Char]] = {
      val path = findPath
-    List.empty
+     val raw = findBlocks(path)
+     grid.printGridDebug(raw, "")
+     println(s"(${raw.length})")
+     println()
+/*
+      println(s"L: ${raw.size}")
+      println(s"LS: ${raw.toSet.size}")
+*/
+     raw
+  }
+}
+
+object DecemberSixRefactorPartTwoTest extends DecemberSixRefactorPartTwo with PuzzleTest
+object DecemberSixRefactorPartTwoSolution extends DecemberSixRefactorPartTwo with PuzzleSolution
+
+class DecemberSixRefactorPartTwoDebugger(override val debugCase: Int) extends DecemberSixRefactorPartTwo with PuzzleDebugger {
+  override def test: Boolean = true
+
+  override def rawSolution: List[GridEntry[Char]] = {
+//    grid.printGrid()
+    super.rawSolution
+  }
+}
+
+class DecemberSixPartTwoRefactorDebugger(override val debugCase: Int) extends DecemberSixRefactorPartTwo with PuzzleDebugger {
+  override def test: Boolean = true
+
+  override def rawSolution: List[GridEntry[Char]] = {
+    //    grid.printGrid()
+    super.rawSolution
   }
 }

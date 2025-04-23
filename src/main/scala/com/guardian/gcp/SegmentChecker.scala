@@ -67,7 +67,6 @@ object SegmentChecker extends App {
     ("ophan-clean-identity-braze-users-export", LocalDate.parse("2024-02-08")),
     ("ophan-temp-identity-braze-users-export", LocalDate.parse("2023-06-26")),
     ("ophan-clean-braze-system", LocalDate.parse("2021-01-18")),
-    ("ophan-temp-braze-system", LocalDate.parse("2021-01-18")),
     ("braze-currents-backfill", LocalDate.parse("2023-02-16")),
     ("ophan-clean-push-notification-event", LocalDate.parse("2022-07-04")),
     ("ophan-clean-push-notification", LocalDate.parse("2022-07-04")),
