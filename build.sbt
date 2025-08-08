@@ -2,13 +2,14 @@ name := "scala-school-notes"
 
 version := "0.1"
 
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.16"
 
 
 
 libraryDependencies ++= Seq(
   "com.google.cloud" % "google-cloud-storage" % "2.43.2",
   "com.google.cloud" % "google-cloud-bigquery" % "2.43.2",
+  "com.google.cloud" % "google-cloud-storage-transfer" % "1.70.0",
   "org.typelevel" %% "cats-core" % "2.8.0",
   "com.lihaoyi" %% "requests" % "0.8.0",
   "software.amazon.awssdk" % "s3" % "2.31.12",
