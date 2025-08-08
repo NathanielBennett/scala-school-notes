@@ -12,6 +12,16 @@ trait Cardinal extends Direction {
   def previousCardinal: Cardinal
   def counterCardinal: Cardinal
 }
+
+object Cardinal {
+  def apply(s: String): Option[Cardinal] = Option(s).collect {
+    case "North" => North
+    case "East" => East
+    case "South"  => South
+    case "West" => West
+  }
+}
+
 trait SemiCardinal extends Direction
 
 trait Directions {

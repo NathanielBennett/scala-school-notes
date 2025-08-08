@@ -1,7 +1,1 @@
-object OwnerTr {
-  val name: String = "Onnner"
-}
-
-trait Two extends OwnerTr {
-
-}
+"QWC81TNY7O63".toLowerCase

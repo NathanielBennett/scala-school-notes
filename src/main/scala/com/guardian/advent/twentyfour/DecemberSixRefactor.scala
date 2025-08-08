@@ -1,6 +1,10 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{Cardinal, GridEntry}
+import com.guardian.advent.twentyfour.util.DecSixDiffer
+import com.guardian.advent.{Cardinal, GridEntry, North}
+
+import java.io.{File, PrintWriter}
+import scala.io.Source
 
 trait DecemberSixRefactor extends December[Int, CharGrid, GridEntry[Char]] with DecemberSixParser {
 
@@ -50,7 +54,7 @@ trait DecemberSixRefactor extends December[Int, CharGrid, GridEntry[Char]] with 
   protected def findPath: List[PathEntry] = begin.map { start =>
     val firstStart = grid.nextEntryByDirection(start, start.cardinal).map { entry => (entry, start.cardinal) }
        val path = walkPath(firstStart, List((start, start.cardinal)))
-  //     grid.printGridPathDebug(start, path)
+       //grid.printGridPathDebug(start, path)
        path
    }.getOrElse(List.empty)
 }
@@ -62,6 +66,8 @@ trait DecemberSixRefactorPartOne extends DecemberSixRefactor {
       .toList
   }
 }
+
+class TestGridWalker( override val grid: CharGrid) extends DecemberSixRefactorPartOne with PuzzleSolution {}
 
 object DecemberSixRefactorPartOneTest extends DecemberSixRefactorPartOne with PuzzleTest
 object DecemberSixRefactorPartOneSolution extends DecemberSixRefactorPartOne with PuzzleSolution
@@ -156,28 +162,33 @@ trait DecemberSixRefactorPartTwo extends DecemberSixRefactor {
     }.getOrElse(false)
   }
 
-  def checkVertice(vertice: List[PathEntry], visited: List[GridEntry[Char]], blockMap: BlockMap, blocks: List[GridEntry[Char]] = List.empty): List[GridEntry[Char]] = {
+  def checkVertice(vertice: List[PathEntry], visited: List[PathEntry], blockMap: BlockMap, blocks: List[PathEntry] = List.empty): List[PathEntry] = {
 
-    def isBlockCandidate(entry: GridEntry[Char]): Boolean = visited.doesNotContain(entry)
+    def isBlockCandidate(entry: PathEntry): Boolean = visited.doesNotContain(entry)
+    //1934
+    def isBlockCandidate2(entry: GridEntry[Char]): Boolean = visited.map{ case(entryk, _) => entryk}.doesNotContain(entry)
 
     vertice match {
       case head :: next :: tail =>
         val (headEntry, cardinal) = head
-        val (maybeBlock, _) = next
         lazy val loopStart = (headEntry, cardinal.nextCardinal)
-        val isThisLoop = isBlockCandidate(maybeBlock) && {
+        val isThisLoop = isBlockCandidate2(next._1) && {
           val blockMapWithBlockCandidate = updateBlockMap(blockMap, next)
           checkLoop(Some(loopStart), blockMapWithBlockCandidate)
         }
-        val nextBlocks = if(isThisLoop) maybeBlock :: blocks else blocks
-        checkVertice(next :: tail, headEntry :: visited, blockMap, nextBlocks)
-      case _ => blocks
+        val nextBlocks = if(isThisLoop) next :: blocks else blocks
+        checkVertice(next :: tail, head :: visited, blockMap, nextBlocks)
+      case _ =>
+        blocks
     }
   }
 
-  def findBlocks( pathRemaining: List[PathEntry], visited: List[GridEntry[Char]] = List.empty, blockMap: BlockMap = Map.empty, blocks: List[GridEntry[Char]] = List.empty ): List[GridEntry[Char]] = {
+
+  def findBlocks( pathRemaining: List[PathEntry], visited: List[PathEntry] = List.empty, blockMap: BlockMap = Map.empty, blocks: List[PathEntry] = List.empty ): List[PathEntry] = {
+     debugPathSize(pathRemaining)
      pathRemaining match {
-       case Nil => blocks
+       case Nil =>
+         blocks
        case _ :: _ =>
          val (currentVertice, nextPathRemaining) = getCurrentVertice(pathRemaining)
          val blocksForVertice = checkVertice(currentVertice, visited, blockMap)
@@ -189,15 +200,19 @@ trait DecemberSixRefactorPartTwo extends DecemberSixRefactor {
 
   override def rawSolution: List[GridEntry[Char]] = {
      val path = findPath
-     val raw = findBlocks(path)
-     grid.printGridDebug(raw, "")
-     println(s"(${raw.length})")
-     println()
-/*
-      println(s"L: ${raw.size}")
-      println(s"LS: ${raw.toSet.size}")
-*/
+     val raw = findBlocks(path.tail)
+     writeResults(raw)
+    /*
+         grid.printGridDebug(raw, "")
+         println()
+          println(s"L: ${raw.size}")
+    */
      raw
+  }
+
+  def writeResults(entries: List[PathEntry]): Unit = {
+
+      entries.zipWithIndex.foreach{ case(bl, index) => println(s"($index) $bl") }
   }
 }
 
@@ -213,11 +228,51 @@ class DecemberSixRefactorPartTwoDebugger(override val debugCase: Int) extends De
   }
 }
 
-class DecemberSixPartTwoRefactorDebugger(override val debugCase: Int) extends DecemberSixRefactorPartTwo with PuzzleDebugger {
-  override def test: Boolean = true
+object DecemberSixPartTwoRefactorDebugger extends DecemberSixRefactorPartTwo with PuzzleSolution  {
+  override def test: Boolean = false
+
+  def walkBlockedPath ( maybeVerticeStart: Option[PathEntry], pathSoFar: List[PathEntry], blockMap: BlockMap ): List[PathEntry] = {
+    maybeVerticeStart.map {
+      case(entry, cardinal) =>
+        val vertice = verticeToBlock(entry, cardinal, blockMap)
+        val maybeNextVerticeStart = vertice.headOption.flatMap {
+          case (head, cardinal) => nextVerticeStart(head, cardinal.nextCardinal)
+        }
+        walkBlockedPath(maybeNextVerticeStart, vertice ::: pathSoFar, blockMap)
+    }.getOrElse(pathSoFar.reverse)
+  }
+
+  def findMissing(path: List[PathEntry], missing: List[PathEntry], seen: List[PathEntry] = List.empty, last: PathEntry = (Space(-1, -1, '.'), North), cnt: Int = 1): Unit ={
+    path match {
+      case Nil =>
+        println("Done")
+      case head :: tail =>
+        if (missing.contains(last)) {
+          val (headEntry, _) = head
+          println(s"($cnt) found $last")
+          val (laatEntry, lastCardinal) = last
+
+
+        }
+        findMissing(tail, missing, head :: seen, head)
+    }
+  }
 
   override def rawSolution: List[GridEntry[Char]] = {
-    //    grid.printGrid()
-    super.rawSolution
+    val path = findPath
+
+    val first = path.find {
+      case (entry, _) => entry.equalPosition(53, 128)
+    }
+    println(first)
+
+    val missing: List[PathEntry] = DecSixDiffer.missing
+ /*   missing.foreach {
+      case (entry, cardinal) =>
+        println(s"Pos(${entry.xPosition},${entry.yPosition}),$cardinal")
+    }
+ */
+    //findMissing(path.zipWithIndex, missing)
+    List.empty
   }
 }

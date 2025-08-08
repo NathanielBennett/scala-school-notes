@@ -1,1 +1,1 @@
-def matchTest(s: String): Boolean = S
+val s: Option[String] = Option(null)

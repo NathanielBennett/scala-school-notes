@@ -18,7 +18,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser" % "0.14.10",
   "io.circe" %% "circe-generic" % "0.14.10",
   "org.typelevel" %% "cats-core" % "2.6.1",
-   "com.lihaoyi" %% "os-lib" % "0.11.4"
+   "com.lihaoyi" %% "os-lib" % "0.11.4",
+  "io.circe" %% "circe-yaml-v12" % "0.16.0"
 )
 
 
