@@ -73,27 +73,17 @@ object DecemberSevenPartOneSolution extends DecemberSeverPartOne with PuzzleSolu
 
 trait DecemberSeverPartTwo extends DecemberSeven {
 
-  protected def validListConCat(target: Long, remaining: List[Long], acc: LazyList[Long] = LazyList.empty): Boolean = {
-    println(s"Validate $remaining")
+  protected def validListConCat(target: Long, remaining: List[Long], acc: List[Long] = List.empty): Boolean = {
     remaining match {
       case Nil => false
       case head :: tail =>
-        println(s"Check $target -=-=- ${acc.length} : $head ")
-        if (acc.isEmpty) validListConCat(target, tail, LazyList(head))
+        if (acc.isEmpty) validListConCat(target, tail, List(head))
         else {
-          val nextAcc = acc.flatMap { a => LazyList(a + head, a * head) ++ acc.map { b => s"$b$head".toLong } }.filter { l => l <= target }
-          println("Mext")
+          val nextAcc = acc.flatMap { a => List(a + head, a * head) }  ++ acc.map { b => s"$b$head".toLong }.filter { l => l <= target }
           if (nextAcc.isEmpty) false
           else {
-            println("check")
-            if (tail.isEmpty) {
-              println("empty")
-              nextAcc.contains(target)
-            }
-            else {
-              println("Recur")
-              validListConCat(target, tail, nextAcc)
-            }
+            if (tail.isEmpty) nextAcc.contains(target)
+            else validListConCat(target, tail, nextAcc)
           }
         }
     }
@@ -104,19 +94,16 @@ trait DecemberSeverPartTwo extends DecemberSeven {
       case (target, nums) => validList(target, nums)
     }
 
-    println(s"Invalid: ${invalid.length}")
     val alternatveValid = invalid.filter {
-      case(target, nums) =>
-        println(s"Loop")
-        val good = validListConCat(target, nums)
-        println(s" ($good)")
-        good
+      case(target, nums) => validListConCat(target, nums)
     }
 
     (valid ++ alternatveValid).map{ case(target, _) => target}
-
   }
 }
 
 object DecemberSevenPartTwoTest extends DecemberSeverPartTwo with PuzzleTest
-object DecemberSevenPartTwoSolution extends DecemberSeverPartTwo with PuzzleSolution
+object DecemberSevenPartTwoSolution extends DecemberSeverPartTwo with PuzzleSolution with App {
+  println(s"solve: $solve")
+  //333027885676693
+}
