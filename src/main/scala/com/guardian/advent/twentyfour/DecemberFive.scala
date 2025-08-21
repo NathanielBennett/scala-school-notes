@@ -71,7 +71,7 @@ trait DecemberFivePartTwo extends DecemberFive {
        val orderedPage = pageOrder(pageUpdate)
        if (orderedPage == pageUpdate) None
        else {
-         val ordered =orderedPage
+         val ordered = orderedPage
            .zipWithIndex.toList.sortBy{ case(_, index) => index}
            .map{case (page, _) => page}
          Some(ordered)
@@ -86,5 +86,6 @@ object DecemberFiveSecondPartOneSolution extends DecemberFivePartOne with Puzzle
 
 object DecemberFivePartTwoTest extends DecemberFivePartTwo with PuzzleTest
 object DecemberFivePartTwoSolution extends DecemberFivePartTwo with PuzzleSolution
+
 
 

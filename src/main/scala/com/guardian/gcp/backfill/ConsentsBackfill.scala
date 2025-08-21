@@ -31,7 +31,6 @@ object ConsentsBackfill extends App {
 
      val transferSpec = TransferSpec.newBuilder()
         .setAwsS3DataSource(awsDataSourrce)
-       .set
         .build()
 
       val transferJob = TransferJob.newBuilder()

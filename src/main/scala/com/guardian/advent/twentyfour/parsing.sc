@@ -1,1 +1,1 @@
-val t = "th5YaSkEdMewWhatMyN&meWasAndISA*d".reverse
+val t = "3267: 81 40 27"

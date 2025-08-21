@@ -2,7 +2,7 @@ package com.guardian.advent.twentyfour.util
 
 import com.guardian.advent.twentyfour.{CharEntry, Space}
 import com.guardian.advent.{Cardinal, InputFileReader}
-import com.guardian.advent.twentyfour.DecemberSixRefactorPartOneTest.PathEntry
+import com.guardian.advent.twentyfour.DecemberSixPartOneTest.PathEntry
 
 import scala.util.Try
 
@@ -39,6 +39,38 @@ object DecSixDiffer {
 
     val cheatEntries = cheatReader.parse
     val localEntries = localReader.parse
+    println(s"Cheat ${cheatEntries.size}")
+    println(s"Mine: ${localEntries.size}")
 
     def missing = cheatEntries.diff(localEntries)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
