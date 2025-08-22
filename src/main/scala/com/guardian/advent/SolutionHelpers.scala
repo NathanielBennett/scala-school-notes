@@ -103,6 +103,13 @@ trait SolutionHelpers {
     def order: LinearSeq[(A, Int)] = tuples.sortBy{ t => t.right}
   }
 
+  implicit class RichList[A](list: List[A]) {
+    def toTuple: Option[(A, A)] = list match {
+      case List(a, b) => Some((a, b))
+      case _ => None
+    }
+  }
+
 }
 
 

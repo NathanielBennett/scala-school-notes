@@ -44,7 +44,6 @@ trait DecemberSeven extends December[Long, List[(Long, List[Long])], Long] with 
   }
 
   protected def validList(target: Long, remaining: List[Long], acc: LazyList[Long] = LazyList.empty): Boolean = {
-  //   if (acc.contains(target)) true
     remaining match {
       case Nil => false
       case head :: tail =>
@@ -103,7 +102,4 @@ trait DecemberSeverPartTwo extends DecemberSeven {
 }
 
 object DecemberSevenPartTwoTest extends DecemberSeverPartTwo with PuzzleTest
-object DecemberSevenPartTwoSolution extends DecemberSeverPartTwo with PuzzleSolution with App {
-  println(s"solve: $solve")
-  //333027885676693
-}
+object DecemberSevenPartTwoSolution extends DecemberSeverPartTwo with PuzzleSolution

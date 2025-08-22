@@ -96,6 +96,12 @@ trait GridEntry[T] {
   def equalPosition(x: Int, y: Int): Boolean = x == xPosition && y == yPosition
   def equalPosition(gridEntry: GridEntry[T]): Boolean = gridEntry.xPosition == xPosition && gridEntry.yPosition == yPosition
   def point: (Int, Int) = (xPosition, yPosition)
+  def abs(gridEntry: GridEntry[T]): (Int, Int) = (Math.abs(xPosition - gridEntry.xPosition), Math.abs(yPosition - gridEntry.yPosition))
+  def plus(gridEntry: GridEntry[T]): (Int,Int) = {
+    val (gridX, gridY) = gridEntry.point
+    val (abX, abY) = abs(gridEntry)
+    (abX + xPosition, abY + yPosition)
+  }
 }
 
 trait Grid[T] extends Directions with SolutionHelpers {
@@ -180,6 +186,8 @@ trait Grid[T] extends Directions with SolutionHelpers {
     }
 
   def findEntry(xPosition: Int, yPosition: Int): Option[GridEntry[T]] = entries.find { entry => entry.xPosition == xPosition && entry.yPosition == yPosition }
+
+  def matchingEntries(filter: Set[GridEntry[T]] => Set[GridEntry[T]]): Set[GridEntry[T]] = filter(entries)
 
   def printGrid(separator: Option[String] = None) : Unit = {
     (0 to maxY).toList.foreach{
