@@ -1,4 +1,5 @@
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import scala.util.Try
 
-val d = LocalDate.parse("2025-03-19", DateTimeFormatter.ISO_DATE)
+val l = "1234567".flatMap(
+  x => Try(x.toInt).toOption
+).toList

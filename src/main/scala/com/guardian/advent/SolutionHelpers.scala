@@ -108,6 +108,17 @@ trait SolutionHelpers {
       case List(a, b) => Some((a, b))
       case _ => None
     }
+
+    def toTuples: List[(A, A)] = {
+      def loop(current: List[A], acc: List[(A, A)] = List.empty ): List[(A, A)] = {
+        current match {
+          case Nil => acc.reverse
+          case head :: Nil => acc.reverse
+          case head :: next :: tail => loop(tail, (head, next) :: acc)
+        }
+      }
+      loop(list)
+    }
   }
 
 }

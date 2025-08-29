@@ -5,7 +5,6 @@ import com.guardian.advent.AdventOfCodeParser
 import scala.collection.{AbstractSeq, GenMap}
 import scala.util.Try
 
-
 trait DecemberSeverParser extends AdventOfCodeParser[(Long, List[Long]), List[(Long, List[Long])]] {
 
   val lineMatcher = """^(\d+):(.*)""".r
@@ -43,14 +42,18 @@ trait DecemberSeven extends December[Long, List[(Long, List[Long])], Long] with 
     override implicit val addable: Addable[Long, Long] = AddLong
   }
 
-  protected def validList(target: Long, remaining: List[Long], acc: LazyList[Long] = LazyList.empty): Boolean = {
+  def makeAccOp(head: Long, target: Long,  acc: LazyList[Long] ): LazyList[Long] = acc.flatMap{ a => List(a + head, a * head)}
+
+  protected def validList(target: Long, remaining: List[Long], acc: LazyList[Long] = LazyList.empty)
+                         (makeAcc: (Long, Long, LazyList[Long]) => LazyList[Long]): Boolean = {
     remaining match {
       case Nil => false
       case head :: tail =>
-        if (acc.isEmpty) validList(target, tail, LazyList(head))
+        if (acc.isEmpty) validList(target, tail, LazyList(head))(makeAcc)
         else {
-          val nextAcc = acc.flatMap { a => List(a + head, a * head) }
-          nextAcc.contains(target) || validList(target, tail, nextAcc)
+          val nextAcc = makeAcc(head, target, acc)
+          if(tail.isEmpty) nextAcc.contains(target)
+          else validList(target, tail, nextAcc)(makeAcc)
         }
     }
   }
@@ -59,10 +62,7 @@ trait DecemberSeven extends December[Long, List[(Long, List[Long])], Long] with 
 trait DecemberSeverPartOne extends DecemberSeven {
 
   override def rawSolution: List[Long] = {
-    input.filter{ case(target, nums) =>
-      val good = validList(target, nums)    //  println(s"$target: $nums ($good)")
-      good
-    }
+    input.filter{ case(target, nums) => validList(target, nums)(makeAccOp)  }
     .map{ case(target, _) => target }
   }
 }
@@ -72,29 +72,16 @@ object DecemberSevenPartOneSolution extends DecemberSeverPartOne with PuzzleSolu
 
 trait DecemberSeverPartTwo extends DecemberSeven {
 
-  protected def validListConCat(target: Long, remaining: List[Long], acc: List[Long] = List.empty): Boolean = {
-    remaining match {
-      case Nil => false
-      case head :: tail =>
-        if (acc.isEmpty) validListConCat(target, tail, List(head))
-        else {
-          val nextAcc = acc.flatMap { a => List(a + head, a * head) }  ++ acc.map { b => s"$b$head".toLong }.filter { l => l <= target }
-          if (nextAcc.isEmpty) false
-          else {
-            if (tail.isEmpty) nextAcc.contains(target)
-            else validListConCat(target, tail, nextAcc)
-          }
-        }
-    }
-  }
+  def makeAccConcat(head: Long, target: Long,  acc: LazyList[Long]): LazyList[Long] =
+    acc.flatMap { a => List(a + head, a * head) }  ++ acc.map { b => s"$b$head".toLong }.filter{ b => b <= target }
 
   override def rawSolution: List[Long] = {
     val (valid, invalid) = input.partition{
-      case (target, nums) => validList(target, nums)
+      case (target, nums) => validList(target, nums)(makeAccOp)
     }
 
     val alternatveValid = invalid.filter {
-      case(target, nums) => validListConCat(target, nums)
+      case(target, nums) => validList(target, nums)(makeAccConcat)
     }
 
     (valid ++ alternatveValid).map{ case(target, _) => target}

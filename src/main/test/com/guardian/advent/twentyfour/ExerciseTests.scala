@@ -32,7 +32,7 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
   "Day one part two" should "return the correct values" in {
        val testsAndExpected: List[(DecemberOne[Int], Int)] = List(
          (DecemberOnePartTwoTest, 31),
-         (DecemberOnePartTwoSolution, 26674158)
+        (DecemberOnePartTwoSolution, 26674158)
        )
 
        testsAndExpected.foreach {
@@ -110,16 +110,39 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
 
   "Day Seven" should "return the correct values" in {
     val testAndExpected: List[(December[Long, List[(Long, List[Long])], Long], Long)] = List (
-     /* (DecemberSevenPartOneTest, 3749L),
+      (DecemberSevenPartOneTest, 3749L),
       (DecemberSevenPartOneSolution, 6231007345478L),
-     */
-        (DecemberSevenPartTwoTest, 11387L),
-      (DecemberSevenPartTwoSolution, 6231007345478L)
+      (DecemberSevenPartTwoTest, 11387L),
+      (DecemberSevenPartTwoSolution, 333027885676693L)
     )
 
     testAndExpected.foreach {
       case (puzzle, expectedResult ) => puzzle.solve should be(expectedResult)
     }
+  }
 
+  "Day Eight" should "return the correct values" in {
+    val testAndExpected: List[(December[Int, CharGrid, AntennaGridEntry], Int)] = List (
+      (DecemberEightPartOneTest, 14),
+      (DecemberEightPartTwoTest, 34),
+      (DecemberEightPartOneSolution, 398),
+      (DecemberEightPartTwoSolution, 1333)
+    )
+
+    testAndExpected.foreach {
+      case (puzzle, expectedResult) => puzzle.solve shouldBe(expectedResult)
+    }
+  }
+
+  "Day Nine" should "return the correct values" in {
+    val testAndExpected: List[(December[Long, List[String], (Int, Int)], Long)] = List(
+      (DecemberNinePartOneTest, 1928),
+      //(DecemberNinePartOneSolution, 6341711060162L)
+      (DecemberNinePartTwoTest, 2858L),
+      (DecemberNinePartTwoSolution, 6377400869326L),
+    )
+    testAndExpected.foreach {
+      case (puzzle, expectedResult) => puzzle.solve shouldBe(expectedResult)
+    }
   }
 }

@@ -97,10 +97,16 @@ trait GridEntry[T] {
   def equalPosition(gridEntry: GridEntry[T]): Boolean = gridEntry.xPosition == xPosition && gridEntry.yPosition == yPosition
   def point: (Int, Int) = (xPosition, yPosition)
   def abs(gridEntry: GridEntry[T]): (Int, Int) = (Math.abs(xPosition - gridEntry.xPosition), Math.abs(yPosition - gridEntry.yPosition))
-  def plus(gridEntry: GridEntry[T]): (Int,Int) = {
-    val (gridX, gridY) = gridEntry.point
-    val (abX, abY) = abs(gridEntry)
-    (abX + xPosition, abY + yPosition)
+  def plus(gridEntry: GridEntry[T]): (Int, Int) = plus(gridEntry.xPosition, gridEntry.yPosition)
+  def plus(pos: (Int, Int)): (Int, Int) = {
+    val (x, y) = pos
+    (xPosition + x, yPosition + y)
+  }
+
+  def minus(gridEntry: GridEntry[T]): (Int, Int) = minus(gridEntry.xPosition, gridEntry.yPosition)
+  def minus(pos: (Int, Int)): (Int, Int) = {
+    val (x, y) = pos
+    (xPosition - x, yPosition - y)
   }
 }
 
