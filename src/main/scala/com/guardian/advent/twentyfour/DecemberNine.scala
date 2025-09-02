@@ -26,8 +26,7 @@ case class  DiskEntry(capacity: Int, contents: List[Int] = List.empty) {
 
   def toStringPadded: String = contents match {
     case Nil => List.fill(capacity)(".").mkString
-    case _ => //Refactory
-      contents.mkString.padTo(capacity, '.')
+    case _ => contents.mkString.padTo(capacity, '.')
   }
 
   def contentsAsChars: List[Option[Int]] = contents.map{ f => Some(f) }.padTo(capacity, None)
@@ -39,9 +38,7 @@ trait DecemberNine extends December[Long, List[String], (Int, Int)] with StringP
 
   override def solver: Solver[(Int, Int), Long] = new Solver[(Int, Int), Long] {
     override def solution(list: List[(Int, Int)]): Long = list.foldLeft(0L) {
-      case (a, b) =>
-        //    println(s"Hi $a $b")
-        a + (b.left.toLong * b.right.toLong)
+      case (a, b) => a + (b.left.toLong * b.right.toLong)
     }
   }
 
@@ -78,11 +75,7 @@ trait DecemberNine extends December[Long, List[String], (Int, Int)] with StringP
     }
 
     val rawDiskData = input.map { c => c.toString }
-      .flatMap { ch =>
-        Try {
-          Integer.parseInt(ch)
-        }.toOption
-      }.toList
+      .flatMap { ch => Try {Integer.parseInt(ch)}.toOption }.toList
 
     loop(rawDiskData)
   }
@@ -96,13 +89,12 @@ trait DecemberNine extends December[Long, List[String], (Int, Int)] with StringP
 
   override def rawSolution: List[(Int, Int)] = {
     val shifted = shiftFiles(lines)
-    val res = getIndexedBlocks(shifted)
-    //    println(res)
-    res
+    getIndexedBlocks(shifted)
   }
 }
 
 trait DecemberNinePartOne extends DecemberNine {
+
   override def shiftFiles(input: String): List[DiskEntry] = {
 
     def findFileAndSpace(currentEntries: List[(DiskEntry, Int)]): Option[((DiskEntry, Int), (DiskEntry, Int))] = {

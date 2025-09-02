@@ -26,7 +26,7 @@ trait SemiCardinal extends Direction
 
 trait Directions {
   def allDirections = List(North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest)
-  def cardinalDirects: List[Direction] = allDirections.collect {
+  def cardinals: List[Direction] = allDirections.collect {
     case cardinal: Cardinal => cardinal
   }
   def nonCardinals: List[Direction] = allDirections.collect{
@@ -181,6 +181,9 @@ trait Grid[T] extends Directions with SolutionHelpers {
 
   def getNeighbours(gridEntry: GridEntry[T], directions: List[Direction]): List[GridEntry[T]] =
     getNeigboursAndDirections(gridEntry, directions).map {case (entry, _) => entry}
+
+  def getFilteredNeighbours(gridEntry: GridEntry[T], directions: List[Direction])(filterEntries: GridEntry[T] => Boolean ) =
+    getNeighbours(gridEntry, directions).filter(filterEntries)
 
   def getNeigboursAndDirections(gridEntry: GridEntry[T], directions: List[Direction]): List[(GridEntry[T], Direction)] =
     directions.flatMap {
