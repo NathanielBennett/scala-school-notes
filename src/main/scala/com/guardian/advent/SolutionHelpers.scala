@@ -13,19 +13,19 @@ trait SolutionHelpers {
      final def toStringList(separator: Char): List[String] = string.split(separator).toList
   }
 
+  implicit class RichIterator[A](iterator: Iterator[A]) {
+    def groupMapReduce[K, B](key: A => K)(f: A => B)(reduce: (B, B) => B): Map[K, B] =
+      iterator.to(LazyList).groupMapReduce(key)(f)(reduce)
+
+    def groupMapCount[K](key: A => K): Map[K, Int] =
+      iterator.groupMapReduce(key){ _ => 1}{ case(a, b) => a + b }
+
+  }
 
   implicit def gridEntryListToString[A](gridEntries: Seq[GridEntry[A]]): String = {
      gridEntries.foldLeft(new StringBuilder()) { case (strinBuilder,a) => strinBuilder.append(a.value)  }.toString
   }
 
-/*
-  implicit class RichAbstractSeq[A](seq: AbstractSeq[A]) {
-
-      def uniquePermutations[ B <: AbstractSeq[A]]()(toB: AbstractSeq[A] => B): B =
-        (0 to seq.length).flatMap{ _ => toB(seq)}.combinations(seq.length)
-
-  }
-*/
 
   implicit class RichTuple[A, B](tuple: (A, B)) {
 

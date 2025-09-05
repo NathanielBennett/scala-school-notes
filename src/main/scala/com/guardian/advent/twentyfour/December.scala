@@ -18,7 +18,7 @@ trait December[A, S, T] extends RawInputProvider[S] with AdventOfCodePuzzle[T]  
     solver.solution(t)
   }
 
-  protected def listSizeSolver = new ListSizeSolver[T] {}
+  protected def listSizeSolver: ListSizeSolver[T] = new ListSizeSolver[T] {}
 
   protected def listTotalSolver(seed: A, solverTest: Boolean)(implicit addableImp: Addable[A,A]): Solver[A, A] =
     new ListTotalSolution[A, A] {

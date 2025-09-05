@@ -151,13 +151,24 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
       (DecemberTenPartOneTest, 36),
       (DecemberTenPartOneSolution, 552),
       (DecemberTenPartTwoTest, 81),
-      (DecemberTenPartTwoSolution, 81),
+      (DecemberTenPartTwoSolution, 1225),
 
     )
 
     textAndExpected.foreach {
       case(puzzleTest, expectedResult) => puzzleTest.solve shouldBe (expectedResult)
     }
+  }
 
+  "Day 11" should "return the correct values" in {
+    val testAndExpected: List[(December[Long, List[String], Long], Long)] = List(
+      (DecemberElevenPartOneTest, 55312L),
+      (DecemberElevenPartOneSolution, 194482L),
+      (DecemberElevenPartTwoSolution, 232454623677743L),
+    )
+
+    testAndExpected.foreach {
+      case(puzzleTest, expectedResult) => puzzleTest.solve shouldBe (expectedResult)
+    }
   }
 }

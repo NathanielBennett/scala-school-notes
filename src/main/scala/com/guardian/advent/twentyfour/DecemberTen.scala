@@ -37,9 +37,9 @@ trait DecemberTen extends December[Int, IntGrid, Int] with DexemberTenParser {
             case (currentTrailsAcc, trail) => trail match {
               case Nil => currentTrailsAcc
               case head :: _ =>
-                val nextSteos = grid.getFilteredNeighbours(head, cardinals) { gridEntry => gridEntry.value == nextStepCnt }
-                if (nextSteos.isEmpty) currentTrailsAcc
-                else nextSteos.map { nextStep => nextStep :: trail } ::: currentTrailsAcc
+                val nextStepEntries = grid.getFilteredNeighbours(head, cardinals) { gridEntry => gridEntry.value == nextStepCnt }
+                if (nextStepEntries.isEmpty) currentTrailsAcc
+                else nextStepEntries.map { nextStep => nextStep :: trail } ::: currentTrailsAcc
             }
           }
           nextSteps(nextTrails, nextStepCnt + 1)
