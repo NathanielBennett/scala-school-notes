@@ -63,6 +63,8 @@ object DecemberElevenPartTwoSolution extends DecemberEleven with PuzzleSolution 
 
   val base = stones.map{ case i => (i -> 1L)}.toMap
 
+  override def flipLimit: Int = 75
+
   def iterateCnt(stoneAndCounts: Map[Long, Long]): Map[Long, Long] = {
     (for {
       (stone, count) <- stoneAndCounts.iterator
@@ -71,7 +73,7 @@ object DecemberElevenPartTwoSolution extends DecemberEleven with PuzzleSolution 
   }
 
   def findDupes(current: Map[Long, Long], cnt: Int = 0): Map[Long, Long] = {
-    if( cnt == 75 ) current
+    if( cnt == flipLimit ) current
     else findDupes(iterateCnt(current), cnt + 1)
   }
 

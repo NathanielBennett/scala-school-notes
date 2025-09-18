@@ -25,10 +25,8 @@ object Cardinal {
 trait SemiCardinal extends Direction
 
 trait Directions {
-  def allDirections = List(North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest)
-  def cardinals: List[Direction] = allDirections.collect {
-    case cardinal: Cardinal => cardinal
-  }
+  def allDirections: List[Direction] = List(North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest)
+  def cardinals: List[Cardinal] = List(North, South, East, West)
   def nonCardinals: List[Direction] = allDirections.collect{
     case semiCardinal: SemiCardinal => semiCardinal
   }
@@ -108,6 +106,9 @@ trait GridEntry[T] {
     val (x, y) = pos
     (xPosition - x, yPosition - y)
   }
+
+  def westPont: (Int, Int) = (-xPosition, yPosition)
+
 }
 
 trait Grid[T] extends Directions with SolutionHelpers {
@@ -136,7 +137,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
     case None => false
   }
 
-
+  def sortedEntries: List[GridEntry[T]] = entries.toList.sortBy( gridEntry => (gridEntry.yPosition, gridEntry.xPosition) )
 
   def vertice(start: GridEntry[T], direction: Direction)( isLast: (GridEntry[T], List[GridEntry[T]]) => Boolean ): List[GridEntry[T]] = {
      def nextEntry(entry: GridEntry[T], acc: List[GridEntry[T]]): List[GridEntry[T]] = {
@@ -182,10 +183,10 @@ trait Grid[T] extends Directions with SolutionHelpers {
   def getNeighbours(gridEntry: GridEntry[T], directions: List[Direction]): List[GridEntry[T]] =
     getNeigboursAndDirections(gridEntry, directions).map {case (entry, _) => entry}
 
-  def getFilteredNeighbours(gridEntry: GridEntry[T], directions: List[Direction])(filterEntries: GridEntry[T] => Boolean ) =
+  def getFilteredNeighbours(gridEntry: GridEntry[T], directions: List[Direction])(filterEntries: GridEntry[T] => Boolean) : List[GridEntry[T]] =
     getNeighbours(gridEntry, directions).filter(filterEntries)
 
-  def getNeigboursAndDirections(gridEntry: GridEntry[T], directions: List[Direction]): List[(GridEntry[T], Direction)] =
+  def getNeigboursAndDirections(gridEntry: GridEntry[T], directions: List[Direction] = allDirections): List[(GridEntry[T], Direction)] =
     directions.flatMap {
       direction =>
         val (xPosition, yPosition) = gridEntry.nextCoords(direction)

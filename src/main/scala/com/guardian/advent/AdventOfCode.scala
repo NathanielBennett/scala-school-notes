@@ -44,6 +44,21 @@ trait AdventOfCodeParser[T, U <: AbstractSeq[T]] extends SequenceConverter[T,U] 
   }
 }
 
+trait MultiLineParser[T, U <: AbstractSeq[T]] extends AdventOfCodeParser[T, U] {
+  override def toSeq(list: List[String] ): AbstractSeq[String] = list
+  override def lineParser(line: String): Option[T] = None
+
+  protected def groupRawLines(lines: List[String], acc: List[List[String]] = List.empty, currRoughObject: List[String] = List.empty): List[List[String]] = {
+    lines match {
+      case Nil =>
+        (currRoughObject :: acc).reverse
+      case head :: tail =>
+        if (head.isEmpty) groupRawLines(tail, currRoughObject :: acc, List.empty)
+        else groupRawLines(tail, acc, head :: currRoughObject)
+    }
+  }
+}
+
 trait AdventOfCodeInstructionsParser[T, U <: AbstractSeq[T], V, W <: AbstractSeq[V]] extends RawInputProvider[(U, W)] {
 
   def inputParser: AdventOfCodeParser[T,U]

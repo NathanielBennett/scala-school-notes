@@ -17,9 +17,6 @@ trait SolutionHelpers {
     def groupMapReduce[K, B](key: A => K)(f: A => B)(reduce: (B, B) => B): Map[K, B] =
       iterator.to(LazyList).groupMapReduce(key)(f)(reduce)
 
-    def groupMapCount[K](key: A => K): Map[K, Int] =
-      iterator.groupMapReduce(key){ _ => 1}{ case(a, b) => a + b }
-
   }
 
   implicit def gridEntryListToString[A](gridEntries: Seq[GridEntry[A]]): String = {
