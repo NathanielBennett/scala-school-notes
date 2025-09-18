@@ -33,6 +33,8 @@ trait AdventOfCodeParser[T, U <: AbstractSeq[T]] extends SequenceConverter[T,U] 
   def lineParser(line: String): Option[T]
   def sequenceToCollection(seq: Seq[T]) : U
 
+  override def toSeq(list: List[String]): AbstractSeq[String] = list
+
   override def rawInput: U = {
     val lines = getLines()
     parseLinesFromResource(lines)
