@@ -1,6 +1,6 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{Direction, GridEntry}
+import com.guardian.advent.grid.{CharGrid, GridEntry}
 import org.scalatest._
 import flatspec._
 import matchers._
@@ -200,5 +200,31 @@ class ExerciseTests extends AnyFlatSpec with should.Matchers {
       testAndExpected.foreach {
         case(puzzleTest, expectedResult) => puzzleTest.solve shouldBe (expectedResult)
       }
-  }
+    }
+
+    "Day 14" should "return the correct values" in {
+
+      val testAndExpected: List[(DecemberFourteen, Long)] = List(
+        (DecemberFourteenPartOneTest, 12),
+        (DecemberFourteenPartOneSolution, 230461440),
+        (DecemberFourteenPartTwoSolution, 6668),
+      )
+
+      testAndExpected.foreach {
+        case(puzzleTest, expectedResult) => puzzleTest.solve shouldBe (expectedResult)
+      }
+   }
+
+    "Day 15" should "return the correct values" in {
+
+      val testAndExpected: List[(DecemberFifteen, Int)] = List(
+        (DecemberFifteenPartOneTest, 10092),
+        (DecemberFifteenPartOneSolution, 1451928),
+      )
+
+      testAndExpected.foreach {
+        case(puzzleTest, expectedResult) => puzzleTest.solve shouldBe (expectedResult)
+      }
+   }
+
 }

@@ -1,22 +1,10 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{AdventOfCodeParser, Grid, GridEntry}
+import com.guardian.advent.AdventOfCodeParser
 
-import scala.collection.AbstractSeq
 import scala.util.Try
 
 case class Robot(id: Int, velocityX: Int, velocityY: Int)
-
-case class RobotGridEntry(override val xPosition: Int, override val yPosition: Int, override val value: Char, robots: Set[Robot] = Set.empty) extends GridEntry[Char] {
-  def addRobot(robot: Robot): RobotGridEntry = this.copy( robots = robots + robot )
-  def takeRobot(robot: Robot): RobotGridEntry = (this.copy(robots = robots.filterNot( r => r == robot ) ))
-  def isEmpty: Boolean = robots.isEmpty
-
-  override def toString: String = {
-    if (robots.isEmpty) "."
-    else s"${robots.size}"
-  }
-}
 
 trait DecemberFourteenParser extends AdventOfCodeParser[(Int, Int, Int, Int), List[(Int, Int, Int, Int)]] {
   override def sequenceToCollection(seq: Seq[(Int, Int, Int, Int)]): List[(Int, Int, Int, Int)] = seq.toList
@@ -33,47 +21,126 @@ trait DecemberFourteenParser extends AdventOfCodeParser[(Int, Int, Int, Int), Li
 trait DecemberFourteen extends December[Int, List[(Int, Int, Int, Int)], Int] with DecemberFourteenParser {
 
   override def day: Int = 14
-  protected def gridWidth: Int = 11
-  protected def gridHeight: Int = 7
 
-  val robotMap = rawInput
-    .zipWithIndex
-    .map { case(rawRobot, index  ) =>
-      val (startX, staryY, velocityX, velocityY) = rawRobot
-      ((startX, staryY), Robot(index, velocityX, velocityY))
-    }.toMap
-7
-   val gridEntries = (for{
-     yPos: Int <- (0 until 11).toList
-     xPos: Int <- (0 until 3).toList
-   } yield (xPos, yPos))/*{
-      val key = (xPos, yPos)
-      val maybeRobot = robotMap.get(key)
-      println(key)
-      println(maybeRobot)
-      val robots = maybeRobot match {
-        case Some(r) => Set(r)
-        case None => Set[Robot]()
+  protected val gridWidth: Int = 11
+  protected val gridHeight: Int = 7
+  final val moveLimit = 100
+
+  override def solver: Solver[Int, Int] = new Solver[Int, Int] {
+
+    override def solution(list: List[Int]): Int = list.foldLeft(1) {
+      case (total, robots) => total * robots
+    }
+  }
+
+  lazy val robotMap: List[((Int, Int), Robot)] =
+    rawInput
+      .zipWithIndex
+      .map { case (rawRobot, index) =>
+        val (startX, staryY, velocityX, velocityY) = rawRobot
+        ((startX, staryY), Robot(index, velocityX, velocityY))
       }
-      RobotGridEntry(xPos, yPos, '-', robots)
-   })*/
 
-   //val grid = CharGrid(gridEntries.toSet)
+  def modoloOrAdd(start: Int, increment: Int, limit: Int): Int = {
+    val sum = start + increment
+    if (sum >= 0) sum % limit
+    else sum + limit
+  }
 
-  override def solver: Solver[Int, Int] = ???
-  override def rawSolution: List[Int] = ???
+  def getNextPos(currPos: (Int, Int), robot: Robot): (Int, Int) = {
+    val (currentX, currentY) = currPos
+    (
+      modoloOrAdd(currentX, robot.velocityX, gridWidth),
+      modoloOrAdd(currentY, robot.velocityY, gridHeight)
+    )
+  }
 
+  def endPosition(currPos: (Int, Int), robot: Robot, mvCnt: Int = 0): (Int, Int) = {
+    if (mvCnt == moveLimit) currPos
+    else {
+      val nextPos = getNextPos(currPos, robot)
+      endPosition(nextPos, robot, mvCnt + 1)
+    }
+  }
+
+  def positionRobots(robotsAndStarts: List[((Int, Int), Robot)])(nextPosition: ((Int, Int), Robot) => (Int, Int)): List[((Int, Int), Robot)] = {
+    robotsAndStarts.map {
+      case (start, robot) =>
+        val end = nextPosition(start, robot)
+        (end, robot)
+    }
+  }
+
+  def groupRobots(robotsAndPositions: List[((Int, Int), Robot)]): List[((Int, Int), List[((Int, Int), Robot)])] =
+    robotsAndPositions
+      .groupBy { case (pos, _) => pos }
+      .toList
 }
 
 trait DecemberFourteenPartOne extends DecemberFourteen {
+
+  def groupRobotsByEndPosition(robotsAndStarts: List[((Int, Int), Robot)]): List[((Int, Int), List[Robot])] = {
+    val endPositions = positionRobots(robotsAndStarts) {case (pos, robot) => endPosition(pos, robot) }
+    groupRobots(endPositions)
+      .map{ case(pos, robots) =>
+        (
+          pos,
+          robots.map{ case(_, robot) => robot}
+        )
+      }
+  }
+
+  override def rawSolution: List[Int] = {
+
+    val xQuadrant = gridWidth / 2
+    val yQuadrant = gridHeight / 2
+
+    val groupedRobots = groupRobotsByEndPosition(robotMap)
+
+    List(
+      ((0, xQuadrant), (0, yQuadrant)),
+      ((0, xQuadrant), (yQuadrant + 1, gridHeight)),
+      ((xQuadrant + 1, gridWidth), (0, yQuadrant)),
+      ((xQuadrant + 1, gridWidth), (yQuadrant + 1, gridHeight))
+    ).map {
+      case ((minX, maxX), (minY, maxY) ) =>
+        groupedRobots.filter{ case((x, y), _) => x >= minX && x < maxX && y >= minY && y < maxY }
+          .foldLeft(0) {
+            case (robotsForQuadrant, robotsForPos) =>
+              val (_, robots) = robotsForPos
+              robotsForQuadrant + robots.size
+          }
+    }
+  }
+}
+object DecemberFourteenPartOneTest extends DecemberFourteenPartOne with PuzzleTest {
   override val gridWidth: Int = 11
   override val gridHeight: Int = 7
 }
 
+object DecemberFourteenPartOneSolution extends DecemberFourteenPartOne with PuzzleSolution {
+  override val gridWidth: Int = 101
+  override val gridHeight: Int = 103
+}
 
-object DecemberFourteenPartOneTest extends DecemberFourteenPartOne with PuzzleTest with App {
-println(robotMap)
-println("---")
-println(gridEntries)
-//println(grid)
+trait DecemberFourteenPartTwo extends DecemberFourteen {
+
+  private def findTree(robotPosList: List[((Int, Int), Robot)], mvCnt: Int = 0): Int = {
+    val grouped = groupRobots(robotPosList)
+    if(robotPosList.size == grouped.size) mvCnt
+    else {
+      val nextRobotPos = positionRobots(robotPosList)(getNextPos)
+      findTree(nextRobotPos, mvCnt + 1)
+    }
+  }
+
+  override def rawSolution: List[Int] = {
+    val cnt = findTree(robotMap)
+    List(cnt)
+  }
+}
+
+object DecemberFourteenPartTwoSolution extends DecemberFourteenPartTwo with PuzzleSolution {
+  override val gridWidth: Int = 101
+  override val gridHeight: Int = 103
 }

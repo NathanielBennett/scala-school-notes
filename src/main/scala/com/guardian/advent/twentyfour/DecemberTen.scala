@@ -1,6 +1,8 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{AdventOfCodeGridParser, Cardinal, Grid, GridEntry}
+
+import com.guardian.advent.AdventOfCodeGridParser
+import com.guardian.advent.grid.{CharGrid, Grid, GridEntry}
 
 import scala.util.Try
 
@@ -47,17 +49,19 @@ trait DecemberTen extends December[Int, IntGrid, Int] with DexemberTenParser {
       }
       nextSteps(List(List(gridEntry)), 1)
   }
+
+  def endsForTrail(trailHead: GridEntry[Int]): Int
+  override def rawSolution: List[Int] = trailHeads.map { th => endsForTrail(th) }
+
 }
 
 trait DecemberTenPartOne extends DecemberTen {
 
-  def endsForTrail(trailHead: GridEntry[Int]): Int = {
+  override def endsForTrail(trailHead: GridEntry[Int]): Int = {
     trailsForTrailHead(trailHead)
       .flatMap{ trail => trail.headOption }.toSet
       .size
   }
-
-  override def rawSolution: List[Int] = trailHeads.map { th => endsForTrail(th) }
 }
 
 object DecemberTenPartOneTest extends DecemberTenPartOne with PuzzleTest
@@ -68,8 +72,6 @@ trait DecemberTenPartTwo extends DecemberTen {
   def endsForTrail(trail: GridEntry[Int]): Int = {
     trailsForTrailHead(trail).size
   }
-
-  override def rawSolution: List[Int] = trailHeads.map { th => endsForTrail(th) }
 }
 
 object DecemberTenPartTwoTest extends DecemberTenPartTwo with PuzzleTest

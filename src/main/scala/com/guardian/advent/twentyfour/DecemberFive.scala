@@ -37,6 +37,7 @@ trait DecemberFive extends December[Int, (List[(Int, Int)], List[List[Int]]), In
 
   val (rules, pageUpdates) = rawInput
 
+
   protected def middle(list: List[Int], last: Option[Int] = None, cnt: Int = 0 ): Option[Int] = {
     list.headOption.flatMap {
       head =>

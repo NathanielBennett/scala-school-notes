@@ -1,5 +1,6 @@
 package com.guardian.advent
 
+import com.guardian.advent.grid.{Directions, Grid, GridEntry}
 import com.guardian.advent.parsers.StringParser
 import com.guardian.advent.twentyfour.RawInputProvider
 
@@ -75,6 +76,24 @@ trait AdventOfCodeInstructionsParser[T, U <: AbstractSeq[T], V, W <: AbstractSeq
     val rawInstruction  = getLines{ Some( list  => lineFilter(list.reverse) ) }.reverse
 
     ( inputParser.parseLinesFromResource(rawInput), instructionParser.parseLinesFromResource(rawInstruction) )
+  }
+}
+
+trait GridComboParser[T, GRID <: Grid[T], A, B <: AbstractSeq[A]] extends RawInputProvider[(GRID, B)] {
+
+  def gridParser: AdventOfCodeGridParser[T, GRID]
+  def instructionParser: AdventOfCodeParser[A, B]
+
+  private def lineFilter(list: List[String]): List[String] = list.takeWhile{ s => !s.isEmpty }
+
+  override def rawInput: (GRID, B) = {
+    val rawGrid = getLines {Some(list => lineFilter(list))}
+    val rawInstructions = getLines( Some( list => lineFilter(list.reverse) ) ).reverse
+
+    val grid = gridParser.parseGrid(rawGrid)
+    val instructions = instructionParser.parseLinesFromResource(rawInstructions)
+
+    (grid, instructions)
   }
 }
 

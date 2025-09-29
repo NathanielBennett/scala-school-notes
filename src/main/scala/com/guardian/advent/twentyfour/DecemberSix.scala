@@ -1,30 +1,21 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.twentyfour.util.DecSixDiffer
-import com.guardian.advent.{AdventOfCodeGridParser, Cardinal, East, GridEntry, North, South, West}
+import com.guardian.advent.AdventOfCodeGridParser
+import com.guardian.advent.grid.{Block, Cardinal, CharGrid, East, EmptyEntry, GridEntry, North, South, Space, Start, West}
 
-sealed trait GridSpaceEntry extends GridEntry[Char]
-case class Block(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends GridSpaceEntry
-
-trait EmptyEntry extends GridSpaceEntry
-case class Space(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends EmptyEntry
-case class Start(override val xPosition: Int, override val yPosition: Int, override val value: Char, cardinal: Cardinal) extends EmptyEntry
-
-object GridSpaceEntry {
-  def apply(xPosition: Int, yPosition: Int, char: Char): Option[GridSpaceEntry] =
-    char match {
-      case '.' => Some(Space(xPosition, yPosition, char))
-      case '>' => Some(Start(xPosition, yPosition, char, East))
-      case '<' => Some(Start(xPosition, yPosition, char, West))
-      case 'v' => Some(Start(xPosition, yPosition, char, South))
-      case '^' => Some(Start(xPosition, yPosition, char, North))
-      case '#' => Some(Block(xPosition, yPosition, char))
-      case _ => None
-    }
-}
+import scala.util.Try
 
 trait DecemberSixParser extends AdventOfCodeGridParser[Char, CharGrid] {
-  override def entryParser(x: Int, y: Int, value: Char): Option[GridEntry[Char]] = GridSpaceEntry(x, y, value)
+
+  override def entryParser(x: Int, y: Int, value: Char): Option[GridEntry[Char]] = Try { value match {
+    case '.' => Space(x, y, value)
+    case '>' => Start(x, y, value, East)
+    case '<' => Start(x, y, value, West)
+    case 'v' => Start(x, y, value, South)
+    case '^' => Start(x, y, value, North)
+    case '#' => Block(x, y, value)
+  }}.toOption
+
   override def gridMaker(entries: Set[GridEntry[Char]]): CharGrid = CharGrid(entries)
 }
 

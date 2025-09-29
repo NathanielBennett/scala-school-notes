@@ -10,7 +10,7 @@ trait AdventOfCodePuzzle[T] {
   def rawSolution: List[T]
 }
 
-trait December[A, S, T] extends RawInputProvider[S] with AdventOfCodePuzzle[T]  with Addables {
+trait  December[A, S, T] extends RawInputProvider[S] with AdventOfCodePuzzle[T]  with Addables {
 
   def solver: Solver[T,A]
   def solve: A = {

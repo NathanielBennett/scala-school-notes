@@ -1,6 +1,6 @@
-package com.guardian.advent
+package com.guardian.advent.grid
 
-import io.opencensus.metrics.LabelKey
+import com.guardian.advent.SolutionHelpers
 
 sealed trait Direction {
   def nextGridCoords(x: Int, y: Int): (Int, Int)
@@ -19,6 +19,13 @@ object Cardinal {
     case "East" => East
     case "South"  => South
     case "West" => West
+  }
+
+  def apply(ch: Char): Option[Cardinal] = Option(ch).collect {
+    case '^' => North
+    case '>' => East
+    case '<' => West
+    case 'v' => South
   }
 }
 
@@ -196,6 +203,8 @@ trait Grid[T] extends Directions with SolutionHelpers {
     }
 
   def findEntry(xPosition: Int, yPosition: Int): Option[GridEntry[T]] = entries.find { entry => entry.xPosition == xPosition && entry.yPosition == yPosition }
+  def findEntry(entryValue: T): Option[GridEntry[T]] = entries.find{ entry => entry.value == entryValue}
+
 
   def matchingEntries(filter: Set[GridEntry[T]] => Set[GridEntry[T]]): Set[GridEntry[T]] = filter(entries)
 
@@ -242,6 +251,5 @@ trait Grid[T] extends Directions with SolutionHelpers {
           println(row)
       }
     }
-
 }
 

@@ -1,1 +1,3 @@
-dfp.job.logscopier.GcpLogsCopierJob --date 2025-02-05 --src-bucket gdfp-59666047 --dest-bucket gu-datatech-raw-dfp-logs-prod  --log-names NetworkActiveViews_276087NetworkBackfillActiveViews_276087 --stage prod
+gcloud iam workload-identity-pools create-cred-config  projects/874328384809/locations/global/workloadIdentityPools/aws-mobile-history/providers/mobile-history-prod  --service-account=mobile-history@datatech-platform-prod.iam.gserviceaccount.com  --output-file=configoutput.json  --aws
+
+gcloud iam workload-identity-pools create-cred-config  projects/874328384809/locations/global/workloadIdentityPools/aws-mobile-history-code/providers/mobile-history-code  --service-account=mobile-history-code@datatech-platform-prod.iam.gserviceaccount.com  --output-file=configoutput-code.json  --aws

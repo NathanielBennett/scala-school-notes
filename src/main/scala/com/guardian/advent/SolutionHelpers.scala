@@ -1,5 +1,7 @@
 package com.guardian.advent
 
+import com.guardian.advent.grid.GridEntry
+
 import scala.collection.AbstractSeq
 import scala.collection.immutable.LinearSeq
 

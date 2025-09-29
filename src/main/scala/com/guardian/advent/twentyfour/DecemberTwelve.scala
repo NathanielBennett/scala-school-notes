@@ -1,6 +1,7 @@
 package com.guardian.advent.twentyfour
 
 import com.guardian.advent._
+import com.guardian.advent.grid._
 
 trait DecemberTwelveParser extends AdventOfCodeGridParser[Char, CharGrid] {
   override def entryParser(x: Int, y: Int, value: Char): Option[GridEntry[Char]] = Some(CharEntry(x, y, value))

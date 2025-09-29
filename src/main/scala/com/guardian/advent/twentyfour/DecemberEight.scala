@@ -1,6 +1,7 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.{AdventOfCodeGridParser, GridEntry}
+import com.guardian.advent.AdventOfCodeGridParser
+import com.guardian.advent.grid.{CharGrid, GridEntry}
 
 sealed trait AntennaGridEntry extends GridEntry[Char] {
   def antinodeCnt: Int

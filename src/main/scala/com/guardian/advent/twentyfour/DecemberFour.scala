@@ -1,12 +1,8 @@
 package com.guardian.advent.twentyfour
 
+import com.guardian.advent.grid.{CharEntry, CharGrid, Direction, GridEntry}
 import com.guardian.advent.twentyfour.DecemberFourPartOneSolution.Cross
-import com.guardian.advent.{AdventOfCodeGridParser, Direction, Grid, GridEntry, InputFileReader}
-
-case class CharEntry(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends GridEntry[Char]
-case class CharGrid(override val entries: Set[GridEntry[Char]]) extends Grid[Char] {
-  def update( updateEntries: Set[GridEntry[Char]] ): CharGrid = CharGrid( updateEntries )
-}
+import com.guardian.advent.AdventOfCodeGridParser
 
 trait DecemberFourParser extends AdventOfCodeGridParser[Char, CharGrid] {
   override def entryParser(xPos: Int, yPos: Int, char: Char):  Option[GridEntry[Char]] = Some(CharEntry(xPos, yPos, char))
