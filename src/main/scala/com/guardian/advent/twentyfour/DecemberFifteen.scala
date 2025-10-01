@@ -41,51 +41,48 @@ trait DecemberFifteen extends December[Int, (CharGrid, List[List[Cardinal]]), In
 
   val (startGrid, rawCardinals) = rawInput
   val moveList = rawCardinals.flatten
-}
 
-trait DecemberFifteenPartOne extends DecemberFifteen {
-
-  private def verticeToEdge(start: GridEntry[Char], cardinal: Cardinal, grid: CharGrid): List[GridEntry[Char]] = {
-     grid.vertice(start, cardinal) {
-       case (entry, _) => Option(entry).collectFirst {
-         case block: Block => block
-       }.isDefined
-     }
-     .reverse
+  protected def verticeToEdge(start: GridEntry[Char], cardinal: Cardinal, grid: CharGrid): List[GridEntry[Char]] = {
+    grid.vertice(start, cardinal) {
+        case (entry, _) => Option(entry).collectFirst {
+          case block: Block => block
+        }.isDefined
+      }
+      .reverse
   }
 
   def updateGrid(grid: CharGrid, moved: Set[GridEntry[Char]]): CharGrid = {
     val newEntries = grid.entries.filterNot {
       case entry =>
-        moved.exists( movedEntry => movedEntry.equalPosition(entry.xPosition, entry.yPosition) )
+        moved.exists(movedEntry => movedEntry.equalPosition(entry.xPosition, entry.yPosition))
     } ++ moved
     grid.update(newEntries)
   }
 
-  def shiftBlocks(verticeTail: List[GridEntry[Char]], robot: GridEntry[Char], cardinal: Cardinal, blocks: List[GridEntry[Char]] = List.empty, maybeSpace: Option[GridEntry[Char]] = None): (GridEntry[Char], Set[GridEntry[Char]])= {
+  def shiftBlocks(verticeTail: List[GridEntry[Char]], robot: GridEntry[Char], cardinal: Cardinal, blocks: List[GridEntry[Char]] = List.empty, maybeSpace: Option[GridEntry[Char]] = None): (GridEntry[Char], Set[GridEntry[Char]]) = {
 
     lazy val nextRobot: GridEntry[Char] = {
       val (x, y) = robot.nextCoords(cardinal)
       Space(x, y, robot.value)
     }
 
-    if( maybeSpace.isDefined ) {
+    if (maybeSpace.isDefined) {
       val newSpace = Space(robot.xPosition, robot.yPosition, '.')
       val movedBlocks = blocks.map { block =>
         val (x, y) = block.nextCoords(cardinal)
         MovableBlock(x, y, block.value)
       }.reverse
-      (nextRobot, (newSpace :: nextRobot :: movedBlocks ::: verticeTail).reverse.toSet )
+      (nextRobot, (newSpace :: nextRobot :: movedBlocks ::: verticeTail).reverse.toSet)
     }
     else verticeTail match {
       case Nil => (robot, Set.empty)
       case head :: tail =>
-        if (head.isInstanceOf[MovableBlock]) shiftBlocks(tail, robot, cardinal, head :: blocks )
+        if (head.isInstanceOf[MovableBlock]) shiftBlocks(tail, robot, cardinal, head :: blocks)
         else shiftBlocks(tail, robot, cardinal, blocks, Some(head))
     }
   }
 
-  def updateVertex(robot: GridEntry[Char], vertice: List[GridEntry[Char]], cardinal: Cardinal): (GridEntry[Char], Set[GridEntry[Char]] )= {
+  def updateVertex(robot: GridEntry[Char], vertice: List[GridEntry[Char]], cardinal: Cardinal): (GridEntry[Char], Set[GridEntry[Char]]) = {
     vertice match {
       case Nil => (robot, Set.empty)
       case head :: _ =>
@@ -99,17 +96,29 @@ trait DecemberFifteenPartOne extends DecemberFifteen {
   }
 
   def moveRobotFold(moveList: List[Cardinal], grid: CharGrid, robot: GridEntry[Char], mv: Int = 1) : CharGrid = {
-    val (_, endGrid) = moveList.foldLeft((robot, grid)) {
-      case (gridAndRobot, cardinal) =>
+    val (_, endGrid) = moveList.zipWithIndex.foldLeft((robot, grid)) {
+      case (gridAndRobot, (cardinal, cnt)) =>
         val (thisRobot, thisGrid) = gridAndRobot
         val vertice = verticeToEdge(thisRobot, cardinal, thisGrid)
         vertice.headOption.map { robotOption =>
+          println()
+          println(s"$cnt: $cardinal")
+          println(s"Old grid ${grid.size}")
           val (r, shiftedBlocks) = updateVertex(robotOption, vertice.tail, cardinal)
-          (r, updateGrid(thisGrid, shiftedBlocks))
+          val newGrid = updateGrid(grid, shiftedBlocks)
+          newGrid.printGrid()
+          println("----")
+          println(s"New grid ${newGrid.size}")
+          val oldRow = grid.filterEntries( e => e.yPosition == 3)
+          val newRow = newGrid.filterEntries( e => e.yPosition == 3)
+          (r, newGrid)
         }.getOrElse((thisRobot, thisGrid))
     }
     endGrid
   }
+}
+
+ trait DecemberFifteenPartOne extends DecemberFifteen {
 
   override def rawSolution: List[Int] = {
 
@@ -128,3 +137,41 @@ trait DecemberFifteenPartOne extends DecemberFifteen {
 
 object DecemberFifteenPartOneTest extends DecemberFifteenPartOne with PuzzleTest
 object DecemberFifteenPartOneSolution extends DecemberFifteenPartOne with PuzzleSolution
+
+trait DecemberFifteenPartTwo extends DecemberFifteen {
+
+  val orderedEntries = startGrid.sortedEntries
+  val transformedEntries = orderedEntries.groupBy { case entry => entry.yPosition }
+
+  private def entryToList(entry: GridEntry[Char]): Option[List[GridEntry[Char]]] = {
+    Try {
+      entry match {
+        case block: Block => List(block.copy(xPosition = entry.xPosition * 2), block.copy(xPosition = entry.xPosition * 2 + 1))
+        case movableBlock: MovableBlock => List(movableBlock.copy(xPosition = entry.xPosition * 2, value = '['), movableBlock.copy(xPosition = entry.xPosition * 2 + 1, value = ']'))
+        case space: Space =>
+          if (space.value == '@') List(space.copy(xPosition = entry.xPosition * 2), space.copy(xPosition = entry.xPosition * 2 + 1, value = '.'))
+          else  List(space.copy(xPosition = entry.xPosition * 2), space.copy(xPosition = entry.xPosition * 2 + 1))
+      }
+    }.toOption
+  }
+
+  private def transformGrid(grid: CharGrid): CharGrid = {
+    val transformedEntries = grid.entries.flatMap{ entry => entryToList(entry) }.flatten
+    CharGrid(transformedEntries)
+  }
+
+
+  val transformedGrid = transformGrid(startGrid)
+  transformedGrid.printGrid()
+
+  transformedGrid.findEntry('@').foreach {
+    robot =>
+      moveRobotFold(moveList.take(5), transformedGrid, robot)
+  }
+}
+
+object DecemberFifteenPartTwoTest extends DecemberFifteenPartTwo with PuzzleTest with App {
+
+
+  override def rawSolution: List[Int] = ???
+}

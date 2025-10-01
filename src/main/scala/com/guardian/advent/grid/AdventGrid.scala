@@ -125,6 +125,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
 
   lazy val maxX = entries.maxBy{_.xPosition}.xPosition
   lazy val maxY = entries.maxBy(_.yPosition).yPosition
+  lazy val size = entries.size
 
   private def neighbours(xRange: Range, yRange: Range): List[(Int, Int)] = {
     (for {
