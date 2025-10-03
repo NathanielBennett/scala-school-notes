@@ -2,7 +2,7 @@ package com.guardian.advent.twentyfour
 
 
 import com.guardian.advent.{AdventOfCodeGridParser, AdventOfCodeParser, GridComboParser}
-import com.guardian.advent.grid.{Block, Cardinal, CharGrid, GridEntry, MovableBlock, Space}
+import com.guardian.advent.grid.{Block, Cardinal, CharGrid, GridEntry, MovableBlock, South, Space}
 
 import scala.util.Try
 
@@ -88,31 +88,20 @@ trait DecemberFifteen extends December[Int, (CharGrid, List[List[Cardinal]]), In
       case head :: _ =>
         head match {
           case space: Space =>
-            val mextRobot = space.copy(value = robot.value)
-            (mextRobot, Set(mextRobot, Space(robot.xPosition, robot.yPosition, '.')))
+            val nextRobot = space.copy(value = robot.value)
+            (nextRobot, Set(nextRobot, Space(robot.xPosition, robot.yPosition, '.')))
           case _ => shiftBlocks(vertice, robot, cardinal)
         }
     }
   }
 
+  def transformGrid(grid: CharGrid, robot: GridEntry[Char], cardinal: Cardinal): Option[(GridEntry[Char], CharGrid)]
+
   def moveRobotFold(moveList: List[Cardinal], grid: CharGrid, robot: GridEntry[Char], mv: Int = 1) : CharGrid = {
     val (_, endGrid) = moveList.zipWithIndex.foldLeft((robot, grid)) {
       case (gridAndRobot, (cardinal, cnt)) =>
         val (thisRobot, thisGrid) = gridAndRobot
-        val vertice = verticeToEdge(thisRobot, cardinal, thisGrid)
-        vertice.headOption.map { robotOption =>
-          println()
-          println(s"$cnt: $cardinal")
-          println(s"Old grid ${grid.size}")
-          val (r, shiftedBlocks) = updateVertex(robotOption, vertice.tail, cardinal)
-          val newGrid = updateGrid(grid, shiftedBlocks)
-          newGrid.printGrid()
-          println("----")
-          println(s"New grid ${newGrid.size}")
-          val oldRow = grid.filterEntries( e => e.yPosition == 3)
-          val newRow = newGrid.filterEntries( e => e.yPosition == 3)
-          (r, newGrid)
-        }.getOrElse((thisRobot, thisGrid))
+        transformGrid(thisGrid, thisRobot, cardinal).getOrElse((thisRobot, thisGrid))
     }
     endGrid
   }
@@ -120,7 +109,17 @@ trait DecemberFifteen extends December[Int, (CharGrid, List[List[Cardinal]]), In
 
  trait DecemberFifteenPartOne extends DecemberFifteen {
 
-  override def rawSolution: List[Int] = {
+   override def transformGrid(grid: CharGrid, robot: GridEntry[Char], cardinal: Cardinal): Option[(GridEntry[Char], CharGrid)] = {
+     val vertice = verticeToEdge(robot, cardinal, grid)
+
+     vertice.headOption.map { robotOption =>
+       val (r, shiftedBlocks) = updateVertex(robotOption, vertice.tail, cardinal)
+       (r, updateGrid(grid, shiftedBlocks))
+     }
+   }
+
+
+   override def rawSolution: List[Int] = {
 
     def isCrate(gridEntry: GridEntry[Char]): Boolean = Option(gridEntry).collect { case movableBlock: MovableBlock => movableBlock }.isDefined
 
@@ -133,6 +132,7 @@ trait DecemberFifteen extends December[Int, (CharGrid, List[List[Cardinal]]), In
           }
     }.getOrElse(List.empty)
   }
+
 }
 
 object DecemberFifteenPartOneTest extends DecemberFifteenPartOne with PuzzleTest
@@ -142,6 +142,23 @@ trait DecemberFifteenPartTwo extends DecemberFifteen {
 
   val orderedEntries = startGrid.sortedEntries
   val transformedEntries = orderedEntries.groupBy { case entry => entry.yPosition }
+
+  private def nextRow(currentRobot: GridEntry[Char], cardinal: Cardinal): Int = {
+    if(cardinal == South) currentRobot.yPosition + 1
+    else currentRobot.yPosition - 1
+  }
+
+  def canMoveInto(curPushRow: List[GridEntry[Char]]) : Set[GridEntry[Char]] = {
+    
+  }
+
+  override def transformGrid(grid: CharGrid, robot: GridEntry[Char], cardinal: Cardinal): Option[(GridEntry[Char], CharGrid)] = {
+    if(!cardinal.isPolar) super.transformGrid( grid, robot, cardinal )
+    else {
+      val rowToMoveT
+
+    }
+  }
 
   private def entryToList(entry: GridEntry[Char]): Option[List[GridEntry[Char]]] = {
     Try {
@@ -161,8 +178,8 @@ trait DecemberFifteenPartTwo extends DecemberFifteen {
   }
 
 
-  val transformedGrid = transformGrid(startGrid)
-  transformedGrid.printGrid()
+    val transformedGrid = transformGrid(startGrid)
+ // transformedGrid.printGrid()
 
   transformedGrid.findEntry('@').foreach {
     robot =>

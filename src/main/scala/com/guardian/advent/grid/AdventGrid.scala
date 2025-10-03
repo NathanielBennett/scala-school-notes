@@ -11,6 +11,7 @@ trait Cardinal extends Direction {
   def nextCardinal: Cardinal
   def previousCardinal: Cardinal
   def counterCardinal: Cardinal
+  def isPolar: Boolean
 }
 
 object Cardinal {
@@ -46,6 +47,7 @@ case object North extends Cardinal {
   override def counterCardinal: Cardinal = South
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x, y - 1)
   override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x, y + 1)
+  override def isPolar: Boolean = true
 }
 
 case object NorthEast extends SemiCardinal {
@@ -59,6 +61,7 @@ case object East extends Cardinal {
   override def counterCardinal: Cardinal = West
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y)
   override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y)
+  override def isPolar: Boolean = false
 }
 
 case object SouthEast extends SemiCardinal {
@@ -72,6 +75,7 @@ case object South extends Cardinal {
   override def counterCardinal: Cardinal = North
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x + 0, y + 1)
   override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x + 0, y - 1)
+  override def isPolar: Boolean = true
 }
 
 case object SouthWest extends SemiCardinal {
@@ -85,7 +89,7 @@ case object West extends Cardinal {
   override def counterCardinal: Cardinal = East
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y)
   override def prevGridCoords(x: Int, y: Int): (Int, Int) = (x + 1, y)
-
+  override def isPolar: Boolean = false
 }
 case object NorthWest extends SemiCardinal {
   override def nextGridCoords(x: Int, y: Int): (Int, Int) = (x - 1, y - 1)
