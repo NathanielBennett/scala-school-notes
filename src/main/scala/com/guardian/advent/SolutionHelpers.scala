@@ -118,8 +118,27 @@ trait SolutionHelpers {
       }
       loop(list)
     }
+
+    def dropRightWhile(filter: A => Boolean): List[A] = {
+      list.reverse.dropWhile(filter).reverse
+    }
+
+    def sliceTo(from: Int, to: Int) = list.slice(from, to + 1)
   }
 
+  implicit class RichTupleList[A](list: List[(A, A)]) {
+    def flattenList: List[A] = {
+      def loop(tuples: List[(A, A)], acc: List[A] = List.empty): List[A] = {
+         tuples match {
+           case Nil => acc.reverse
+           case head :: tail =>
+             val (left, right) = head
+             loop(tail, List(right, left) ::: acc)
+         }
+      }
+      loop(list)
+    }
+  }
 }
 
 

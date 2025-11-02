@@ -118,7 +118,11 @@ trait GridEntry[T] {
     (xPosition - x, yPosition - y)
   }
 
+  def equalX(gridEntry: GridEntry[T]): Boolean = gridEntry.xPosition == this.xPosition
+  def equalY(gridEntry: GridEntry[T]): Boolean = gridEntry.yPosition == this.yPosition
+
   def westPont: (Int, Int) = (-xPosition, yPosition)
+//  def is[A <: GridEntry[T]]: Boolean = Option(this).collectFirst{ a: A => a }.isDefined
 
 }
 
@@ -138,7 +142,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
     } yield (x, y)).toList
   }
 
-  private def getRow(row: Int) : List[GridEntry[T]] = entries.filter{ t => t.yPosition == row}.toList.sortBy(_.xPosition)
+  def getRow(row: Int) : List[GridEntry[T]] = entries.filter{ t => t.yPosition == row}.toList.sortBy(_.xPosition)
 
   private def edgeX(xPosition: Int): Boolean = xPosition == 0 || xPosition == maxX
   private def edgeY(yPosition: Int): Boolean = yPosition == 0 || yPosition == maxY
@@ -221,6 +225,8 @@ trait Grid[T] extends Directions with SolutionHelpers {
           .mkString(separator.getOrElse(""))
         println(row)
     }
+    println()
+
   }
 
   def printGridDebug(gridEntries: List[GridEntry[T]], concat: String = " " ): Unit = {
