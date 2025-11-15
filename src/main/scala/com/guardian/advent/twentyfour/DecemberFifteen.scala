@@ -35,6 +35,8 @@ trait DecemberFifteenParser extends GridComboParser[Char, CharGrid, List[Cardina
 
 trait DecemberFifteen extends December[Int, (CharGrid, List[List[Cardinal]]), Int] with DecemberFifteenParser {
 
+  implicit val rowOrdering: Ordering[GridEntry[Char]] = Ordering.by(_.xPosition)
+
   override def day: Int = 15
 
   override def solver: Solver[Int, Int] = listTotalSolver(0, test)
@@ -110,7 +112,7 @@ trait DecemberFifteen extends December[Int, (CharGrid, List[List[Cardinal]]), In
         val (thisRobot, thisGrid) = gridAndRobot
         transformGrid(thisGrid, thisRobot, cardinal)
           .getOrElse((thisRobot, thisGrid))
-    }
+       }
     endGrid
   }
 
@@ -132,7 +134,6 @@ trait DecemberFifteen extends December[Int, (CharGrid, List[List[Cardinal]]), In
  trait DecemberFifteenPartOne extends DecemberFifteen {
    override def getCrates(grid: CharGrid): List[GridEntry[Char]]  = {
      def isCrate(gridEntry: GridEntry[Char]): Boolean = Option(gridEntry).collect { case movableBlock: MovableBlock => movableBlock }.isDefined
-
      grid.filterEntries(isCrate)
    }
 
@@ -168,7 +169,6 @@ trait DecemberFifteenPartTwo extends DecemberFifteen {
 
     lazy val nextFullRow = grid.filterEntries( entry => entry.yPosition == nextRowIndex).sortBy(_.xPosition)
 
-//    println(s"Next row: ${nextRowIndex}")
     blocks match {
       case Nil => List.empty
       case head :: Nil => getInitialBlock(head, nextFullRow)
@@ -177,11 +177,20 @@ trait DecemberFifteenPartTwo extends DecemberFifteen {
         val matchingBLocks = nextFullRow.sliceTo(min, max)
         matchingBLocks match {
           case Nil => matchingBLocks
+          case allSpace
+            if allSpace.forall{ entry => Option(entry).collectFirst{ case space: Space => space }.isDefined } => matchingBLocks
           case head :: tail =>
-            val toLeft = if (head.value == ']') nextFullRow(min - 1) :: matchingBLocks else matchingBLocks
-            tail.lastOption.map{
-              last => if(last.value == '[') toLeft.appended(nextFullRow(max + 1)) else toLeft
-            }.getOrElse(toLeft)
+            val toLeft = head.value match {
+              case ']' => nextFullRow(min - 1) :: matchingBLocks
+              case '.' => tail.dropWhile{ case entry => entry.value == '.' }
+              case _  => matchingBLocks
+            }
+
+            tail.lastOption match {
+              case Some(last) if last.value == '[' => toLeft.appended(nextFullRow(max + 1))
+              case Some(last) if last.value == '.' => toLeft.takeWhile{ e => e.value != '.'}
+              case _ => toLeft
+            }
         }
     }
   }
@@ -243,12 +252,12 @@ trait DecemberFifteenPartTwo extends DecemberFifteen {
       .getOrElse { currRowEntries.collect{ case movableBlock: MovableBlock => movableBlock } }
 
     val nextRow = getNextRow(blocksForCurrentRow, grid, nextRowIndex)
-    val nextRowKeys = nextRow.groupBy { entry => entry.getClass.getSimpleName }.keys
-    nextRowKeys.toList match {
+    nextRow.groupBy { entry => entry.getClass.getSimpleName }.keys.toList match {
       case l if l.contains("Block") => List.empty
       case List("Space") => acc ++ currRowEntries
       case _ =>
-        topBlocks(currRowEntries, nextRow) match {
+        val topped = topBlocks(currRowEntries, nextRow)
+        topped match {
           case Nil => getAllBlocksToShift(nextRow, nextRowIndex, nextRowIndexCalculator, grid, acc ++ currRowEntries)
           case blocks => updateRowForMoveBlocks(blocks ::: acc)
         }
@@ -285,20 +294,10 @@ trait DecemberFifteenPartTwo extends DecemberFifteen {
 
   override def transformGrid(grid: CharGrid, robot: GridEntry[Char], cardinal: Cardinal): Option[(GridEntry[Char], CharGrid)] = {
 
-    def moveBlock(gridEntry: GridEntry[Char], nextRowIndex: Int => Int): GridEntry[Char] = {
-       val updatedRow = nextRowIndex(gridEntry.yPosition)
-       def shift: PartialFunction[GridEntry[Char], GridEntry[Char]]  = {
-          case space: Space => Space(space.xPosition, updatedRow, space.value )
-          case movableBlock: MovableBlock => MovableBlock(movableBlock.xPosition, updatedRow, movableBlock.value)
-        }
-      shift(gridEntry)
-    }
-
     if(!cardinal.isPolar) super.transformGrid( grid, robot, cardinal )
     else {
 
       val blockRowCalculator = nextRowCalculator(cardinal)
-
       grid.nextEntryByDirection(robot, cardinal).map { entry =>
         val shiftedBlocks = entry match {
           case space: Space =>
@@ -306,15 +305,14 @@ trait DecemberFifteenPartTwo extends DecemberFifteen {
             Set[GridEntry[Char]](nextRobot, Space(robot, '.'))
           case _: MovableBlock =>
             val shiftedBlocks = getAllBlocksToShift(List(robot), robot.yPosition, blockRowCalculator, grid)
-            val shifted = getShiftedBlocks(shiftedBlocks, cardinal)
-              shifted
-           case _ => Set[GridEntry[Char]]()
+            getShiftedBlocks(shiftedBlocks, cardinal)
+          case _ => Set[GridEntry[Char]]()
         }
         if(shiftedBlocks.isEmpty) (robot, grid)
-        else (
-          moveBlock(robot, blockRowCalculator),
-          updateGrid(grid, shiftedBlocks)
-        )
+        else {
+          val nextRow = blockRowCalculator(robot.yPosition)
+          (moveBlockInt(robot, nextRow), updateGrid(grid, shiftedBlocks))
+       }
       }
     }
   }

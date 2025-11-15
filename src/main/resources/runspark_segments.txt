@@ -1,4 +1,4 @@
-25/02/18 17:36:52 WARN CredentialsLegacyConfigLocationProvider: Found the legacy config profiles file at [/home/hadoop/.aws/config]. Please move it to the latest default location [~/.aws/credentials].
+5/02/18 17:36:52 WARN CredentialsLegacyConfigLocationProvider: Found the legacy config profiles file at [/home/hadoop/.aws/config]. Please move it to the latest default location [~/.aws/credentials].
 25/02/18 17:36:52 INFO BrazeSegmentMembershipsStep$: Latest path for segment 9dc6caee-3adc-41f5-b9cf-c434e00340bd is Some(s3://ophan-raw-braze-export/segment-export/9dc6caee-3adc-41f5-b9cf-c434e00340bd/2025-02-18/23083bf1-877f-4f59-8484-41a1729928b1-1739837622)
 25/02/18 17:36:52 WARN CredentialsLegacyConfigLocationProvider: Found the legacy config profiles file at [/home/hadoop/.aws/config]. Please move it to the latest default location [~/.aws/credentials].
 25/02/18 17:36:52 INFO BrazeSegmentMembershipsStep$: Latest path for segment 08e664a5-eba3-4e19-aac0-ae572adc0e7c is Some(s3://ophan-raw-braze-export/segment-export/08e664a5-eba3-4e19-aac0-ae572adc0e7c/2025-02-18/e9f188bc-f284-48d7-aa18-dea82c288859-1739837621)

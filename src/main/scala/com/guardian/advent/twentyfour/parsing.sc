@@ -1,5 +1,1 @@
-val s = for {
-  x: Int <- (0 until 3).toList
-  y: Int <- (0 until 11).toList
-} yield (x, y)
-
+val ll = List(1,2,3,4,2,3,2,2,2).reverse.dropWhile { i => i == 2 }.reverse

@@ -135,6 +135,12 @@ trait Grid[T] extends Directions with SolutionHelpers {
   lazy val maxY = entries.maxBy(_.yPosition).yPosition
   lazy val size = entries.size
 
+  lazy private val orderedRows: List[(Int, Set[GridEntry[T]])] =
+    entries.groupBy{ entry => entry.yPosition }
+      .toList
+      .sortBy{ case (row, _) => row}
+
+
   private def neighbours(xRange: Range, yRange: Range): List[(Int, Int)] = {
     (for {
       y <- yRange
@@ -223,10 +229,24 @@ trait Grid[T] extends Directions with SolutionHelpers {
         val rowEntries = entries.filter(_.yPosition == y).toList.sortBy(_.xPosition)
         val row = rowEntries.map{ t => t.value.toString }
           .mkString(separator.getOrElse(""))
-        println(row)
+        println(s"$row")
     }
     println()
 
+  }
+
+  def hasRowMatching(testEntries: Set[GridEntry[T]] = this.entries)(testList: List[GridEntry[T]] => Boolean): Boolean = {
+    def loop(toTest: List[List[GridEntry[T]]]): Boolean = {
+      toTest match {
+        case Nil => false
+        case head :: tail =>
+          val rowMatches = testList(head)
+          if (rowMatches) true
+          else loop(tail)
+      }
+    }
+    val rows = orderedRows.map{ case(_, row) => row.toList }
+    loop(rows)
   }
 
   def printGridDebug(gridEntries: List[GridEntry[T]], concat: String = " " ): Unit = {
