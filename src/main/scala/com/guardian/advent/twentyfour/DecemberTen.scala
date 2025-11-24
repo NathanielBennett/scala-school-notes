@@ -52,7 +52,6 @@ trait DecemberTen extends December[Int, IntGrid, Int] with DexemberTenParser {
 
   def endsForTrail(trailHead: GridEntry[Int]): Int
   override def rawSolution: List[Int] = trailHeads.map { th => endsForTrail(th) }
-
 }
 
 trait DecemberTenPartOne extends DecemberTen {

@@ -25,4 +25,6 @@ object Space {
 
 
 case class Start(override val xPosition: Int, override val yPosition: Int, override val value: Char, cardinal: Cardinal) extends EmptyEntry
+case class End(override val xPosition: Int, override val yPosition: Int, override val value: Char) extends EmptyEntry
+
 

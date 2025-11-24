@@ -256,7 +256,7 @@ trait Grid[T] extends Directions with SolutionHelpers {
       y =>
         val rowEntries = entries.filter(_.yPosition == y).toList.sortBy(_.xPosition)
         val row = rowEntries.map{ t =>
-           if ( gridEntries.contains(t)) "0"
+           if ( gridEntries.contains(t)) "X"
            else t.value.toString
         }.mkString(concat)
         println(row)
