@@ -62,6 +62,8 @@ trait MultiLineParser[T, U <: AbstractSeq[T]] extends AdventOfCodeParser[T, U] {
   }
 }
 
+
+
 trait AdventOfCodeInstructionsParser[T, U <: AbstractSeq[T], V, W <: AbstractSeq[V]] extends RawInputProvider[(U, W)] {
 
   def inputParser: AdventOfCodeParser[T,U]
@@ -122,6 +124,16 @@ trait AdventOfCodeGridParser[T, GRID <: Grid[T]] extends RawInputProvider[GRID] 
           }
       }
     gridMaker(s.toSet)
+  }
+}
+
+trait AdventOfCodeObjectParser[T] extends RawInputProvider[T] {
+
+  def linesToObject(lines: List[String]): T
+
+  override def rawInput: T = {
+    val lines = getLines()
+    linesToObject(lines)
   }
 }
 

@@ -111,6 +111,8 @@ trait SolutionHelpers {
     def allSubtype[B <: A]: Boolean =
       list.forall{ a => Option(a).collectFirst{ case b: B => b }.isDefined }
 
+
+
     def toTuples: List[(A, A)] = {
       def loop(current: List[A], acc: List[(A, A)] = List.empty ): List[(A, A)] = {
         current match {
@@ -121,6 +123,8 @@ trait SolutionHelpers {
       }
       loop(list)
     }
+
+
 
     def dropRightWhile(filter: A => Boolean): List[A] = {
       list.reverse.dropWhile(filter).reverse
