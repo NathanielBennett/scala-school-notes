@@ -1,6 +1,6 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCodeGridParser
+import com.guardian.advent.{AdventOfCodeGridParser, December}
 import com.guardian.advent.grid.{Block, Cardinal, CharGrid, East, EmptyEntry, GridEntry, North, South, Space, Start, West}
 
 import scala.util.Try

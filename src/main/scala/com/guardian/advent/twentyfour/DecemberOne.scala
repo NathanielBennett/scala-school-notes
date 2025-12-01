@@ -1,6 +1,8 @@
 package com.guardian.advent.twentyfour
 
+import com.guardian.advent.December
 import com.guardian.advent.parsers.IntegerTupleParser
+
 import scala.util.Try
 
 trait DecemberOneParser extends IntegerTupleParser {

@@ -31,3 +31,19 @@ trait IntegerTupleParser extends AdventOfCodeParser[(Int, Int), List[(Int, Int)]
     }
   }
 }
+
+trait GenericTupleParser[A, B] extends AdventOfCodeParser[(A, B), List[(A, B)]]  {
+
+  def stringToA(s: String): A
+  def stringToB(s: String): B
+
+  override def sequenceToCollection(seq: Seq[(A, B)]): List[(A, B)] = seq.toList
+
+  protected def listToTuple(list: List[String]): Option[(A, B)] = {
+    list.map(_.trim) match {
+      case head :: next :: _ => Try {
+        ( stringToA(head), stringToB(next ))
+      }.toOption
+    }
+  }
+}

@@ -1,6 +1,6 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCodeGridParser
+import com.guardian.advent.{AdventOfCodeGridParser, December}
 import com.guardian.advent.grid.{Block, Cardinal, CharEntry, CharGrid, East, End, GridEntry, South, Space, Start}
 
 import scala.util.Try
@@ -43,7 +43,7 @@ trait DecemberSixteen[T] extends December[Int, CharGrid, T] with DecembemberSixt
         case _ => true
       }
     }
-
+7
     val (entry, cardinal, currentPoints) = currentStep //implicit
 
     (for {

@@ -1,6 +1,6 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCodeObjectParser
+import com.guardian.advent.{AdventOfCodeObjectParser, December}
 
 import scala.util.Try
 

@@ -249,14 +249,15 @@ trait Grid[T] extends Directions with SolutionHelpers {
     loop(rows)
   }
 
-  def printGridDebug(gridEntries: List[GridEntry[T]], concat: String = " " ): Unit = {
+  def printGridDebug(gridEntries: List[GridEntry[T]], concat: String = " ", container: Option[String] = None ): Unit = {
    // println(gridEntries)
     println()
+    val blob = container.getOrElse("X")
     (0 to maxY).toList.foreach{
       y =>
         val rowEntries = entries.filter(_.yPosition == y).toList.sortBy(_.xPosition)
         val row = rowEntries.map{ t =>
-           if ( gridEntries.contains(t)) "X"
+           if ( gridEntries.contains(t)) blob
            else t.value.toString
         }.mkString(concat)
         println(row)

@@ -2,7 +2,6 @@ package com.guardian.advent
 
 import com.guardian.advent.grid.{Directions, Grid, GridEntry}
 import com.guardian.advent.parsers.StringParser
-import com.guardian.advent.twentyfour.RawInputProvider
 
 import scala.collection.AbstractSeq
 import scala.io.Source

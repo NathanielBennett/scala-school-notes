@@ -2,7 +2,7 @@ package com.guardian.advent.twentyfour
 
 import com.guardian.advent.grid.{CharEntry, CharGrid, Direction, GridEntry}
 import com.guardian.advent.twentyfour.DecemberFourPartOneSolution.Cross
-import com.guardian.advent.AdventOfCodeGridParser
+import com.guardian.advent.{AdventOfCodeGridParser, December}
 
 trait DecemberFourParser extends AdventOfCodeGridParser[Char, CharGrid] {
   override def entryParser(xPos: Int, yPos: Int, char: Char):  Option[GridEntry[Char]] = Some(CharEntry(xPos, yPos, char))

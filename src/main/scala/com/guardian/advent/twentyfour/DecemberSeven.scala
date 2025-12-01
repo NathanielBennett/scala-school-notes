@@ -1,6 +1,6 @@
 package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCodeParser
+import com.guardian.advent.{AdventOfCodeParser, December}
 
 import scala.collection.{AbstractSeq, GenMap}
 import scala.util.Try

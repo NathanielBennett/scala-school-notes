@@ -1,6 +1,6 @@
  package com.guardian.advent.twentyfour
 
-import com.guardian.advent.AdventOfCodeInstructionsParser
+import com.guardian.advent.{AdventOfCodeInstructionsParser, December}
 import com.guardian.advent.parsers.{IntegerListParser, IntegerTupleParser}
 
 import scala.collection.{LinearSeq, immutable}

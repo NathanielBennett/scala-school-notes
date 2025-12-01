@@ -1,7 +1,7 @@
 package com.guardian.advent.twentyfour
 
 
-import com.guardian.advent.{AdventOfCodeGridParser, AdventOfCodeParser, GridComboParser}
+import com.guardian.advent.{AdventOfCodeGridParser, AdventOfCodeParser, December, GridComboParser}
 import com.guardian.advent.grid.{Block, Cardinal, CharGrid, East, GridEntry, MovableBlock, North, South, Space, West}
 import com.guardian.advent.twentyfour.DecemberFifteenPartTwoTest.expandGrid
 
