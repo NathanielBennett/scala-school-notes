@@ -47,3 +47,15 @@ trait GenericTupleParser[A, B] extends AdventOfCodeParser[(A, B), List[(A, B)]] 
     }
   }
 }
+
+trait GenericSingleLineTupleParser[A, B] extends GenericTupleParser[A, B]  {
+
+  def separate(string: String): List[String]
+
+  override def rawInput: List[(A, B)] = {
+    val rawLines = getLines().mkString
+    val splitLines = separate(rawLines)
+    parseLinesFromResource(splitLines)
+  }
+}
+

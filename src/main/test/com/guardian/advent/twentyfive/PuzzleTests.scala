@@ -19,6 +19,13 @@ class PuzzleTests extends AnyFlatSpec with should.Matchers {
     )
   }
 
+  "day two" should "return the correct values" in new TestRunner[Long, List[(Long, Long)], Long] {
+    override def testsAndExpected: List[(DecemberTwo, Long)] = List(
+      (DecemberTwoPartOneTest, 1227775554L),
+      (DecemberTwoPartOneSolution, 19128774598L)
+    )
+  }
+
   trait TestRunner[A, B, C] {
 
     def testsAndExpected: List[(DecemberTwentyFive[A,B,C], A)]
