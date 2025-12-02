@@ -23,6 +23,7 @@ trait DecemberTwo extends DecemberTwentyFive[Long, List[(Long, Long)], Long] wit
   override def day: Int = 2
 
   override def solver: Solver[Long, Long] = listTotalSolver(0L)
+  def isRepitition(testId: String): Boolean
 
   override def rawSolution: List[Long] = {
     for {
@@ -31,8 +32,11 @@ trait DecemberTwo extends DecemberTwentyFive[Long, List[(Long, Long)], Long] wit
       if isRepitition(testIdL.toString)
     } yield testIdL
   }
+}
 
-  protected def isRepitition(testId: String): Boolean = {
+trait DecemberTwoPartOne extends DecemberTwo {
+
+  override def isRepitition(testId: String): Boolean = {
     val length = testId.length
     if ( length % 2 == 1) false
     else {
@@ -43,7 +47,25 @@ trait DecemberTwo extends DecemberTwentyFive[Long, List[(Long, Long)], Long] wit
   }
 }
 
-trait DecemberTwoPartOne extends DecemberTwo
-
 object DecemberTwoPartOneTest extends DecemberTwoPartOne with PuzzleTest
 object DecemberTwoPartOneSolution extends DecemberTwoPartOne with PuzzleSolution
+
+trait DecemberTwoPartTwo extends DecemberTwo {
+
+  override def isRepitition(testId: String): Boolean = {
+
+     val halfLen = testId.length / 2
+
+     def loop(groupSize: Int = 1): Boolean = {
+       if (groupSize > halfLen) false
+       else {
+         val repeatSet = testId.grouped(groupSize).toSet
+         repeatSet.size == 1 || loop(groupSize + 1)
+       }
+     }
+     loop()
+  }
+}
+
+object DecemberTwoPartTwoTest extends DecemberTwoPartTwo with PuzzleTest
+object DecemberTwoPartTwoSolution extends DecemberTwoPartTwo with PuzzleSolution

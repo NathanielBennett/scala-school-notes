@@ -1,1 +1,1 @@
-Math.abs(401 - 645)
+val l = 1212121212.toString.grouped(2).toSet
