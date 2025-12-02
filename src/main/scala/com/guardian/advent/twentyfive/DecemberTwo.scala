@@ -10,7 +10,6 @@ trait DecemberTwpParser extends GenericSingleLineTupleParser[Long, Long] {
 
   override def stringToA(s: String): Long = toLong(s)
   override def stringToB(s: String): Long = toLong(s)
-
   override def separate(string: String): List[String] = string.split(",").toList
 
   override def lineParser(line: String): Option[(Long, Long)] = {
