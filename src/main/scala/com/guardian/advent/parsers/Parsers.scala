@@ -5,6 +5,21 @@ import com.guardian.advent.AdventOfCodeParser
 import scala.collection.AbstractSeq
 import scala.util.Try
 
+trait SingleValueParser[T] extends AdventOfCodeParser[T, List[T]] {
+
+  def parseValue(line: String): Option[T]
+
+  override def sequenceToCollection(seq: Seq[T]): List[T] = seq.toList
+
+  override def lineParser(line: String): Option[T] = parseValue(line)
+}
+
+trait IntegerParser extends AdventOfCodeParser[Int, List[Int]] {
+  override def sequenceToCollection(seq: Seq[Int]): List[Int] = seq.toList
+
+  override def lineParser(line: String): Option[Int] = Try{ line.toInt }.toOption
+}
+
 trait IntegerListParser extends AdventOfCodeParser[List[Int], List[List[Int]]]  {
 
   def separator = ""

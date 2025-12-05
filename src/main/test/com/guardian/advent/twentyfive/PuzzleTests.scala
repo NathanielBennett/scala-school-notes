@@ -54,11 +54,28 @@ class PuzzleTests extends AnyFlatSpec with should.Matchers {
     override def testsAndExpected: List[(DecemberTwentyFive[Int, CharGrid, Int], Int)] = List(
       (DecemberFourPartOneTest, 13),
       (DecemberFourPartOneSolution, 1480),
-       (DecemberFourPartTwoTest, 43),
-       (DecemberFourPartTwoSolution, 8899)
+      (DecemberFourPartTwoTest, 43),
+      (DecemberFourPartTwoSolution, 8899)
     )
 
     this.run()
+  }
+
+  "Day 5" should "return the correct values" in {
+
+    new TestRunner[Int, (List[(Long, Long)], List[Long]), Long] {
+      override def testsAndExpected: List[(DecemberTwentyFive[Int, (List[(Long, Long)], List[Long]), Long], Int)] = List(
+        (DecemberFivePartOneTest, 3),
+        (DecemberFivePartOneSolution, 840),
+      )
+    }.run()
+
+    new TestRunner[Long, (List[(Long, Long)], List[Long]), Long] {
+      override def testsAndExpected: List[(DecemberTwentyFive[Long, (List[(Long, Long)], List[Long]), Long], Long)] = List(
+        (DecemberFivePartTwoTest, 14L),
+        (DecemberFivePartTwoSolution, 359913027576322L)
+      )
+    }.run()
   }
 
   trait TestRunner[A, B, C] {
