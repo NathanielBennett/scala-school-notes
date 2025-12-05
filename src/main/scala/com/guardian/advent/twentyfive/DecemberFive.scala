@@ -53,7 +53,7 @@ trait DecemberFivePartOne extends DecemberFive[Int] {
   private def isFresh(ranges: List[(Long, Long)], ingredient: Long) : Boolean = {0
     ranges match {
       case Nil => false
-      case head :: tail =>1
+      case head :: tail =>
         head.contains(ingredient) || isFresh(tail, ingredient)
     }
   }
