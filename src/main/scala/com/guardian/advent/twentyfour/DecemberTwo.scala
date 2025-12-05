@@ -7,9 +7,7 @@ import scala.util.Try
 
 trait DecemberTwoParser extends IntegerListParser  {
 
-  override def lineParser(line: String): Option[List[Int]] = Try {
-    line.split(" ").map(_.toInt).toList
-  }.toOption
+  override def separator: String = " "
 }
 
 trait DecemberTwo extends December[Int, List[List[Int]], List[Int]] with DecemberTwoParser {

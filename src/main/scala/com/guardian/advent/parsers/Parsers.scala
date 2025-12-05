@@ -7,12 +7,19 @@ import scala.util.Try
 
 trait IntegerListParser extends AdventOfCodeParser[List[Int], List[List[Int]]]  {
 
+  def separator = ""
+
   override def sequenceToCollection(seq: Seq[List[Int]]): List[List[Int]] = seq.toList
 
   protected def listToIntList(list: List[String]): Option[List[Int]] = Try {
     list.map(_.trim).map{ s => s.toInt }
   }.toOption
+
+  override def lineParser(line: String): Option[List[Int]] = Try {
+    line.split(separator).map(_.toInt).toList
+  }.toOption
 }
+
 
 trait StringParser extends AdventOfCodeParser[String, List[String]] {
   override def lineParser(line: String): Option[String] = Some(line)

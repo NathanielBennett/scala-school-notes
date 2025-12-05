@@ -220,7 +220,6 @@ trait Grid[T] extends Directions with SolutionHelpers {
   def findEntry(xPosition: Int, yPosition: Int): Option[GridEntry[T]] = entries.find { entry => entry.xPosition == xPosition && entry.yPosition == yPosition }
   def findEntry(entryValue: T): Option[GridEntry[T]] = entries.find{ entry => entry.value == entryValue}
 
-
   def matchingEntries(filter: Set[GridEntry[T]] => Set[GridEntry[T]]): Set[GridEntry[T]] = filter(entries)
 
   def printGrid(separator: Option[String] = None) : Unit = {
